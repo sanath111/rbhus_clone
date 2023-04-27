@@ -144,7 +144,7 @@
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string>a&amp;ll</string>
+           <string>all</string>
           </property>
          </widget>
         </item>
@@ -200,7 +200,7 @@
          </sizepolicy>
         </property>
         <property name="contextMenuPolicy">
-         <enum>Qt::CustomContextMenu</enum>
+         <enum>Qt::DefaultContextMenu</enum>
         </property>
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAsNeeded</enum>

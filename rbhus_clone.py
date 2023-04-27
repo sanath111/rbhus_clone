@@ -26,6 +26,8 @@ root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
 new_project = os.path.join(projDir, "new_project.py")
 
+# currProj = ""
+# currAsset = ""
 processes = []
 
 class rbhusClone():
@@ -64,16 +66,12 @@ class rbhusClone():
         self.main_ui.listWidgetProjs.clear()
         queryProj = "select projName from projects"
         projects = self.db.execute(queryProj,dictionary=True)
-        # maxlen = 0
         if projects:
             for x in projects:
                 item = QtWidgets.QListWidgetItem()
                 item.setText(x['projName'])
-                # mylen = len(x['projName'])
-                # if(mylen >= maxlen):
-                #     maxlen = mylen
+                
                 self.main_ui.listWidgetProjs.addItem(item)
-            # return(maxlen)
 
     def updateAssetsList(self):
         self.main_ui.listWidgetAssets.clear()
@@ -81,26 +79,48 @@ class rbhusClone():
         if selected_item is not None:
             text = selected_item.text()
             debug.info(text)
-            queryAss = "select * from assets where projName='{0}'".format(text)
+            queryAss = "select * from assets where projName='{0}' order by assetName".format(text)
             assets = self.db.execute(queryAss,dictionary=True)
             debug.info(assets)
             for x in assets:
-                # item = QtWidgets.QListWidgetItem()
                 item_widget = assetDetailRowClass()
-                # item.setSizeHint(item_widget.sizeHint())
                 item_widget.labelUser.setText(x['assignedUser'])
-                item_widget.labelAsset.setText(x['assetName'])
-                # item.setWidget(item_widget)
-                # item.setText(x['assetName']+" "+x['assignedUser'])
-                # self.main_ui.listWidgetAssets.addItem(item)
+                item_widget.labelAsset.setText(x['projName']+" : "+x['assetName'])
 
-
+                item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.assContextMenu(ui,pos=x))
 
                 item = QListWidgetItemSort()
                 item.setSizeHint(item_widget.sizeHint())
 
                 self.main_ui.listWidgetAssets.addItem(item)
                 self.main_ui.listWidgetAssets.setItemWidget(item, item_widget)
+            
+            # self.main_ui.listWidgetAssets.itemClicked.connect(lambda x : self.assClicked())
+            # self.main_ui.listWidgetAssets.customContextMenuRequested.connect(self.assContextMenu)
+    
+    def assContextMenu(self, ui, pos):
+        debug.info("Asset clicked")
+        # selected_item = self.main_ui.listWidgetAssets.currentItem()
+        # if selected_item is not None:
+        #     itemWidget = self.main_ui.listWidgetAssets.itemWidget(selected_item)
+        #     text = itemWidget.labelAsset.text()
+        #     debug.info(text)
+
+        menu = QtWidgets.QMenu()
+        openAction = menu.addAction("Open")
+        toolsAction = menu.addAction("Tools")
+
+        # action = menu.exec_(self.main_ui.listWidgetAssets.mapToGlobal(pos))
+        action = menu.exec_(ui.mapToGlobal(pos))
+
+        if (action == openAction):
+            # self.tab_open_doubleclick()
+            debug.info("Open clicked")
+            debug.info(ui.labelAsset.text())
+        if (action == toolsAction):
+            debug.info("Tools clicked")
+            # currTabIndex = self.main_ui.tabWidget.currentIndex()
+            # self.close_current_tab(currTabIndex)
 
     def newProject(self):
         debug.info("Opening new project")
@@ -119,7 +139,6 @@ class rbhusClone():
     def enableNewProjButt(self):
         self.updateProjectsList()
         self.main_ui.newProjectButt.setEnabled(True)
-
     
     def read_out(self):
         if processes:

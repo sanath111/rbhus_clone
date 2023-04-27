@@ -10,12 +10,12 @@ layout = QVBoxLayout(window)
 
 # create the file system model and set its root path
 model = QFileSystemModel()
-model.setRootPath('')
+model.setRootPath('/home/sanath.shetty/Documents/rbhus_clone_root/testProj_01/')
 
 # create the tree view and set its model
 tree = QTreeView()
 tree.setModel(model)
-tree.setRootIndex(model.index(''))
+tree.setRootIndex(model.index('/home/sanath.shetty/Documents/rbhus_clone_root/testProj_01/'))
 
 # add the tree view to the main window
 layout.addWidget(tree)
