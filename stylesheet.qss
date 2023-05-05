@@ -1,0 +1,254 @@
+
+QWidget {
+    font-size: 14px;
+}
+
+QPushButton {
+    padding: 2px;
+    border-radius: 4px;
+    border: 1px solid;
+}
+
+QPushButton:hover {
+    background-color: #d9d9d9;
+}
+
+QLineEdit {
+    padding: 2px;
+    border-radius: 4px;
+    border: 1px solid;
+}
+
+QComboBox {
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::drop-down {
+    width: 26px;
+    border-left: 1px solid;
+}
+
+QComboBox::down-arrow {   
+    image: url(down_arrow.svg);
+    width: 14px;
+    height: 14px;
+}
+
+QCheckBox::indicator {
+    border: 1px solid;
+    border-radius: 4px;
+}
+
+QCheckBox::indicator:unchecked {
+    background-color: #ffffff;
+}
+
+QCheckBox::indicator:checked {
+    background-color: green;
+}
+
+QRadioButton::indicator {
+    border: 1px solid;
+    border-radius: 4px;
+}
+
+QRadioButton::indicator:unchecked {
+    background-color: #ffffff;
+}
+
+QRadioButton::indicator:checked {
+    background-color: green;
+}
+
+QRadioButton::indicator:disabled {
+    background-color: transparent;
+    border: 1px solid grey;
+}
+
+QListWidget {
+    background-color: #ffffff;
+    /* color: #222222; */
+    border: 1px solid;
+    border-radius: 4px;
+}
+
+QListWidget::item:selected {
+    background-color: #F3A289;
+    border-radius: 4px;
+}
+
+QFrame {
+    border: 1px solid;
+    border-radius: 4px;
+}
+
+QLabel {
+    border: 0px;
+}
+
+QGroupBox {
+    font-weight: bold;
+    border: 1px solid grey;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+
+/* QListWidget::item {
+    padding: 5px;
+} */
+
+/* QListWidget::item:hover {
+    background-color: #d9d9d9;
+} */
+
+
+
+/* QListWidget::item:selected:active {
+    background-color: #005c99;
+} */
+
+/* QListWidget::item:selected:!active {
+    background-color: #007acc;
+} */
+
+/* QGroupBox {
+    border-radius: 4px;
+} */
+
+/*
+QWidget {
+    background-color: #f5f5f5;
+    color: #222222;
+    font-size: 14px;
+}
+QMenuBar {
+    background-color: #e6e6e6;
+    color: #222222;
+}
+
+QMenu {
+    background-color: #e6e6e6;
+    color: #222222;
+}
+
+QMenuBar::item {
+    spacing: 3px;
+    padding: 3px 10px;
+    background-color: #e6e6e6;
+    color: #222222;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background-color: #d9d9d9;
+    color: #222222;
+}
+
+QMenu::item:selected {
+    background-color: #d9d9d9;
+    color: #222222;
+} */
+
+/* QPushButton {
+    background-color: #e6e6e6;
+    color: #222222;
+    padding: 3px 15px;
+    border-radius: 4px;
+    border: none;
+}
+
+QPushButton:hover {
+    background-color: #d9d9d9;
+}
+
+QLineEdit {
+    background-color: #ffffff;
+    color: #222222;
+    padding: 3px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+} */
+
+
+/* Combo Box */
+/* QComboBox {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 3px;
+    color: #222222;
+    background-color: #ffffff;
+    selection-background-color: #007acc;
+    selection-color: #ffffff;
+}
+
+QComboBox:on {
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox QAbstractItemView {
+    border-radius: 2px;
+    border: 1px solid #76797C;
+}
+
+QComboBox::drop-down {
+    width: 30px;
+    border-left: 1px solid #d9d9d9;
+}
+
+QComboBox::drop-down:pressed {
+    background-color: #d9d9d9;
+}
+ */
+
+
+/* Check Box */
+/* QCheckBox {
+    spacing: 4px;
+}
+
+QCheckBox::indicator {
+    width: 10px;
+    height: 10px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 2px solid #d9d9d9;
+    background-color: #ffffff;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #d9d9d9;
+    border: 2px solid #d9d9d9;
+} */
+
+/* Radio Button */
+/* QRadioButton {
+    spacing: 4px;
+}
+
+QRadioButton::indicator {
+    width: 10px;
+    height: 10px;
+}
+
+QRadioButton::indicator:unchecked {
+    border: 2px solid #d9d9d9;
+    background-color: #ffffff;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #d9d9d9;
+    border: 2px solid #d9d9d9;
+} */

@@ -1,0 +1,3 @@
+Remove the user argument
+Install mysql, git, pyqt5, python3
+change rsync with suitable alternative for windows
