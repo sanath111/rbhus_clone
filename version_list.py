@@ -159,12 +159,7 @@ class versionList():
         try:
             self.main_ui.filesList.clear()
             subprocess.run(["git", "add", "."], cwd=self.folder)
-            # subprocess.run(["git", "commit", "-m", "new_commit"], cwd=self.folder)
-            # commitCmd = "git commit -m 'new_commit' cwd={0}".format(self.folder)
-            # debug.info(commitCmd)
-            # p = subprocess.Popen(shlex.split(commitCmd),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,bufsize=1, universal_newlines=True)
             p = subprocess.Popen(["git", "commit", "-m", "new_commit"], cwd=self.folder , stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-            # for line in iter(p.stdout.readline, b''):
             for line in p.stdout:
                 debug.info(line)
                 if "nothing to commit" in line:

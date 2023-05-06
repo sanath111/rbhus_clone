@@ -80,7 +80,7 @@ QListWidget::item:selected {
 }
 
 QFrame {
-    border: 1px solid;
+    border: 1px solid #F3A289;
     border-radius: 4px;
 }
 
@@ -90,7 +90,7 @@ QLabel {
 
 QGroupBox {
     font-weight: bold;
-    border: 1px solid grey;
+    border: 1px solid #a8a8a8;
     border-radius: 4px;
     margin-top: 10px;
     margin-bottom: 10px;

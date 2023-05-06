@@ -29,6 +29,7 @@ root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 new_project = os.path.join(projDir, "new_project.py")
 admin_tools = os.path.join(projDir, "admin_tools.py")
 version_list = os.path.join(projDir, "version_list.py")
+edit_asset = os.path.join(projDir, "edit_asset.py")
 
 processes = []
 
@@ -135,9 +136,11 @@ class rbhusClone():
         #     debug.info(text)
 
         menu = QtWidgets.QMenu()
+        menuTools = QtWidgets.QMenu()
+        menuTools.setTitle("Tools")
         openAction = menu.addAction("Open")
-        toolsAction = menu.addAction("Tools")
-
+        editAction = menuTools.addAction("Edit")
+        menu.addMenu(menuTools)
         # action = menu.exec_(self.main_ui.listWidgetAssets.mapToGlobal(pos))
         action = menu.exec_(ui.mapToGlobal(pos))
 
@@ -150,10 +153,11 @@ class rbhusClone():
             debug.info(filepath)
             self.versionList(filepath)
 
-        if (action == toolsAction):
-            debug.info("Tools clicked")
-            # currTabIndex = self.main_ui.tabWidget.currentIndex()
-            # self.close_current_tab(currTabIndex)
+        if (action == editAction):
+            debug.info("Edit clicked")
+            ass_name = ui.labelAsset.text()
+            debug.info(ass_name)
+            self.editAsset(ass_name)
 
     def versionList(self, filepath):
         debug.info("Opening version list")
@@ -166,6 +170,17 @@ class rbhusClone():
         # p.finished.connect(self.enableNewProjButt)
         # p.start(sys.executable, version_list.split())
         p.start(sys.executable + " " + version_list + " --filepath " + filepath)
+
+    def editAsset(self, ass_name):
+        debug.info("Opening edit asset")
+        p = QProcess(parent=self.main_ui)
+        processes.append(p)
+        debug.info(processes)
+        p.readyReadStandardOutput.connect(self.read_out)
+        p.readyReadStandardError.connect(self.read_err)
+        # p.start(sys.executable, edit_asset.split())
+        p.start(sys.executable + " " + edit_asset + " --asset " + "\""+ass_name+"\"")
+
 
     def newProject(self):
         debug.info("Opening new project")

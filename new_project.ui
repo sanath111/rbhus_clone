@@ -24,6 +24,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QCheckBox" name="draftBox">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="text">
            <string>draft</string>
           </property>
@@ -31,6 +34,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="correctionsBox">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="text">
            <string>corrections</string>
           </property>
@@ -38,6 +44,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="finalBox">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="text">
            <string>final</string>
           </property>
