@@ -100,8 +100,6 @@ class versionList():
             debug.info(files)
             
             for file in files:
-                # list_item = QListWidgetItem(file, self.main_ui.filesList)
-                # self.main_ui.filesList.addItem(list_item)
                 if file.split('.')[-1] in text_formats:
                     file_icon = QtGui.QPixmap(os.path.join(projDir, "text_icon.svg"))
                 elif file.split('.')[-1] in audio_formats:
