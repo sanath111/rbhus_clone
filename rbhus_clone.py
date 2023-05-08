@@ -176,6 +176,7 @@ class rbhusClone():
 
         menu = QtWidgets.QMenu()
         menuTools = QtWidgets.QMenu()
+
         menuTools.setTitle("Tools")
         openAction = menu.addAction("Open")
         editAction = menuTools.addAction("Edit")
@@ -274,6 +275,9 @@ class assetDetailRowClass(QtWidgets.QWidget):
     super(assetDetailRowClass, self).__init__(parent)
     uic.loadUi(asset_details_ui,baseinstance=self)
 
+    # sS = open(os.path.join(projDir, "stylesheet.qss"), "r")
+    # details_ui.setStyleSheet(sS.read())
+    # sS.close()
 
 # class FSM(QtWidgets.QFileSystemModel):
 #     def __init__(self,**kwargs):

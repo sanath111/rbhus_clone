@@ -22,13 +22,15 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir,  "ui_files", "new_project.ui")
+main_ui_file = os.path.join(projDir,  "ui_files", "new_project_new.ui")
 
 root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 template_folder = root_folder+"template/"
 
 text_formats = ["docx"]
 audio_formats = ["*.mp3"]
+
+asset_and_user = {}
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
@@ -40,10 +42,11 @@ class newProject():
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("NEW PROJECT")
 
-        self.setUsers()
-        self.main_ui.draftBox.stateChanged.connect(lambda x : self.updateAssetsBox())
-        self.main_ui.correctionsBox.stateChanged.connect(lambda x : self.updateAssetsBox())
-        self.main_ui.finalBox.stateChanged.connect(lambda x : self.updateAssetsBox())
+        self.setAssAndUser()
+        # self.setUsers()
+        # self.main_ui.draftBox.stateChanged.connect(lambda x : self.updateAssetsBox())
+        # self.main_ui.correctionsBox.stateChanged.connect(lambda x : self.updateAssetsBox())
+        # self.main_ui.finalBox.stateChanged.connect(lambda x : self.updateAssetsBox())
         self.main_ui.selectAudioButt.clicked.connect(lambda x : self.showFileDialog())
         self.main_ui.createButt.clicked.connect(lambda x : self.createProject())
 
@@ -56,22 +59,62 @@ class newProject():
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
 
-    def setUsers(self):
+    def setAssAndUser(self):
+        vLayout = QVBoxLayout(self.main_ui.assetFrame)
+        
+        queryAssetNames = "select * from asset_names"
+        aN = self.db.execute(queryAssetNames,dictionary=True)
+        asset_names = [x['name'] for x in aN]
+        debug.info(asset_names)
+
         queryUsers = "select * from users"
         assets = self.db.execute(queryUsers,dictionary=True)
         users = [x['name'] for x in assets]
         debug.info(users)
-        self.main_ui.userBox.addItems(users)
 
-    def updateAssetsBox(self):
-        text = ''
-        if self.main_ui.draftBox.isChecked():
-            text += self.main_ui.draftBox.text() + ','
-        if self.main_ui.correctionsBox.isChecked():
-            text += self.main_ui.correctionsBox.text() + ','
-        if self.main_ui.finalBox.isChecked():
-            text += self.main_ui.finalBox.text() + ','
-        self.main_ui.assetsBox.setText(text.strip())
+        for ass_name in asset_names:
+            frame = QFrame()
+            hlayout = QHBoxLayout(frame)
+            chBox = QCheckBox(ass_name, frame)
+            coBox = QComboBox(frame)
+            coBox.addItems(users)
+            chBox.stateChanged.connect(lambda x, chBox=chBox, coBox=coBox: self.updateAssAndUserDict(chBox, coBox))
+            coBox.currentIndexChanged.connect(lambda x, chBox=chBox, coBox=coBox: self.updateAssAndUserDict(chBox, coBox))
+            hlayout.addWidget(chBox)
+            hlayout.addWidget(coBox)
+
+            frame.setLayout(hlayout)
+            vLayout.addWidget(frame)
+
+        self.main_ui.assetFrame.setLayout(vLayout)
+
+    def updateAssAndUserDict(self, chBox, coBox):
+        if chBox.isChecked():
+            asset_and_user[chBox.text()] = coBox.currentText()
+        else:
+            try:
+                asset_and_user.pop(chBox.text())
+            except:
+                debug.info(str(sys.exc_info()))
+        
+        debug.info(asset_and_user)
+
+    # def setUsers(self):
+    #     queryUsers = "select * from users"
+    #     assets = self.db.execute(queryUsers,dictionary=True)
+    #     users = [x['name'] for x in assets]
+    #     debug.info(users)
+    #     self.main_ui.userBox.addItems(users)
+
+    # def updateAssetsBox(self):
+    #     text = ''
+    #     if self.main_ui.draftBox.isChecked():
+    #         text += self.main_ui.draftBox.text() + ','
+    #     if self.main_ui.correctionsBox.isChecked():
+    #         text += self.main_ui.correctionsBox.text() + ','
+    #     if self.main_ui.finalBox.isChecked():
+    #         text += self.main_ui.finalBox.text() + ','
+    #     self.main_ui.assetsBox.setText(text.strip())
 
     def showFileDialog(self):
         file_dialog = QFileDialog()
@@ -87,57 +130,120 @@ class newProject():
         projName = self.main_ui.nameBox.text()
         debug.info(projName)
         if projName:
-            assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
-            debug.info(assetNames)
-            if assetNames:
-                audio_file = self.main_ui.audioFileBox.text()
-                debug.info(audio_file)
-                if audio_file:
-                    user = self.main_ui.userBox.currentText()
-                    debug.info(user)
-                    if user:
-                        try:
-                            projUpdateQuery = "insert into projects (projName) values (\"{0}\") ".format(projName)
-                            updateProjList = self.db.execute(projUpdateQuery)
-                            if updateProjList == 1:
-                                debug.info("Updated proj list")
-                                for ass in assetNames:
-                                    assID = str(uuid.uuid4())
-                                    debug.info(assID)
-                                    folder_path = root_folder+projName+os.sep+ass
-                                    debug.info(folder_path)
-                                    createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, ass, folder_path, user)
-                                    debug.info(createAssetQuery)
-                                    updateAssList = self.db.execute(createAssetQuery)
-                                    if updateAssList == 1:
-                                        os.makedirs(folder_path, exist_ok=True)
-                                        if ass == "draft":
-                                            pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
-                                            pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
-                                            subprocess.run(shlex.split(pasteAudioCmd))
-                                            subprocess.run(shlex.split(pasteDocCmd))
-                                            subprocess.run(["git", "init"], cwd=folder_path)
-                                            subprocess.run(["git", "add", "."], cwd=folder_path)
-                                            subprocess.run(["git", "commit", "-m", "first_commit"], cwd=folder_path)
-                                self.main_ui.close()
-                        except:
-                            err_mess = str(sys.exc_info())
-                            debug.info(err_mess)
-                            if "Duplicate entry" in err_mess:
-                                debug.info("Duplicate entry")
-                                self.main_ui.messageLabel.setText("Project already exists")
-                    else:
-                        debug.info("No user selected")
-                        self.main_ui.messageLabel.setText("Please select an user")
+            # assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
+            # debug.info(assetNames)
+            # if assetNames:
+            audio_file = self.main_ui.audioFileBox.text()
+            debug.info(audio_file)
+            if audio_file:
+                # user = self.main_ui.userBox.currentText()
+                # debug.info(user)
+                # if user:
+                if asset_and_user:
+                    try:
+                        projUpdateQuery = "insert into projects (projName) values (\"{0}\") ".format(projName)
+                        updateProjList = self.db.execute(projUpdateQuery)
+                        if updateProjList == 1:
+                            debug.info("Updated proj list")
+                        for aNU in asset_and_user:
+                            asset = aNU
+                            user = asset_and_user[aNU]
+                            debug.info(asset)
+                            debug.info(user)
+                            # for ass in assetNames:
+                            assID = str(uuid.uuid4())
+                            debug.info(assID)
+                            folder_path = root_folder+projName+os.sep+asset
+                            debug.info(folder_path)
+                            createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, asset, folder_path, user)
+                            debug.info(createAssetQuery)
+                            updateAssList = self.db.execute(createAssetQuery)
+                            if updateAssList == 1:
+                                os.makedirs(folder_path, exist_ok=True)
+                                if asset == "draft":
+                                    pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
+                                    pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
+                                    subprocess.run(shlex.split(pasteAudioCmd))
+                                    subprocess.run(shlex.split(pasteDocCmd))
+                                    subprocess.run(["git", "init"], cwd=folder_path)
+                                    subprocess.run(["git", "add", "."], cwd=folder_path)
+                                    subprocess.run(["git", "commit", "-m", "first_commit"], cwd=folder_path)
+                        self.main_ui.close()
+                    except:
+                        err_mess = str(sys.exc_info())
+                        debug.info(err_mess)
+                        if "Duplicate entry" in err_mess:
+                            debug.info("Duplicate entry")
+                            self.main_ui.messageLabel.setText("Project already exists")
                 else:
-                    debug.info("No audio file selected")
-                    self.main_ui.messageLabel.setText("Please select an audio file")
+                    debug.info("No asset selected")
+                    self.main_ui.messageLabel.setText("Please select an asset")
             else:
-                debug.info("No asset selected")
-                self.main_ui.messageLabel.setText("Please select an asset")
+                debug.info("No audio file selected")
+                self.main_ui.messageLabel.setText("Please select an audio file")
+            # else:
+            #     debug.info("No asset selected")
+            #     self.main_ui.messageLabel.setText("Please select an asset")
         else:
             debug.info("No Project name given")
             self.main_ui.messageLabel.setText("Please provide a project name")
+
+
+    # def createProject(self):
+    #     projName = self.main_ui.nameBox.text()
+    #     debug.info(projName)
+    #     if projName:
+    #         assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
+    #         debug.info(assetNames)
+    #         if assetNames:
+    #             audio_file = self.main_ui.audioFileBox.text()
+    #             debug.info(audio_file)
+    #             if audio_file:
+    #                 user = self.main_ui.userBox.currentText()
+    #                 debug.info(user)
+    #                 if user:
+    #                     try:
+    #                         projUpdateQuery = "insert into projects (projName) values (\"{0}\") ".format(projName)
+    #                         updateProjList = self.db.execute(projUpdateQuery)
+    #                         if updateProjList == 1:
+    #                             debug.info("Updated proj list")
+    #                             for ass in assetNames:
+    #                                 assID = str(uuid.uuid4())
+    #                                 debug.info(assID)
+    #                                 folder_path = root_folder+projName+os.sep+ass
+    #                                 debug.info(folder_path)
+    #                                 createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, ass, folder_path, user)
+    #                                 debug.info(createAssetQuery)
+    #                                 updateAssList = self.db.execute(createAssetQuery)
+    #                                 if updateAssList == 1:
+    #                                     os.makedirs(folder_path, exist_ok=True)
+    #                                     if ass == "draft":
+    #                                         pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
+    #                                         pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
+    #                                         subprocess.run(shlex.split(pasteAudioCmd))
+    #                                         subprocess.run(shlex.split(pasteDocCmd))
+    #                                         subprocess.run(["git", "init"], cwd=folder_path)
+    #                                         subprocess.run(["git", "add", "."], cwd=folder_path)
+    #                                         subprocess.run(["git", "commit", "-m", "first_commit"], cwd=folder_path)
+    #                             self.main_ui.close()
+    #                     except:
+    #                         err_mess = str(sys.exc_info())
+    #                         debug.info(err_mess)
+    #                         if "Duplicate entry" in err_mess:
+    #                             debug.info("Duplicate entry")
+    #                             self.main_ui.messageLabel.setText("Project already exists")
+    #                 else:
+    #                     debug.info("No user selected")
+    #                     self.main_ui.messageLabel.setText("Please select an user")
+    #             else:
+    #                 debug.info("No audio file selected")
+    #                 self.main_ui.messageLabel.setText("Please select an audio file")
+    #         else:
+    #             debug.info("No asset selected")
+    #             self.main_ui.messageLabel.setText("Please select an asset")
+    #     else:
+    #         debug.info("No Project name given")
+    #         self.main_ui.messageLabel.setText("Please provide a project name")
 
 
 if __name__ == '__main__':
