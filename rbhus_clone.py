@@ -22,8 +22,8 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir, "rbhus_clone.ui")
-asset_details_ui = os.path.join(projDir,"asset_details_row.ui")
+main_ui_file = os.path.join(projDir, "ui_files", "rbhus_clone.ui")
+asset_details_ui = os.path.join(projDir, "ui_files", "asset_details_row.ui")
 
 root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 

@@ -23,8 +23,8 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir, "version_list.ui")
-file_thumbs_ui = os.path.join(projDir, "file_thumbs.ui")
+main_ui_file = os.path.join(projDir, "ui_files", "version_list.ui")
+file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 
 root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
@@ -108,9 +108,9 @@ class versionList():
             
             for file in files:
                 if file.split('.')[-1] in text_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "text_icon.svg"))
+                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "text_icon.svg"))
                 elif file.split('.')[-1] in audio_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "audio_icon.svg"))
+                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "audio_icon.svg"))
                 item_widget = fileThumbsClass()
                 item_widget.labelFileName.setText(file)
                 item_widget.labelIcon.setPixmap(file_icon)
