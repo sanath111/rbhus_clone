@@ -35,6 +35,7 @@ os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 parser = argparse.ArgumentParser(description="Utility to manage versions")
 parser.add_argument("-f","--filepath",dest="filepath",help="file path")
+parser.add_argument("-a","--asset",dest="asset",help="asset name")
 args = parser.parse_args()
 
 
@@ -46,7 +47,13 @@ class versionList():
         self.main_ui.setWindowTitle("VERSION LIST")
 
         self.folder = args.filepath
+        self.asset = args.asset
+        self.projName = self.asset.split(" : ")[0]
+        self.assetName = self.asset.split(" : ")[1]
         debug.info(self.folder)
+        debug.info(self.asset)
+        debug.info(self.projName)
+        debug.info(self.assetName)
 
         self.loadVersions()
         self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
@@ -55,7 +62,7 @@ class versionList():
         self.main_ui.commitButt.clicked.connect(lambda x : self.commitChanges())
         self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
         
-        # self.main_ui.versionList.customContextMenuRequested.connect(self.show_context_menu)
+        self.main_ui.assetName.setText(self.asset)
         
         #Show Window
         self.main_ui.show()
@@ -171,6 +178,10 @@ class versionList():
 
     def pushChanges(self):
         debug.info("Push clicked")
+        # if self.assetName == "draft":
+            # copyCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
+
+
 
 class fileThumbsClass(QtWidgets.QWidget):
   def __init__(self,parent=None):

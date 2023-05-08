@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QGroupBox" name="versionsGroupBox">
      <property name="maximumSize">
       <size>
@@ -48,7 +48,7 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="1">
     <widget class="QGroupBox" name="filesGroupBox">
      <property name="title">
       <string>Files</string>
@@ -112,7 +112,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="commitButt">
@@ -136,10 +136,26 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <widget class="QLabel" name="messageLabel">
      <property name="text">
       <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="assetName">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Asset : Name</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -8,6 +8,7 @@ import subprocess
 import rbhus_clone_db
 import debug
 import argparse
+import getpass
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -35,7 +36,11 @@ processes = []
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
-### TODO: REMOVE LATER ###
+# user = os.environ['USER']
+# user = getpass.getuser()
+# debug.info(user)
+
+### TODO: REMOVE THIS LATER AND USE USERNAME FROM ABOVE ###
 parser = argparse.ArgumentParser(description="Utility to manage assets")
 parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
@@ -58,6 +63,11 @@ class rbhusClone():
         self.main_ui.radioMineAss.clicked.connect(lambda x : self.updateAssetsList())
         self.main_ui.radioAllAss.clicked.connect(lambda x : self.updateAssetsList())
 
+        self.master_admin = []
+        self.admins = []
+        self.user = args.user
+
+        self.getAdmins()
         self.authorize()
         self.updateProjectsList()
 
@@ -71,20 +81,49 @@ class rbhusClone():
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
 
+    def getAdmins(self):
+        get_master_admin = "SELECT * FROM master_admin"
+        mAU = self.db.execute(get_master_admin, dictionary=True)
+        self.master_admin = [x['name'] for x in mAU]
+        debug.info(self.master_admin)
+
+        get_admins = "SELECT * FROM admins"
+        aU = self.db.execute(get_admins, dictionary=True)
+        self.admins = [x['name'] for x in aU]
+        debug.info(self.admins)
+
     def authorize(self):
-        getAdmins = "SELECT * FROM admins"
-        aU = self.db.execute(getAdmins, dictionary=True)
-        admins = [x['name'] for x in aU]
-        debug.info(admins)
-        user = args.user
+        """
+        Decide who has access to what
+        """
+        # get_master_admin = "SELECT * FROM master_admin"
+        # mAU = self.db.execute(get_master_admin, dictionary=True)
+        # master_admin = [x['name'] for x in mAU]
+        # debug.info(master_admin)
+
+        # get_admins = "SELECT * FROM admins"
+        # aU = self.db.execute(get_admins, dictionary=True)
+        # admins = [x['name'] for x in aU]
+        # debug.info(admins)
+
+        user = self.user
         if user:
             debug.info(user)
-            if user in admins:
-                self.main_ui.adminBox.setEnabled(True)
+            if user in self.master_admin:
                 self.main_ui.radioAllAss.setEnabled(True)
+                self.main_ui.adminBox.setEnabled(True)
+                self.main_ui.newProjectButt.setEnabled(True)
+                self.main_ui.adminToolsButt.setEnabled(True)
+            elif user in self.admins:
+                self.main_ui.radioAllAss.setEnabled(True)
+                self.main_ui.adminBox.setEnabled(True)
+                self.main_ui.newProjectButt.setEnabled(True)
+                self.main_ui.adminToolsButt.setEnabled(False)
             else:
                 self.main_ui.adminBox.setEnabled(False)
                 self.main_ui.radioAllAss.setEnabled(False)
+                self.main_ui.newProjectButt.setEnabled(False)
+                self.main_ui.adminToolsButt.setEnabled(False)
 
     def updateProjectsList(self):
         self.main_ui.listWidgetProjs.clear()
@@ -105,7 +144,7 @@ class rbhusClone():
             debug.info(text)
             queryAss = ""
             if self.main_ui.radioMineAss.isChecked():
-                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by assetName".format(text,args.user)
+                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by assetName".format(text,self.user)
             else:
                 queryAss = "select * from assets where projName='{0}' order by assetName".format(text)
             assets = self.db.execute(queryAss,dictionary=True)
@@ -140,7 +179,8 @@ class rbhusClone():
         menuTools.setTitle("Tools")
         openAction = menu.addAction("Open")
         editAction = menuTools.addAction("Edit")
-        menu.addMenu(menuTools)
+        if self.user in self.admins:
+            menu.addMenu(menuTools)
         # action = menu.exec_(self.main_ui.listWidgetAssets.mapToGlobal(pos))
         action = menu.exec_(ui.mapToGlobal(pos))
 
@@ -151,7 +191,7 @@ class rbhusClone():
             debug.info(assText)
             filepath = root_folder + assText.replace(" : ", "/")
             debug.info(filepath)
-            self.versionList(filepath)
+            self.versionList(filepath, assText)
 
         if (action == editAction):
             debug.info("Edit clicked")
@@ -159,7 +199,7 @@ class rbhusClone():
             debug.info(ass_name)
             self.editAsset(ass_name)
 
-    def versionList(self, filepath):
+    def versionList(self, filepath, ass_name):
         debug.info("Opening version list")
         p = QProcess(parent=self.main_ui)
         processes.append(p)
@@ -169,7 +209,7 @@ class rbhusClone():
         p.readyReadStandardError.connect(self.read_err)
         # p.finished.connect(self.enableNewProjButt)
         # p.start(sys.executable, version_list.split())
-        p.start(sys.executable + " " + version_list + " --filepath " + filepath)
+        p.start(sys.executable + " " + version_list + " --filepath " + filepath + " --asset " + "\""+ass_name+"\"")
 
     def editAsset(self, ass_name):
         debug.info("Opening edit asset")
