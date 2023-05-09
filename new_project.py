@@ -130,6 +130,11 @@ class newProject():
     def createProject(self):
         projName = self.main_ui.nameBox.text()
         debug.info(projName)
+
+        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        debug.info(gitConfigCmd)
+        subprocess.run(gitConfigCmd, shell=True)
+        
         if projName:
             # assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
             # debug.info(assetNames)

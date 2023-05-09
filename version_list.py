@@ -75,11 +75,16 @@ class versionList():
 
     def loadVersions(self):
         self.main_ui.versionList.clear()
+        
+        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        debug.info(gitConfigCmd)
+        subprocess.run(gitConfigCmd, shell=True)
 
         try:
             # commits = subprocess.check_output(["git", "log", "--pretty=oneline"], cwd=self.folder).decode("utf-8").splitlines()
             # commits = subprocess.check_output(["git", "log", "--pretty=format:%h - %cd", "--date=format:%a, %d %b %Y %I:%M %p"], cwd=self.folder).decode("utf-8").splitlines()
             gitLogCmd = "cd {0} & git log --pretty='format:%h - %cd' --date='format:%a, %d %b %Y %I:%M %p' ".format(self.folder)
+            debug.info(gitLogCmd)
             commits = subprocess.check_output(gitLogCmd).decode("utf-8").splitlines()
             debug.info(commits)
 
