@@ -24,8 +24,9 @@ sys.path.append(projDir)
 
 main_ui_file = os.path.join(projDir,  "ui_files", "new_project_new.ui")
 
-root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
-template_folder = root_folder+"template/"
+# root_folder = r"Z:\share\sanath\rbhus_clone_root"
+root_folder = r"C:\Users\Dell\Documents\rbhus_clone_root"
+template_folder = root_folder+os.sep+"template"
 
 text_formats = ["docx"]
 audio_formats = ["*.mp3"]
@@ -124,7 +125,7 @@ class newProject():
         file_paths = file_dialog.selectedFiles()
         debug.info(file_paths)
         self.main_ui.audioFileBox.clear()
-        self.main_ui.audioFileBox.setText(file_paths[0])
+        self.main_ui.audioFileBox.setText(file_paths[0].replace('/','\\'))
 
     def createProject(self):
         projName = self.main_ui.nameBox.text()
@@ -153,7 +154,8 @@ class newProject():
                             # for ass in assetNames:
                             assID = str(uuid.uuid4())
                             debug.info(assID)
-                            folder_path = root_folder+projName+os.sep+asset
+                            # folder_path = root_folder+os.sep+projName+os.sep+asset
+                            folder_path = os.path.join(root_folder, projName, asset)
                             debug.info(folder_path)
                             createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, asset, folder_path, user)
                             debug.info(createAssetQuery)
@@ -161,13 +163,31 @@ class newProject():
                             if updateAssList == 1:
                                 os.makedirs(folder_path, exist_ok=True)
                                 if asset == "draft":
-                                    pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
-                                    pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
-                                    subprocess.run(shlex.split(pasteAudioCmd))
-                                    subprocess.run(shlex.split(pasteDocCmd))
-                                    subprocess.run(["git", "init"], cwd=folder_path)
-                                    subprocess.run(["git", "add", "."], cwd=folder_path)
-                                    subprocess.run(["git", "commit", "-m", "first_commit"], cwd=folder_path)
+                                    # pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
+                                    # pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
+                                    pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)
+                                    debug.info(pasteAudioCmd)
+                                    subprocess.run(pasteAudioCmd, shell=True)
+                                    pasteDocCmd = "copy {0} {1} ".format(template_folder+os.sep+"draft.docx",folder_path)
+                                    debug.info(pasteDocCmd)
+                                    subprocess.run(pasteDocCmd, shell=True)
+                                    renameDocCmd = "ren {0} {1} ".format(folder_path+os.sep+"draft.docx", projName+"_draft.docx")
+                                    debug.info(renameDocCmd)
+                                    subprocess.run(renameDocCmd, shell=True)
+
+                                    gitInitCmd = "git init {0}".format(folder_path)
+                                    debug.info(gitInitCmd)
+                                    subprocess.run(gitInitCmd, shell=True)
+                                    gitAddCmd = "cd {0} & git add . ".format(folder_path)
+                                    debug.info(gitAddCmd)
+                                    subprocess.run(gitAddCmd, shell=True)
+                                    gitCommitCmd = "cd {0} & git commit -m 'first_commit' ".format(folder_path)
+                                    debug.info(gitCommitCmd)
+                                    subprocess.run(gitCommitCmd, shell=True)
+
+                                    # subprocess.run("git init {0}".format(folder_path))
+                                    # subprocess.run("cd {0} & git add . ".format(folder_path))
+                                    # subprocess.run("cd {0} & git commit -m 'first_commit' ".format(folder_path))
                         self.main_ui.close()
                     except:
                         err_mess = str(sys.exc_info())
@@ -188,62 +208,6 @@ class newProject():
             debug.info("No Project name given")
             self.main_ui.messageLabel.setText("Please provide a project name")
 
-
-    # def createProject(self):
-    #     projName = self.main_ui.nameBox.text()
-    #     debug.info(projName)
-    #     if projName:
-    #         assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
-    #         debug.info(assetNames)
-    #         if assetNames:
-    #             audio_file = self.main_ui.audioFileBox.text()
-    #             debug.info(audio_file)
-    #             if audio_file:
-    #                 user = self.main_ui.userBox.currentText()
-    #                 debug.info(user)
-    #                 if user:
-    #                     try:
-    #                         projUpdateQuery = "insert into projects (projName) values (\"{0}\") ".format(projName)
-    #                         updateProjList = self.db.execute(projUpdateQuery)
-    #                         if updateProjList == 1:
-    #                             debug.info("Updated proj list")
-    #                             for ass in assetNames:
-    #                                 assID = str(uuid.uuid4())
-    #                                 debug.info(assID)
-    #                                 folder_path = root_folder+projName+os.sep+ass
-    #                                 debug.info(folder_path)
-    #                                 createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, ass, folder_path, user)
-    #                                 debug.info(createAssetQuery)
-    #                                 updateAssList = self.db.execute(createAssetQuery)
-    #                                 if updateAssList == 1:
-    #                                     os.makedirs(folder_path, exist_ok=True)
-    #                                     if ass == "draft":
-    #                                         pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
-    #                                         pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
-    #                                         subprocess.run(shlex.split(pasteAudioCmd))
-    #                                         subprocess.run(shlex.split(pasteDocCmd))
-    #                                         subprocess.run(["git", "init"], cwd=folder_path)
-    #                                         subprocess.run(["git", "add", "."], cwd=folder_path)
-    #                                         subprocess.run(["git", "commit", "-m", "first_commit"], cwd=folder_path)
-    #                             self.main_ui.close()
-    #                     except:
-    #                         err_mess = str(sys.exc_info())
-    #                         debug.info(err_mess)
-    #                         if "Duplicate entry" in err_mess:
-    #                             debug.info("Duplicate entry")
-    #                             self.main_ui.messageLabel.setText("Project already exists")
-    #                 else:
-    #                     debug.info("No user selected")
-    #                     self.main_ui.messageLabel.setText("Please select an user")
-    #             else:
-    #                 debug.info("No audio file selected")
-    #                 self.main_ui.messageLabel.setText("Please select an audio file")
-    #         else:
-    #             debug.info("No asset selected")
-    #             self.main_ui.messageLabel.setText("Please select an asset")
-    #     else:
-    #         debug.info("No Project name given")
-    #         self.main_ui.messageLabel.setText("Please provide a project name")
 
 
 if __name__ == '__main__':

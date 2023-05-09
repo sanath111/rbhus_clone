@@ -25,7 +25,7 @@ sys.path.append(projDir)
 
 main_ui_file = os.path.join(projDir, "ui_files", "edit_asset.ui")
 
-root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
+# root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 

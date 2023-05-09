@@ -25,7 +25,8 @@ sys.path.append(projDir)
 main_ui_file = os.path.join(projDir, "ui_files", "rbhus_clone.ui")
 asset_details_ui = os.path.join(projDir, "ui_files", "asset_details_row.ui")
 
-root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
+# root_folder = r"Z:\share\sanath\rbhus_clone_root"
+root_folder = r"C:\Users\Dell\Documents\rbhus_clone_root"
 
 new_project = os.path.join(projDir, "new_project.py")
 admin_tools = os.path.join(projDir, "admin_tools.py")
@@ -37,8 +38,8 @@ processes = []
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 # user = os.environ['USER']
-# user = getpass.getuser()
-# debug.info(user)
+system_user = getpass.getuser()
+debug.info(system_user)
 
 ### TODO: REMOVE THIS LATER AND USE USERNAME FROM ABOVE ###
 parser = argparse.ArgumentParser(description="Utility to manage assets")
@@ -65,7 +66,14 @@ class rbhusClone():
 
         self.master_admin = []
         self.admins = []
-        self.user = args.user
+        self.user = "nobody"
+        try:
+            if args.user:
+                self.user = args.user
+            else:
+                self.user = system_user
+        except:
+            pass
 
         self.getAdmins()
         self.authorize()
@@ -124,6 +132,11 @@ class rbhusClone():
                 self.main_ui.radioAllAss.setEnabled(False)
                 self.main_ui.newProjectButt.setEnabled(False)
                 self.main_ui.adminToolsButt.setEnabled(False)
+
+        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        debug.info(gitConfigCmd)
+        subprocess.run(gitConfigCmd, shell=True)
+
 
     def updateProjectsList(self):
         self.main_ui.listWidgetProjs.clear()
@@ -190,7 +203,7 @@ class rbhusClone():
             debug.info("Open clicked")
             assText = ui.labelAsset.text()
             debug.info(assText)
-            filepath = root_folder + assText.replace(" : ", "/")
+            filepath = root_folder+os.sep+assText.replace(" : ", os.sep)
             debug.info(filepath)
             self.versionList(filepath, assText)
 

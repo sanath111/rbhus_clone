@@ -26,7 +26,7 @@ sys.path.append(projDir)
 main_ui_file = os.path.join(projDir, "ui_files", "version_list.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 
-root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
+# root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
 text_formats = ["docx"]
 audio_formats = ["mp3"]

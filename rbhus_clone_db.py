@@ -31,14 +31,15 @@ dbDatabase = "test"
 #   dbLogDatabase = os.environ['rbhusPipe_dbLogDatabase']
 # except:
 #   pass
-username = "nobody"
-try:
-  if(sys.platform.find("win") >= 0):
-    username = os.environ['USERNAME']
-  if(sys.platform.find("linux") >= 0):
-    username = os.environ['USER']
-except:
-  pass
+username = "root"
+password="password"
+# try:
+#   if(sys.platform.find("win") >= 0):
+#     username = os.environ['USERNAME']
+#   if(sys.platform.find("linux") >= 0):
+#     username = os.environ['USER']
+# except:
+#   pass
 
 
 class db:
@@ -57,9 +58,9 @@ class db:
 
 
   
-  def _connDb(self,hostname,port,dbname,user="root"):
+  def _connDb(self,hostname,port,dbname,user,password):
     try:
-      conn = MySQLdb.connect(host = hostname,port=port,db = dbname,user=user)
+      conn = MySQLdb.connect(host = hostname,port=port,db = dbname,user=user,password=password)
       conn.autocommit(1)
     except:
       raise
@@ -68,7 +69,7 @@ class db:
   def _connRbhus(self):
     while(1):
       try:
-        con = self._connDb(hostname=dbHostname,port=int(dbPort),dbname=dbDatabase,user=username)
+        con = self._connDb(hostname=dbHostname,port=int(dbPort),dbname=dbDatabase,user=username,password=password)
         debug.debug("Db connected")
         return(con)
       except:
