@@ -78,7 +78,9 @@ class versionList():
 
         try:
             # commits = subprocess.check_output(["git", "log", "--pretty=oneline"], cwd=self.folder).decode("utf-8").splitlines()
-            commits = subprocess.check_output(["git", "log", "--pretty=format:%h - %cd", "--date=format:%a, %d %b %Y %I:%M %p"], cwd=self.folder).decode("utf-8").splitlines()
+            # commits = subprocess.check_output(["git", "log", "--pretty=format:%h - %cd", "--date=format:%a, %d %b %Y %I:%M %p"], cwd=self.folder).decode("utf-8").splitlines()
+            gitLogCmd = "cd {0} & git log --pretty='format:%h - %cd' --date='format:%a, %d %b %Y %I:%M %p' ".format(self.folder)
+            commits = subprocess.check_output(gitLogCmd).decode("utf-8").splitlines()
             debug.info(commits)
 
             # Add each commit to the QListWidget
