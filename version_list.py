@@ -28,7 +28,7 @@ file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 
 # root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
-text_formats = ["docx"]
+text_formats = ["docx", "txt"]
 audio_formats = ["mp3"]
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
@@ -76,31 +76,21 @@ class versionList():
     def loadVersions(self):
         self.main_ui.versionList.clear()
 
-        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
-        debug.info(gitConfigCmd)
-        subprocess.run(gitConfigCmd, shell=True)
+        # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        # debug.info(gitConfigCmd)
+        # subprocess.run(gitConfigCmd, shell=True)
 
         try:
-            # commits = subprocess.check_output(["git", "log", "--pretty=oneline"], cwd=self.folder).decode("utf-8").splitlines()
-            # commits = subprocess.check_output(["git", "log", "--pretty=format:%h - %cd", "--date=format:%a, %d %b %Y %I:%M %p"], cwd=self.folder).decode("utf-8").splitlines()
-            gitLogCmd = 'cd {0} & git log --pretty="format:%h - %cd" --date="format:%a, %d %b %Y %I:%M %p" '.format(self.folder)
-            debug.info(gitLogCmd)
-            commits = subprocess.check_output(gitLogCmd).decode("utf-8").splitlines()
+            hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
+            debug.info(hgLogCmd)
+            commits = subprocess.check_output(hgLogCmd).decode("utf-8").splitlines()
             debug.info(commits)
-
-            # Add each commit to the QListWidget
             for commit in commits:
                 list_item = QListWidgetItem(commit, self.main_ui.versionList)
                 self.main_ui.versionList.addItem(list_item)
-                
+    
         except:
             debug.info(str(sys.exc_info()))
-        # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", "HEAD"], cwd=folder).decode("utf-8").splitlines()
-        # debug.info(files)
-        
-        # for file in files:
-        #     list_item = QListWidgetItem(file, self.main_ui.versionList)
-        #     self.main_ui.versionList.addItem(list_item)
 
     def updateFileList(self):
         self.main_ui.filesList.clear()
@@ -110,7 +100,8 @@ class versionList():
             debug.info(text)
             commit_hash = text.split()[0]
 
-            files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
+            # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
+            files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.folder]).decode("utf-8").splitlines()
             debug.info(files)
             
             for file in files:
@@ -160,21 +151,23 @@ class versionList():
             commit_text = selected_commit.text()
             commit_hash = commit_text.split()[0]
         
-            subprocess.run(["git", "checkout", commit_hash, "--", self.folder], cwd=self.folder)
+            # subprocess.run(["git", "checkout", commit_hash, "--", self.folder], cwd=self.folder)
+            subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.folder])
 
             # text = selected_file.text()
             
-            openCmd = "xdg-open {0}".format(filepath)
-            subprocess.Popen(shlex.split(openCmd))
+            openCmd = "start {0}".format(filepath)
+            # subprocess.Popen(shlex.split(openCmd))
+            subprocess.run(openCmd, shell=True)
     
     def commitChanges(self):
         try:
             self.main_ui.filesList.clear()
-            subprocess.run(["git", "add", "."], cwd=self.folder)
-            p = subprocess.Popen(["git", "commit", "-m", "new_commit"], cwd=self.folder , stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            subprocess.run(["hg", "add", "--cwd", self.folder, "."], shell=True)
+            p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", "sanath111"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
             for line in p.stdout:
                 debug.info(line)
-                if "nothing to commit" in line:
+                if "nothing changed" in line:
                     self.main_ui.messageLabel.setText("Nothing to Commit")
                     break
                 else:

@@ -75,6 +75,8 @@ class rbhusClone():
         except:
             pass
 
+        self.main_ui.usernameLabel.setText(self.user)
+
         self.getAdmins()
         self.authorize()
         self.updateProjectsList()
@@ -133,9 +135,9 @@ class rbhusClone():
                 self.main_ui.newProjectButt.setEnabled(False)
                 self.main_ui.adminToolsButt.setEnabled(False)
 
-        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
-        debug.info(gitConfigCmd)
-        subprocess.run(gitConfigCmd, shell=True)
+        # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        # debug.info(gitConfigCmd)
+        # subprocess.run(gitConfigCmd, shell=True)
 
 
     def updateProjectsList(self):

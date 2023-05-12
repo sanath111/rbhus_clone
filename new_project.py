@@ -131,9 +131,9 @@ class newProject():
         projName = self.main_ui.nameBox.text()
         debug.info(projName)
 
-        gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
-        debug.info(gitConfigCmd)
-        subprocess.run(gitConfigCmd, shell=True)
+        # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
+        # debug.info(gitConfigCmd)
+        # subprocess.run(gitConfigCmd, shell=True)
         
         if projName:
             # assetNames = [ass for ass in self.main_ui.assetsBox.text().split(',') if ass]
@@ -190,9 +190,10 @@ class newProject():
                                     # debug.info(gitCommitCmd)
                                     # subprocess.run(gitCommitCmd, shell=True)
 
-                                    initGitCmd = "cd {0} & git init & git add . & git commit -m 'first_commit' ".format(folder_path)
-                                    debug.info(initGitCmd)
-                                    subprocess.run(initGitCmd, shell=True)
+                                    # initGitCmd = "cd {0} & git init & git add . & git commit -m 'first_commit' ".format(folder_path)
+                                    initHgCmd = "hg init --cwd {0} & hg add --cwd {0} . & hg commit --cwd {0} -m 'first_commit' --user 'sanath111' ".format(folder_path)
+                                    debug.info(initHgCmd)
+                                    subprocess.run(initHgCmd, shell=True)
 
                                     # subprocess.run("git init {0}".format(folder_path))
                                     # subprocess.run("cd {0} & git add . ".format(folder_path))

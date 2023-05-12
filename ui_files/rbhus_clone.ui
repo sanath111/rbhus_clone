@@ -85,6 +85,50 @@
      </layout>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="adminBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Admin Tools</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="newProjectButt">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>New Project</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="adminToolsButt">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Admin Tools</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QGroupBox" name="groupBoxFilters">
      <property name="sizePolicy">
@@ -171,11 +215,8 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="adminBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
@@ -183,39 +224,27 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Admin Tools</string>
+      <string>User Tools</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="newProjectButt">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
+       <widget class="QLabel" name="usernameLabel">
         <property name="text">
-         <string>New Project</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
+         <string>user</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="adminToolsButt">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
+       <widget class="QPushButton" name="logoutButton">
         <property name="text">
-         <string>Admin Tools</string>
+         <string>Logout</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="1" rowspan="2">
+   <item row="1" column="1" rowspan="3">
     <widget class="QGroupBox" name="groupBoxAssets">
      <property name="title">
       <string>Assets</string>
