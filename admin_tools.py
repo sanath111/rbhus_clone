@@ -54,10 +54,10 @@ class adminTools():
         assets = self.db.execute(queryUsers,dictionary=True)
         users = [x['name'] for x in assets]
         debug.info(users)
-        self.main_ui.userBox.addItems(users)
+        self.main_ui.userList.addItems(users)
 
     def makeAdmin(self):
-        user = self.main_ui.userBox.currentText()
+        user = self.main_ui.userList.currentText()
         debug.info(user)
         if user:
             try:
@@ -72,7 +72,7 @@ class adminTools():
                 debug.info(err_mess)
                 if "Duplicate entry" in err_mess:
                     debug.info("Duplicate entry")
-                    self.main_ui.messageLabel.setText("User is already an admin")
+                    self.main_ui.messageLabel.setText("User already is an admin")
         else:
             debug.info("Please select an user")
             self.main_ui.messageLabel.setText("Please select an user")

@@ -106,9 +106,9 @@ class versionList():
             
             for file in files:
                 if file.split('.')[-1] in text_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "text_icon.svg"))
+                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_text.svg"))
                 elif file.split('.')[-1] in audio_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "audio_icon.svg"))
+                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_music.svg"))
                 item_widget = fileThumbsClass()
                 item_widget.labelFileName.setText(file)
                 item_widget.labelIcon.setPixmap(file_icon)
