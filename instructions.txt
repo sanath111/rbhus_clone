@@ -1,3 +1,8 @@
 Remove the user argument
-Install mysql, git, pyqt5, python3
+Install mysql, git, pyqt5, python3, Mercurial Hg
 change rsync with suitable alternative for windows
+
+pip install setproctitle
+pip install mysqlclient
+pip install PyQt5
+pip install bcrypt
