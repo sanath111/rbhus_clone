@@ -9,6 +9,7 @@ import subprocess
 import shlex
 import rbhus_clone_db
 import debug
+import bcrypt
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -38,6 +39,8 @@ class adminTools():
 
         self.setUsers()
         
+        self.main_ui.addUserButt.clicked.connect(lambda x : self.addUser())
+        self.main_ui.changePasswordButt.clicked.connect(lambda x : self.changePassword())
         self.main_ui.makeAdminButt.clicked.connect(lambda x : self.makeAdmin())
 
         #Show Window
@@ -55,6 +58,63 @@ class adminTools():
         users = [x['name'] for x in assets]
         debug.info(users)
         self.main_ui.userList.addItems(users)
+
+    def addUser(self):
+        username = self.main_ui.usernameBox.text()
+        password = self.main_ui.passwordBox.text()
+
+        if username:
+            if password:
+                debug.info(username)
+                debug.info(password)
+                try:
+                    password = password.encode('utf-8')
+                    salt = bcrypt.gensalt()
+                    hashed_password = bcrypt.hashpw(password, salt)
+                    hashed_password = hashed_password.decode('utf-8')
+                    debug.info(hashed_password)
+                    userUpdateQuery = "insert into users (name,password) values (\"{0}\",\"{1}\") ".format(username, hashed_password)
+                    updateUserList = self.db.execute(userUpdateQuery)
+                    debug.info(updateUserList)
+                    if updateUserList == 1:
+                        debug.info("User created")
+                        self.main_ui.messageLabel.setText("User Created")
+                except:
+                    err_mess = str(sys.exc_info())
+                    debug.info(err_mess)
+                    if "Duplicate entry" in err_mess:
+                        debug.info("Duplicate entry")
+                        self.main_ui.messageLabel.setText("User already exists")
+            else:
+                debug.info("No password")
+                self.main_ui.messageLabel.setText("Please provide a password")
+        else:
+            debug.info("No username")
+            self.main_ui.messageLabel.setText("Please provide a valid username")
+
+    def changePassword(self):
+        username = self.main_ui.username.text()
+        old_password = self.main_ui.oldPasswordBox.text()
+        new_password = self.main_ui.newPasswordBox.text()
+        if username:
+            if old_password:
+                if new_password:
+                    if new_password == old_password:
+                        debug.info("Same Password")
+                        self.main_ui.messageLabel.setText("Please provide different passwords")
+                    else:
+                        pass
+                else:
+                    debug.info("No password")
+                    self.main_ui.messageLabel.setText("Please provide new password")
+            else:
+                debug.info("No password")
+                self.main_ui.messageLabel.setText("Please provide old password")
+        else:
+            debug.info("No username")
+            self.main_ui.messageLabel.setText("Please provide a valid username")
+
+
 
     def makeAdmin(self):
         user = self.main_ui.userList.currentText()

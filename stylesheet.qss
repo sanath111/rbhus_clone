@@ -123,6 +123,13 @@ QGroupBox::title {
     border-top-right-radius: 4px;
 }
 
+QTabBar {
+    border-radius: 4px;
+}
+
+QTabBar::tab:top:selected {
+    background-color: #F3A289;
+}
 
 /* QListWidget::item {
     padding: 5px;

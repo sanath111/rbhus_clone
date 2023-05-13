@@ -56,7 +56,6 @@ class loginPrompt():
         passDets = self.db.execute(queryPassword,dictionary=True)
         if passDets:
             storedPass = passDets[0]['password'].encode('utf-8')
-            # storedPass = b'$2b$12$LnSAFQgUmjAUHz7h7LaXjuz7b5oVKNRzaeei4L7cSWA9XPfGH7aAW'
             debug.info(storedPass)
 
             if bcrypt.checkpw(password.encode('utf-8'), storedPass):
