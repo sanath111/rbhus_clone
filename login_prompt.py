@@ -25,6 +25,8 @@ sys.path.append(projDir)
 
 main_ui_file = os.path.join(projDir,  "ui_files", "login_prompt.ui")
 
+rbhus_clone = os.path.join(projDir, "rbhus_clone.py")
+
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 
@@ -36,6 +38,7 @@ class loginPrompt():
         self.main_ui.setWindowTitle("LOGIN PROMPT")
         
         self.main_ui.loginButton.clicked.connect(lambda x : self.login())
+        self.main_ui.loginButton.setShortcut(Qt.Key_Return)
 
         #Show Window
         self.main_ui.show()
@@ -52,18 +55,29 @@ class loginPrompt():
         debug.info(username)
         debug.info(password)
 
-        queryPassword = "select * from users where name='{0}' ".format(username)
-        passDets = self.db.execute(queryPassword,dictionary=True)
-        if passDets:
-            storedPass = passDets[0]['password'].encode('utf-8')
-            debug.info(storedPass)
+        queryAllUsers = "select name from users"
+        all_users = self.db.execute(queryAllUsers,dictionary=True)
+        users = [x['name'] for x in all_users]
+        debug.info(users)
+        if username in users:
+            queryPassword = "select * from users where name='{0}' ".format(username)
+            passDets = self.db.execute(queryPassword,dictionary=True)
+            if passDets:
+                debug.info(passDets)
+                storedPass = passDets[0]['password'].encode('utf-8')
+                debug.info(storedPass)
 
-            if bcrypt.checkpw(password.encode('utf-8'), storedPass):
-                debug.info("Password matched")
-                self.main_ui.messageLabel.setText("Password matched")
-            else:
-                debug.info("Password does not match")
-                self.main_ui.messageLabel.setText("Password does not match")
+                if bcrypt.checkpw(password.encode('utf-8'), storedPass):
+                    debug.info("Password matched")
+                    self.main_ui.messageLabel.setText("Password matched")
+                    self.main_ui.close()
+                    subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
+                else:
+                    debug.info("Wrong password")
+                    self.main_ui.messageLabel.setText("Password does not match")
+        else:
+            debug.info("User does not exists")
+            self.main_ui.messageLabel.setText("User does not exists")
 
 
 if __name__ == '__main__':

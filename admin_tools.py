@@ -97,23 +97,55 @@ class adminTools():
         old_password = self.main_ui.oldPasswordBox.text()
         new_password = self.main_ui.newPasswordBox.text()
         if username:
-            if old_password:
-                if new_password:
-                    if new_password == old_password:
-                        debug.info("Same Password")
-                        self.main_ui.messageLabel.setText("Please provide different passwords")
-                    else:
-                        pass
+            queryAllUsers = "select name from users"
+            all_users = self.db.execute(queryAllUsers,dictionary=True)
+            users = [x['name'] for x in all_users]
+            debug.info(users)
+            if username in users:
+                if old_password:
+                    queryPassword = "select * from users where name='{0}' ".format(username)
+                    passDets = self.db.execute(queryPassword,dictionary=True)
+                    if passDets:
+                        storedPass = passDets[0]['password'].encode('utf-8')
+                        debug.info(storedPass)
+                        if bcrypt.checkpw(old_password.encode('utf-8'), storedPass):
+                            debug.info("Password matched")
+                            if new_password:
+                                if new_password == old_password:
+                                    debug.info("Same Password")
+                                    self.main_ui.messageLabel.setText("Please provide different passwords")
+                                else:
+                                    try:
+                                        new_password = new_password.encode('utf-8')
+                                        salt = bcrypt.gensalt()
+                                        hashed_password = bcrypt.hashpw(new_password, salt)
+                                        hashed_password = hashed_password.decode('utf-8')
+                                        debug.info(hashed_password)
+                                        passwordUpdateQuery = "update users set password='{0}' where name='{1}' ".format(hashed_password, username)
+                                        updatePassword = self.db.execute(passwordUpdateQuery)
+                                        debug.info(updatePassword)
+                                        if updatePassword == 1:
+                                            debug.info("Password Updated")
+                                            self.main_ui.messageLabel.setText("Password Updated")
+                                    except:
+                                        err_mess = str(sys.exc_info())
+                                        debug.info(err_mess)
+                                        self.main_ui.messageLabel.setText("Password not changed")
+                            else:
+                                debug.info("No password")
+                                self.main_ui.messageLabel.setText("Please provide new password")
+                        else:
+                            debug.info("Password did not match")
+                            self.main_ui.messageLabel.setText("Wrong password")
                 else:
                     debug.info("No password")
-                    self.main_ui.messageLabel.setText("Please provide new password")
+                    self.main_ui.messageLabel.setText("Please provide old password")
             else:
-                debug.info("No password")
-                self.main_ui.messageLabel.setText("Please provide old password")
+                debug.info("User does not exists")
+                self.main_ui.messageLabel.setText("User does not exists")
         else:
             debug.info("No username")
             self.main_ui.messageLabel.setText("Please provide a valid username")
-
 
 
     def makeAdmin(self):

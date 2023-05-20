@@ -23,7 +23,7 @@
       <item row="3" column="1">
        <widget class="QPushButton" name="loginButton">
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::StrongFocus</enum>
         </property>
         <property name="text">
          <string>Login</string>
@@ -59,7 +59,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="username"/>
+         <widget class="QLineEdit" name="username">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -80,6 +84,9 @@
         </item>
         <item>
          <widget class="QLineEdit" name="password">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
