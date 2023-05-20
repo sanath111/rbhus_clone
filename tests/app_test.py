@@ -8,9 +8,10 @@ import uuid
 import subprocess
 import shlex
 # import rbhus_clone_db
-# import debug
+import debug
 import bcrypt
-
+import argparse
+from docx import Document
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -34,6 +35,11 @@ main_ui_file = os.path.join(projDir,  "tests", "app_test.ui")
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
+parser = argparse.ArgumentParser(description="Utility to manage assets")
+parser.add_argument("-t","--text",dest="text",help="text")
+parser.add_argument("-a","--audio",dest="audio",help="audio")
+args = parser.parse_args()
+
 
 class appTest():
     # db = rbhus_clone_db.db()
@@ -51,6 +57,9 @@ class appTest():
         textLayout.addWidget(self.text_editors[0])
         self.main_ui.textFrame.setLayout(textLayout)
 
+        if args.text:
+            debug.info(args.text)
+            self.load_document(args.text)
 
         sizes = ["8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "32", "36", "48", "72"]
         self.main_ui.fontSizeBox.addItems(sizes)
@@ -78,7 +87,9 @@ class appTest():
 
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         videoWidget = QVideoWidget()
-        fileName = r"C:\Users\Dell\Documents\rbhus_clone_root\template\test_video.mp3"
+        if args.audio:
+            # fileName = r"C:\Users\Dell\Documents\rbhus_clone_root\template\test_video.mp3"
+            fileName = args.audio
         self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(fileName)))
         
         self.main_ui.playButton.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "play.svg")))
@@ -106,6 +117,8 @@ class appTest():
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
         self.mediaPlayer.error.connect(self.handle_error)
 
+        self.launchNudi()
+
         #Show Window
         self.main_ui.show()
         self.main_ui.update()
@@ -114,6 +127,13 @@ class appTest():
         centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
+
+    def launchNudi(self):
+        # Specify the path to the application executable
+        application_path = r"C:\Program Files (x86)\Nudi 6.1\Nudi 6.1.exe"
+        # Use the subprocess module to launch the application in a minimized state
+        subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
+        # subprocess.run("start "+application_path, shell=True)
 
 
     def create_text_edit(self):
@@ -124,6 +144,12 @@ class appTest():
         # text_edit.setFixedHeight(text_edit.fontMetrics().lineSpacing() * self.max_lines)  # Limit height
         text_edit.textChanged.connect(self.handle_text_changed)
         self.text_editors.append(text_edit)        
+    
+    def load_document(self, file_path):
+        document = Document(file_path)
+        text = "\n".join([paragraph.text for paragraph in document.paragraphs])
+        if text:
+            self.text_editors[-1].setPlainText(text)
 
     def handle_text_changed(self):
         current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget

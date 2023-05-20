@@ -23,13 +23,18 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir, "ui_files", "version_list.ui")
+main_ui_file = os.path.join(projDir, "ui_files", "version_list_new.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 
 # root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
+app_test = os.path.join(projDir, "tests", "app_test.py")
+processes = []
+
 text_formats = ["docx", "txt"]
 audio_formats = ["mp3"]
+
+
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
@@ -45,8 +50,10 @@ class versionList():
        
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("VERSION LIST")
-
+        
+        self.current_files = []
         self.folder = args.filepath
+
         self.asset = args.asset
         self.projName = self.asset.split(" : ")[0]
         self.assetName = self.asset.split(" : ")[1]
@@ -57,8 +64,8 @@ class versionList():
 
         self.loadVersions()
         self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
-        self.main_ui.filesList.itemClicked.connect(lambda x, : self.showFileName(x))
-        # self.main_ui.openButt.clicked.connect(lambda x : self.openFile())
+        # self.main_ui.filesList.itemClicked.connect(lambda x, : self.showFileName(x))
+        self.main_ui.openButt.clicked.connect(lambda x, filepath=self.folder: self.openFile(filepath))
         self.main_ui.commitButt.clicked.connect(lambda x : self.commitChanges())
         self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
         
@@ -93,7 +100,7 @@ class versionList():
             debug.info(str(sys.exc_info()))
 
     def updateFileList(self):
-        self.main_ui.filesList.clear()
+        # self.main_ui.filesList.clear()
         selected_item = self.main_ui.versionList.currentItem()
         if selected_item is not None:
             text = selected_item.text()
@@ -103,44 +110,47 @@ class versionList():
             # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
             files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.folder]).decode("utf-8").splitlines()
             debug.info(files)
+            debug.info(type(files))
+            self.current_files = files
+
             
-            for file in files:
-                if file.split('.')[-1] in text_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_text.svg"))
-                elif file.split('.')[-1] in audio_formats:
-                    file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_music.svg"))
-                item_widget = fileThumbsClass()
-                item_widget.labelFileName.setText(file)
-                item_widget.labelIcon.setPixmap(file_icon)
+            # for file in files:
+            #     if file.split('.')[-1] in text_formats:
+            #         file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_text.svg"))
+            #     elif file.split('.')[-1] in audio_formats:
+            #         file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_music.svg"))
+            #     item_widget = fileThumbsClass()
+            #     item_widget.labelFileName.setText(file)
+            #     item_widget.labelIcon.setPixmap(file_icon)
 
-                item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.fileContextMenu(ui,pos=x))
+            #     item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.fileContextMenu(ui,pos=x))
 
-                item = QListWidgetItemSort()
-                item.setSizeHint(item_widget.sizeHint())
+            #     item = QListWidgetItemSort()
+            #     item.setSizeHint(item_widget.sizeHint())
 
-                self.main_ui.filesList.addItem(item)
-                self.main_ui.filesList.setItemWidget(item, item_widget)
+            #     self.main_ui.filesList.addItem(item)
+            #     self.main_ui.filesList.setItemWidget(item, item_widget)
 
-    def showFileName(self, item):
-        item_widget = self.main_ui.filesList.itemWidget(item)
-        filename = item_widget.labelFileName.text()
-        self.main_ui.messageLabel.clear()
-        self.main_ui.messageLabel.setText(filename)
+    # def showFileName(self, item):
+    #     item_widget = self.main_ui.filesList.itemWidget(item)
+    #     filename = item_widget.labelFileName.text()
+    #     self.main_ui.messageLabel.clear()
+    #     self.main_ui.messageLabel.setText(filename)
 
-    def fileContextMenu(self, ui, pos):
-        debug.info("File clicked")
+    # def fileContextMenu(self, ui, pos):
+    #     debug.info("File clicked")
 
-        menu = QtWidgets.QMenu()
-        openAction = menu.addAction("Open")
+    #     menu = QtWidgets.QMenu()
+    #     openAction = menu.addAction("Open")
 
-        action = menu.exec_(ui.mapToGlobal(pos))
+    #     action = menu.exec_(ui.mapToGlobal(pos))
 
-        if (action == openAction):
-            debug.info("Open clicked")
-            filename = ui.labelFileName.text()
-            filepath = self.folder+os.sep+filename
-            debug.info(filepath)
-            self.openFile(filepath)
+    #     if (action == openAction):
+    #         debug.info("Open clicked")
+    #         filename = ui.labelFileName.text()
+    #         filepath = self.folder+os.sep+filename
+    #         debug.info(filepath)
+    #         self.openFile(filepath)
 
 
     def openFile(self, filepath):
@@ -156,13 +166,39 @@ class versionList():
 
             # text = selected_file.text()
             
-            openCmd = "start {0}".format(filepath)
-            # subprocess.Popen(shlex.split(openCmd))
-            subprocess.run(openCmd, shell=True)
+            # openCmd = "start {0}".format(filepath)
+            # # subprocess.Popen(shlex.split(openCmd))
+            # subprocess.run(openCmd, shell=True)
+            text_file = ""
+            audio_file = ""
+            for file in self.current_files:
+                if file.endswith("docx"):
+                    text_file = self.folder+os.sep+file
+                if file.endswith("mp3"):
+                    audio_file = self.folder+os.sep+file
+
+            debug.info("Opening file")
+            p = QProcess(parent=self.main_ui)
+            processes.append(p)
+            debug.info(processes)
+            p.readyReadStandardOutput.connect(self.read_out)
+            p.readyReadStandardError.connect(self.read_err)
+            # p.start(sys.executable, edit_asset.split())
+            p.start(sys.executable + " " + app_test + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
     
+    def read_out(self):
+        if processes:
+            for process in processes:
+                print ('stdout:', str(process.readAllStandardOutput()).strip())
+
+    def read_err(self):
+        if processes:
+            for process in processes:
+                print ('stderr:', str(process.readAllStandardError()).strip())
+
     def commitChanges(self):
         try:
-            self.main_ui.filesList.clear()
+            # self.main_ui.filesList.clear()
             subprocess.run(["hg", "add", "--cwd", self.folder, "."], shell=True)
             p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", "sanath111"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
             for line in p.stdout:

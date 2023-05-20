@@ -41,7 +41,6 @@ os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 system_user = getpass.getuser()
 debug.info(system_user)
 
-### TODO: REMOVE THIS LATER AND USE USERNAME FROM ABOVE ###
 parser = argparse.ArgumentParser(description="Utility to manage assets")
 parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
@@ -64,6 +63,8 @@ class rbhusClone():
         self.main_ui.radioMineAss.clicked.connect(lambda x : self.updateAssetsList())
         self.main_ui.radioAllAss.clicked.connect(lambda x : self.updateAssetsList())
 
+        self.main_ui.logoutButton.clicked.connect(lambda x : self.logout())
+
         self.master_admin = []
         self.admins = []
         self.user = "nobody"
@@ -80,6 +81,10 @@ class rbhusClone():
         self.getAdmins()
         self.authorize()
         self.updateProjectsList()
+
+        if self.user not in self.admins:
+            self.main_ui.radioMineAss.setChecked(True)
+            # self.main_ui.radioAllAss.setChecked(True)
 
         #Show Window
         # self.main_ui.showMaximized()
@@ -284,6 +289,8 @@ class rbhusClone():
             for process in processes:
                 print ('stderr:', str(process.readAllStandardError()).strip())
 
+    def logout(self):
+        self.main_ui.close()
 
 class assetDetailRowClass(QtWidgets.QWidget):
   def __init__(self,parent=None):
