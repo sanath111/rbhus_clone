@@ -100,6 +100,9 @@ class Ui_Form(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem2)
+        self.saveButt = QtWidgets.QPushButton(self.toolsFrame)
+        self.saveButt.setObjectName("saveButt")
+        self.horizontalLayout.addWidget(self.saveButt)
         self.fontBox = QtWidgets.QFontComboBox(self.toolsFrame)
         self.fontBox.setObjectName("fontBox")
         self.horizontalLayout.addWidget(self.fontBox)
@@ -147,4 +150,5 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
+        self.saveButt.setText(_translate("Form", "Save"))
         self.fontBox.setCurrentText(_translate("Form", "Arial"))

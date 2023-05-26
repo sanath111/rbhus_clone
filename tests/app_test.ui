@@ -185,6 +185,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="saveButt">
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QFontComboBox" name="fontBox">
         <property name="currentText">
          <string>Arial</string>

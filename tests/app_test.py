@@ -11,7 +11,12 @@ import shlex
 import debug
 import bcrypt
 import argparse
+import docx
 from docx import Document
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.shared import Pt
+from docx.shared import Inches
+import re
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -24,7 +29,6 @@ from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtPrintSupport import QPrinter
-
 
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
 sys.path.append(projDir)
@@ -75,6 +79,9 @@ class appTest():
         self.main_ui.rightAlignButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "align-right.svg")))
         self.main_ui.justifyButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "align-justify.svg")))
 
+        self.main_ui.saveButt.setShortcut('Ctrl+S')
+
+        self.main_ui.saveButt.clicked.connect(self.save_file)
         self.main_ui.boldButt.clicked.connect(self.set_bold)
         self.main_ui.italicButt.clicked.connect(self.set_italic)
         self.main_ui.underlineButt.clicked.connect(self.set_underline)
@@ -146,10 +153,134 @@ class appTest():
         self.text_editors.append(text_edit)        
     
     def load_document(self, file_path):
-        document = Document(file_path)
-        text = "\n".join([paragraph.text for paragraph in document.paragraphs])
-        if text:
-            self.text_editors[-1].setPlainText(text)
+        text_edit = self.text_editors[-1]
+
+        # document = Document(file_path)
+        # text = "\n".join([paragraph.text for paragraph in document.paragraphs])
+        # if text:
+        #     self.text_editors[-1].setPlainText(text)
+
+        try:
+            # document = Document(file_path)
+            # text = document.paragraphs[0].text
+            # text_edit.setText(text)
+            
+            # formatted_text = []
+            # for paragraph in document.paragraphs:
+            #     for run in paragraph.runs:
+            #         text = run.text
+            #         font = run.font
+            #         if font.bold:
+            #             text = '<b>' + text + '</b>'
+            #         if font.italic:
+            #             text = '<i>' + text + '</i>'
+            #         if font.underline:
+            #             text = '<u>' + text + '</u>'
+            #         formatted_text.append(text)
+
+            # text_edit.setHtml(''.join(formatted_text))
+
+            document = Document(file_path)
+            paragraphs = [p.text for p in document.paragraphs]
+            text_edit.setText("\n".join(paragraphs))
+
+            # text = text_edit.text()
+            # debug.info(text)
+            # text = text.strip()
+            # text_edit.setText(text)
+
+            # document = Document(file_path)
+            # paragraphs = [p.text for p in document.paragraphs]
+            # html_content = "<br>".join(paragraphs)
+            # if html_content.startswith(' '):
+            #     html_content = html_content[1:]
+            # text_document = QTextDocument()
+            # text_document.setHtml(html_content)
+            # text_edit.clear()
+            # text_edit.setDocument(text_document)
+
+        except:
+            debug.info(str(sys.exc_info()))
+
+
+    def save_file(self):
+        file_path = args.text
+        text_edit = self.text_editors[-1]
+
+        # text = self.text_editors[-1].toPlainText()
+        # document = Document()
+        # document.add_paragraph(text)
+        # document.save(file_path)
+
+        try:
+            # text = text_edit.toHtml()
+            # debug.info(text)
+            # # cleaned_html = self.clean_html(text)
+            # # debug.info(cleaned_html)
+
+            # for style in text_edit.document().styles():
+            #     text = text.replace(style.name(), style.toHtml())
+
+            # document = Document()
+            # paragraph = document.add_paragraph(text)
+            # # paragraph.add_run().add_text(text)
+            # # self.format_text(paragraph, text)
+
+            # # Save the document to a .docx file
+            # document.save(file_path)
+
+            document = Document()
+            content = text_edit.toHtml()
+            if not content.startswith(' '):
+                content = ' ' + content
+            document.add_paragraph(content)
+            document.save(file_path)
+
+        except:
+            debug.info(str(sys.exc_info()))
+
+    # def clean_html(self, html):
+    #     # Remove the style information from the HTML
+    #     # cleaned_html = html.replace('<style type="text/css">p, li { white-space: pre-wrap; }</style>', '')
+    #     cleaned_html = html.replace('p, li { white-space: pre-wrap; }', '')
+    #     # cleaned_html = re.sub(r'<style.*?>.*?</style>', '', html)
+    #     return cleaned_html
+
+    # def format_text(self, paragraph, text):
+    #     run = paragraph.add_run()
+    #     font = run.font
+
+    #     bold = False
+    #     italic = False
+    #     underline = False
+
+    #     # Iterate over the HTML tags and apply formatting
+    #     index = 0
+    #     while index < len(text):
+    #         if text[index] == '<':
+    #             tag_end = text.find('>', index)
+    #             if tag_end != -1:
+    #                 tag = text[index + 1 : tag_end]
+    #                 if tag == 'b':
+    #                     bold = True
+    #                 elif tag == '/b':
+    #                     bold = False
+    #                 elif tag == 'i':
+    #                     italic = True
+    #                 elif tag == '/i':
+    #                     italic = False
+    #                 elif tag == 'u':
+    #                     underline = True
+    #                 elif tag == '/u':
+    #                     underline = False
+    #             index = tag_end + 1
+    #         else:
+    #             run.text += text[index]
+    #             font.bold = bold
+    #             font.italic = italic
+    #             font.underline = underline
+    #             index += 1
+
 
     def handle_text_changed(self):
         current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget
