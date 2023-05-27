@@ -6,3 +6,4 @@ pip install setproctitle
 pip install mysqlclient
 pip install PyQt5
 pip install bcrypt
+pip install docx
