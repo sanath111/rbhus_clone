@@ -22,6 +22,7 @@ import re
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtPrintSupport import *
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -81,8 +82,12 @@ class appTest():
         self.main_ui.justifyButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "align-justify.svg")))
 
         self.main_ui.saveButt.setShortcut('Ctrl+S')
+        self.main_ui.boldButt.setShortcut(QKeySequence.Bold)
+        self.main_ui.italicButt.setShortcut(QKeySequence.Italic)
+        self.main_ui.underlineButt.setShortcut(QKeySequence.Underline)
 
         self.main_ui.saveButt.clicked.connect(self.save_file)
+        self.main_ui.printButt.clicked.connect(self.print_file)
         self.main_ui.boldButt.clicked.connect(self.set_bold)
         self.main_ui.italicButt.clicked.connect(self.set_italic)
         self.main_ui.underlineButt.clicked.connect(self.set_underline)
@@ -142,7 +147,7 @@ class appTest():
         # Use the subprocess module to launch the application in a minimized state
         subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
         # subprocess.run("start "+application_path, shell=True)
-
+ 
 
     def create_text_edit(self):
         text_edit = QTextEdit()
@@ -181,6 +186,10 @@ class appTest():
         except:
             debug.info(str(sys.exc_info()))
 
+    def print_file(self):
+        dlg = QPrintDialog()
+        if dlg.exec_():
+            self.text_editors[-1].print_(dlg.printer())
 
     def handle_text_changed(self):
         current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget

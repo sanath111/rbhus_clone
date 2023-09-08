@@ -39,8 +39,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <spacer name="horizontalSpacer_3">
+       <item row="0" column="2">
+        <spacer name="horizontalSpacer_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -52,8 +52,8 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer_4">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -188,6 +188,13 @@
        <widget class="QPushButton" name="saveButt">
         <property name="text">
          <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="printButt">
+        <property name="text">
+         <string>Print</string>
         </property>
        </widget>
       </item>
