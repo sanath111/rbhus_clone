@@ -37,8 +37,8 @@ processes = []
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 # user = os.environ['USER']
-# user = getpass.getuser()
-# debug.info(user)
+system_user = getpass.getuser()
+debug.info(system_user)
 
 ### TODO: REMOVE THIS LATER AND USE USERNAME FROM ABOVE ###
 parser = argparse.ArgumentParser(description="Utility to manage assets")
@@ -65,7 +65,16 @@ class rbhusClone():
 
         self.master_admin = []
         self.admins = []
-        self.user = args.user
+        self.user = "nobody"
+        try:
+            if args.user:
+                self.user = args.user
+            else:
+                self.user = system_user
+        except:
+            pass
+        
+        self.main_ui.usernameLabel.setText(self.user)
 
         self.getAdmins()
         self.authorize()
