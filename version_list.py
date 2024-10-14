@@ -10,6 +10,7 @@ import shlex
 import rbhus_clone_db
 import debug
 import argparse
+from pathlib import Path
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -86,18 +87,27 @@ class versionList():
         # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
         # debug.info(gitConfigCmd)
         # subprocess.run(gitConfigCmd, shell=True)
-
+        
+        cur_dir = os.getcwd()
         try:
+            # folder = Path(self.folder)
+            # debug.info(folder)
+            # os.chdir(str(folder))
             hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
+            # hgLogCmd = "hg log --cwd \'{0}\' --template \'{node|short} - {date|isodate}\'\n".format(self.folder)
             debug.info(hgLogCmd)
             commits = subprocess.check_output(hgLogCmd).decode("utf-8").splitlines()
+            # commits = subprocess.check_output(shlex.split(hgLogCmd)).decode("utf-8").splitlines()
             debug.info(commits)
             for commit in commits:
                 list_item = QListWidgetItem(commit, self.main_ui.versionList)
                 self.main_ui.versionList.addItem(list_item)
-    
+            self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
+            self.updateFileList()
         except:
             debug.info(str(sys.exc_info()))
+        # finally:
+            # os.chdir(cur_dir)
 
     def updateFileList(self):
         # self.main_ui.filesList.clear()

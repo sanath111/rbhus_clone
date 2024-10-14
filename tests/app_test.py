@@ -47,6 +47,20 @@ parser.add_argument("-a","--audio",dest="audio",help="audio")
 args = parser.parse_args()
 
 
+def launchApps():
+    try:
+        # Specify the path to the application executable
+        application_path = r"C:\Program Files (x86)\Nudi 6.1\Nudi 6.1.exe"
+        # Use the subprocess module to launch the application in a minimized state
+        subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
+        # subprocess.run("start "+application_path, shell=True)
+    
+        libreoffice_path = r"C:\Program Files\LibreOffice\program\swriter.exe {0}".format(args.text)
+        subprocess.Popen(libreoffice_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
+    except:
+        debug.info(str(sys.exc_info()))
+
+
 class appTest():
     # db = rbhus_clone_db.db()
     def __init__(self):
@@ -147,7 +161,6 @@ class appTest():
         # Use the subprocess module to launch the application in a minimized state
         subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
         # subprocess.run("start "+application_path, shell=True)
- 
 
     def create_text_edit(self):
         text_edit = QTextEdit()
@@ -301,6 +314,7 @@ class appTest():
 
 if __name__ == '__main__':
     setproctitle.setproctitle("APP_TEST")
+    # launchApps()
     app = QtWidgets.QApplication(sys.argv)
     window = appTest()
     sys.exit(app.exec_())

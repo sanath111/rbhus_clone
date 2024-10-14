@@ -9,6 +9,7 @@ import rbhus_clone_db
 import debug
 import argparse
 import getpass
+from pathlib import Path
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -26,7 +27,7 @@ main_ui_file = os.path.join(projDir, "ui_files", "rbhus_clone.ui")
 asset_details_ui = os.path.join(projDir, "ui_files", "asset_details_row.ui")
 
 # root_folder = r"Z:\share\sanath\rbhus_clone_root"
-root_folder = r"C:\Users\Dell\Documents\rbhus_clone_root"
+root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
 
 new_project = os.path.join(projDir, "new_project.py")
 admin_tools = os.path.join(projDir, "admin_tools.py")
@@ -210,7 +211,9 @@ class rbhusClone():
             debug.info("Open clicked")
             assText = ui.labelAsset.text()
             debug.info(assText)
-            filepath = root_folder+os.sep+assText.replace(" : ", os.sep)
+            # filepath = root_folder+os.sep+assText.replace(" : ", os.sep)
+            filepath = os.path.join(root_folder, assText.replace(" : ", os.sep))
+            # filepath = Path(root_folder) / assText.replace(" : ", os.sep)
             debug.info(filepath)
             self.versionList(filepath, assText)
 

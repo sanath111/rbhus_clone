@@ -7,3 +7,7 @@ pip install mysqlclient
 pip install PyQt5
 pip install bcrypt
 pip install docx
+pip install python-docx
+pip install beautifulsoup4
+
+change root path in rbhus_clone.py and new_project.py

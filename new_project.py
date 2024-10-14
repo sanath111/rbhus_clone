@@ -25,7 +25,7 @@ sys.path.append(projDir)
 main_ui_file = os.path.join(projDir,  "ui_files", "new_project_new.ui")
 
 # root_folder = r"Z:\share\sanath\rbhus_clone_root"
-root_folder = r"C:\Users\Dell\Documents\rbhus_clone_root"
+root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
 template_folder = root_folder+os.sep+"template"
 
 text_formats = ["docx"]

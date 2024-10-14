@@ -1,0 +1,1 @@
+C:\Users\aum\AppData\Local\Microsoft\WindowsApps\python3.12.exe d:/Repos/rbhus_clone/login_prompt.py %*
