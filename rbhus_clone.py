@@ -236,7 +236,8 @@ class rbhusClone():
         p.readyReadStandardError.connect(self.read_err)
         # p.finished.connect(self.enableNewProjButt)
         # p.start(sys.executable, version_list.split())
-        p.start(sys.executable + " " + version_list + " --filepath " + filepath + " --asset " + "\""+ass_name+"\"")
+        # p.start(sys.executable + " " + version_list + " --filepath " + filepath + " --asset " + "\""+ass_name+"\"")
+        p.start(sys.executable, [version_list, "--filepath", filepath, "--asset", ass_name, "--user", self.user])
 
     def editAsset(self, ass_name):
         debug.info("Opening edit asset")
@@ -258,7 +259,8 @@ class rbhusClone():
         p.readyReadStandardOutput.connect(self.read_out)
         p.readyReadStandardError.connect(self.read_err)
         p.finished.connect(self.enableNewProjButt)
-        p.start(sys.executable, new_project.split())
+        # p.start(sys.executable, new_project.split())
+        p.start(sys.executable, [new_project, "--user", self.user])
 
     def disableNewProjButt(self):
         self.main_ui.newProjectButt.setEnabled(False)

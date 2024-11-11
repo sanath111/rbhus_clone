@@ -9,6 +9,7 @@ import subprocess
 import shlex
 import rbhus_clone_db
 import debug
+import argparse
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -34,10 +35,13 @@ template_folder = constants.template_folder
 text_formats = ["docx"]
 audio_formats = ["*.mp3","*.wav"]
 
-asset_and_user = {}
+stage_and_user = {}
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
+parser = argparse.ArgumentParser(description="Utility to manage assets")
+parser.add_argument("-u","--user",dest="user",help="user")
+args = parser.parse_args()
 
 class newProject():
     db = rbhus_clone_db.db()
@@ -45,6 +49,8 @@ class newProject():
        
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("NEW PROJECT")
+
+        self.user = args.user
 
         self.setAssAndUser()
         # self.setUsers()
@@ -65,45 +71,45 @@ class newProject():
 
 
     def setAssAndUser(self):
-        vLayout = QVBoxLayout(self.main_ui.assetFrame)
+        v_layout = QVBoxLayout(self.main_ui.assetFrame)
         
-        queryAssetNames = "select * from stages"
-        aN = self.db.execute(queryAssetNames,dictionary=True)
-        asset_names = [x['name'] for x in aN]
-        debug.info(asset_names)
+        query_stage_names = "select * from stages"
+        stage_names = self.db.execute(query_stage_names,dictionary=True)
+        stage_names = [x['name'] for x in stage_names]
+        debug.info(stage_names)
 
-        queryUsers = "select * from users"
-        assets = self.db.execute(queryUsers,dictionary=True)
-        users = [x['name'] for x in assets]
+        query_users = "select * from users"
+        users = self.db.execute(query_users,dictionary=True)
+        users = [x['name'] for x in users]
         debug.info(users)
 
-        for ass_name in asset_names:
+        for stage_name in stage_names:
             frame = QFrame()
-            hlayout = QHBoxLayout(frame)
-            chBox = QCheckBox(ass_name, frame)
-            coBox = QComboBox(frame)
-            coBox.addItems(users)
-            chBox.stateChanged.connect(lambda x, chBox=chBox, coBox=coBox: self.updateAssAndUserDict(chBox, coBox))
-            coBox.currentIndexChanged.connect(lambda x, chBox=chBox, coBox=coBox: self.updateAssAndUserDict(chBox, coBox))
-            hlayout.addWidget(chBox)
-            hlayout.addWidget(coBox)
+            h_layout = QHBoxLayout(frame)
+            ch_box = QCheckBox(stage_name, frame)
+            co_box = QComboBox(frame)
+            co_box.addItems(users)
+            ch_box.stateChanged.connect(lambda x, ch_box=ch_box, co_box=co_box: self.updateStageAndUserDict(ch_box, co_box))
+            co_box.currentIndexChanged.connect(lambda x, ch_box=ch_box, co_box=co_box: self.updateStageAndUserDict(ch_box, co_box))
+            h_layout.addWidget(ch_box)
+            h_layout.addWidget(co_box)
 
-            frame.setLayout(hlayout)
-            vLayout.addWidget(frame)
+            frame.setLayout(h_layout)
+            v_layout.addWidget(frame)
 
-        self.main_ui.assetFrame.setLayout(vLayout)
+        self.main_ui.assetFrame.setLayout(v_layout)
 
 
-    def updateAssAndUserDict(self, chBox, coBox):
-        if chBox.isChecked():
-            asset_and_user[chBox.text()] = coBox.currentText()
+    def updateStageAndUserDict(self, ch_box, co_box):
+        if ch_box.isChecked():
+            stage_and_user[ch_box.text()] = co_box.currentText()
         else:
             try:
-                asset_and_user.pop(chBox.text())
+                stage_and_user.pop(ch_box.text())
             except:
                 debug.info(str(sys.exc_info()))
         
-        debug.info(asset_and_user)
+        debug.info(stage_and_user)
 
     # def setUsers(self):
     #     queryUsers = "select * from users"
@@ -163,7 +169,7 @@ class newProject():
         init_hg_cmd = (
             f"hg init --cwd '{folder_path}' {cmd_separator} "
             f"hg add --cwd '{folder_path}' . {cmd_separator} "
-            f"hg commit --cwd '{folder_path}' -m 'first_commit' --user 'sanath111'"
+            f"hg commit --cwd '{folder_path}' -m 'first_commit' --user {self.user}"
         )
 
         debug.info(init_hg_cmd)
@@ -198,30 +204,30 @@ class newProject():
                 # user = self.main_ui.userBox.currentText()
                 # debug.info(user)
                 # if user:
-                if asset_and_user:
+                if stage_and_user:
                     try:
                         projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName,root_folder)
                         debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
                         if updateProjList == 1:
                             debug.info("Updated proj list")
-                        for aNU in asset_and_user:
-                            asset = aNU
-                            user = asset_and_user[aNU]
-                            debug.info(asset)
+                        for aNU in stage_and_user:
+                            stage = aNU
+                            user = stage_and_user[aNU]
+                            debug.info(stage)
                             debug.info(user)
                             # for ass in assetNames:
                             assID = str(uuid.uuid4())
                             debug.info(assID)
                             # folder_path = root_folder+os.sep+projName+os.sep+asset
-                            folder_path = os.path.join(root_folder, projName, asset)
+                            folder_path = os.path.join(root_folder, projName, stage)
                             debug.info(folder_path)
-                            createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, asset, folder_path, user)
+                            createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, stage, folder_path, user)
                             debug.info(createAssetQuery)
                             updateAssList = self.db.execute(createAssetQuery)
                             if updateAssList == 1:
                                 os.makedirs(folder_path, exist_ok=True)
-                                if asset == "draft":
+                                if stage == "draft":
                                     # pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
                                     # pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
                                     # pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)

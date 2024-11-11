@@ -144,7 +144,7 @@ class appTest():
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
         self.mediaPlayer.error.connect(self.handle_error)
 
-        self.launchNudi()
+        # self.launchNudi()
 
         #Show Window
         self.main_ui.show()

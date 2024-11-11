@@ -26,6 +26,7 @@ sys.path.append(projDir)
 
 main_ui_file = os.path.join(projDir, "ui_files", "version_list_new.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
+version_details_ui = os.path.join(projDir, "ui_files", "version_details_row.ui")
 
 app_test = os.path.join(projDir, "tests", "app_test.py")
 processes = []
@@ -40,6 +41,7 @@ os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 parser = argparse.ArgumentParser(description="Utility to manage versions")
 parser.add_argument("-f","--filepath",dest="filepath",help="file path")
 parser.add_argument("-a","--asset",dest="asset",help="asset name")
+parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
 
 
@@ -49,7 +51,9 @@ class versionList():
        
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("VERSION LIST")
-        
+
+        self.user = args.user
+
         self.current_files = []
         self.folder = args.filepath
 
@@ -91,15 +95,31 @@ class versionList():
             # folder = Path(self.folder)
             # debug.info(folder)
             # os.chdir(str(folder))
-            hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
+            # hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
+            get_commits_cmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short}\n"]
             # hgLogCmd = "hg log --cwd \'{0}\' --template \'{node|short} - {date|isodate}\'\n".format(self.folder)
-            debug.info(hgLogCmd)
-            commits = subprocess.check_output(hgLogCmd).decode("utf-8").splitlines()
+            debug.info(get_commits_cmd)
+            commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
             # commits = subprocess.check_output(shlex.split(hgLogCmd)).decode("utf-8").splitlines()
             debug.info(commits)
-            for commit in commits:
-                list_item = QListWidgetItem(commit, self.main_ui.versionList)
+            for commit_hash in commits:
+                # commit_hash = commit.split()[0]
+                commit_dets_cmd = ["hg", "log", "--cwd", self.folder, "--rev", commit_hash, "--template", "{rev+1} - {author} - {date(date, '%d-%m-%Y %I:%M %p')}"]
+                commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8")
+                list_item = QListWidgetItem(commit_dets, self.main_ui.versionList)
+                list_item.setData(3, commit_hash)
                 self.main_ui.versionList.addItem(list_item)
+
+                # item_widget = versionDetailRowClass()
+                # item_widget.commit_num.setText(commit_number)
+                # item_widget.commit_dets.setText(commit)
+                #
+                # item = QListWidgetItemSort()
+                # item.setSizeHint(item_widget.sizeHint())
+                #
+                # self.main_ui.versionList.addItem(item)
+                # self.main_ui.versionList.setItemWidget(item, item_widget)
+
             self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
             self.updateFileList()
         except:
@@ -113,7 +133,8 @@ class versionList():
         if selected_item is not None:
             text = selected_item.text()
             debug.info(text)
-            commit_hash = text.split()[0]
+            commit_hash = selected_item.data(3)
+            # commit_hash = text.split()[0]
 
             # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
             files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.folder]).decode("utf-8").splitlines()
@@ -167,8 +188,9 @@ class versionList():
         selected_commit = self.main_ui.versionList.currentItem()
         if selected_commit is not None:
             commit_text = selected_commit.text()
-            commit_hash = commit_text.split()[0]
-        
+            # commit_hash = commit_text.split()[0]
+            commit_hash = selected_commit.data(3)
+
             # subprocess.run(["git", "checkout", commit_hash, "--", self.folder], cwd=self.folder)
             subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.folder])
 
@@ -208,7 +230,7 @@ class versionList():
         try:
             # self.main_ui.filesList.clear()
             subprocess.run(["hg", "add", "--cwd", self.folder, "."], shell=True)
-            p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", "sanath111"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", self.user], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
             for line in p.stdout:
                 debug.info(line)
                 if "nothing changed" in line:
@@ -225,6 +247,11 @@ class versionList():
         # if self.assetName == "draft":
             # copyCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
 
+
+class versionDetailRowClass(QtWidgets.QWidget):
+  def __init__(self,parent=None):
+    super(versionDetailRowClass, self).__init__(parent)
+    uic.loadUi(version_details_ui,baseinstance=self)
 
 
 class fileThumbsClass(QtWidgets.QWidget):
