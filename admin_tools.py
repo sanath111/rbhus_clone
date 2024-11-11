@@ -173,9 +173,9 @@ class adminTools():
 if __name__ == '__main__':
     setproctitle.setproctitle("ADMIN_TOOLS")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = adminTools()
     sys.exit(app.exec_())

@@ -27,8 +27,6 @@ sys.path.append(projDir)
 main_ui_file = os.path.join(projDir, "ui_files", "version_list_new.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 
-# root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
-
 app_test = os.path.join(projDir, "tests", "app_test.py")
 processes = []
 
@@ -57,11 +55,11 @@ class versionList():
 
         self.asset = args.asset
         self.projName = self.asset.split(" : ")[0]
-        self.assetName = self.asset.split(" : ")[1]
+        self.stage = self.asset.split(" : ")[1]
         debug.info(self.folder)
         debug.info(self.asset)
         debug.info(self.projName)
-        debug.info(self.assetName)
+        debug.info(self.stage)
 
         self.loadVersions()
         self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
@@ -247,9 +245,9 @@ class QListWidgetItemSort(QtWidgets.QListWidgetItem):
 if __name__ == '__main__':
     setproctitle.setproctitle("VERSION_LIST")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = versionList()
     sys.exit(app.exec_())

@@ -1,0 +1,7 @@
+setproctitle
+mysqlclient
+PyQt5
+bcrypt
+docx
+python-docx
+beautifulsoup4

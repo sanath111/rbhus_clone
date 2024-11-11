@@ -18,6 +18,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+import constants
 
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
@@ -25,11 +26,13 @@ sys.path.append(projDir)
 main_ui_file = os.path.join(projDir,  "ui_files", "new_project_new.ui")
 
 # root_folder = r"Z:\share\sanath\rbhus_clone_root"
-root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
-template_folder = root_folder+os.sep+"template"
+# root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
+root_folder = constants.root_folder
+# template_folder = root_folder+os.sep+"template"
+template_folder = constants.template_folder
 
 text_formats = ["docx"]
-audio_formats = ["*.mp3"]
+audio_formats = ["*.mp3","*.wav"]
 
 asset_and_user = {}
 
@@ -60,10 +63,11 @@ class newProject():
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
 
+
     def setAssAndUser(self):
         vLayout = QVBoxLayout(self.main_ui.assetFrame)
         
-        queryAssetNames = "select * from asset_names"
+        queryAssetNames = "select * from stages"
         aN = self.db.execute(queryAssetNames,dictionary=True)
         asset_names = [x['name'] for x in aN]
         debug.info(asset_names)
@@ -88,6 +92,7 @@ class newProject():
             vLayout.addWidget(frame)
 
         self.main_ui.assetFrame.setLayout(vLayout)
+
 
     def updateAssAndUserDict(self, chBox, coBox):
         if chBox.isChecked():
@@ -117,15 +122,63 @@ class newProject():
     #         text += self.main_ui.finalBox.text() + ','
     #     self.main_ui.assetsBox.setText(text.strip())
 
+
     def showFileDialog(self):
         file_dialog = QFileDialog()
-        file_dialog.setDirectory(root_folder)
+        file_dialog.setDirectory(template_folder)
         file_dialog.setNameFilters(audio_formats)
         file_dialog.exec_()
         file_paths = file_dialog.selectedFiles()
         debug.info(file_paths)
         self.main_ui.audioFileBox.clear()
-        self.main_ui.audioFileBox.setText(file_paths[0].replace('/','\\'))
+        if os.name == 'nt':
+            self.main_ui.audioFileBox.setText(file_paths[0].replace('/','\\'))
+        else:
+            self.main_ui.audioFileBox.setText(file_paths[0])
+
+
+    def setupProject(self, audio_file, folder_path, proj_name):
+        if os.name == 'nt':
+            paste_audio_cmd = f"copy '{audio_file}' '{folder_path}'"
+            paste_doc_cmd = f"copy '{os.path.join(template_folder, "draft.docx")}' '{folder_path}'"
+            rename_doc_cmd = f"ren '{os.path.join(folder_path, "draft.docx")}' '{proj_name}_draft.docx'"
+        else:
+            paste_audio_cmd = f"rsync -azHXW --info=progress2 '{audio_file}' '{folder_path}'"
+            paste_doc_cmd = f"rsync -azHXW --info=progress2 '{os.path.join(template_folder, "draft.docx")}' '{os.path.join(folder_path, proj_name + "_draft.docx")}'"
+            rename_doc_cmd = ""
+
+        debug.info(paste_audio_cmd)
+        debug.info(paste_doc_cmd)
+        debug.info(rename_doc_cmd)
+
+        self.run_command(paste_audio_cmd)
+        self.run_command(paste_doc_cmd)
+        if rename_doc_cmd:
+            self.run_command(rename_doc_cmd)
+
+
+    def setupVersioning(self, folder_path):
+        cmd_separator = '&' if os.name == 'nt' else '&&'
+
+        init_hg_cmd = (
+            f"hg init --cwd '{folder_path}' {cmd_separator} "
+            f"hg add --cwd '{folder_path}' . {cmd_separator} "
+            f"hg commit --cwd '{folder_path}' -m 'first_commit' --user 'sanath111'"
+        )
+
+        debug.info(init_hg_cmd)
+
+        self.run_command(init_hg_cmd)
+
+
+    def run_command(self, cmd):
+        try:
+            result = subprocess.run(cmd, shell=True, check=True, text=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            debug.info(result.stdout.strip())
+        except subprocess.CalledProcessError as e:
+            debug.info(f"Command failed with error: {e.stderr}")
+
 
     def createProject(self):
         projName = self.main_ui.nameBox.text()
@@ -147,7 +200,8 @@ class newProject():
                 # if user:
                 if asset_and_user:
                     try:
-                        projUpdateQuery = "insert into projects (projName) values (\"{0}\") ".format(projName)
+                        projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName,root_folder)
+                        debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
                         if updateProjList == 1:
                             debug.info("Updated proj list")
@@ -162,7 +216,7 @@ class newProject():
                             # folder_path = root_folder+os.sep+projName+os.sep+asset
                             folder_path = os.path.join(root_folder, projName, asset)
                             debug.info(folder_path)
-                            createAssetQuery = "insert into assets (assID, projName, assetName, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, asset, folder_path, user)
+                            createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, asset, folder_path, user)
                             debug.info(createAssetQuery)
                             updateAssList = self.db.execute(createAssetQuery)
                             if updateAssList == 1:
@@ -170,34 +224,23 @@ class newProject():
                                 if asset == "draft":
                                     # pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
                                     # pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
-                                    pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)
-                                    debug.info(pasteAudioCmd)
-                                    subprocess.run(pasteAudioCmd, shell=True)
-                                    pasteDocCmd = "copy {0} {1} ".format(template_folder+os.sep+"draft.docx",folder_path)
-                                    debug.info(pasteDocCmd)
-                                    subprocess.run(pasteDocCmd, shell=True)
-                                    renameDocCmd = "ren {0} {1} ".format(folder_path+os.sep+"draft.docx", projName+"_draft.docx")
-                                    debug.info(renameDocCmd)
-                                    subprocess.run(renameDocCmd, shell=True)
+                                    # pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)
+                                    # debug.info(pasteAudioCmd)
+                                    # subprocess.run(pasteAudioCmd, shell=True)
+                                    # pasteDocCmd = "copy {0} {1} ".format(template_folder+os.sep+"draft.docx",folder_path)
+                                    # debug.info(pasteDocCmd)
+                                    # subprocess.run(pasteDocCmd, shell=True)
+                                    # renameDocCmd = "ren {0} {1} ".format(folder_path+os.sep+"draft.docx", projName+"_draft.docx")
+                                    # debug.info(renameDocCmd)
+                                    # subprocess.run(renameDocCmd, shell=True)
 
-                                    # gitInitCmd = "git init {0}".format(folder_path)
-                                    # debug.info(gitInitCmd)
-                                    # subprocess.run(gitInitCmd, shell=True)
-                                    # gitAddCmd = "cd {0} & git add . ".format(folder_path)
-                                    # debug.info(gitAddCmd)
-                                    # subprocess.run(gitAddCmd, shell=True)
-                                    # gitCommitCmd = "cd {0} & git commit -m 'first_commit' ".format(folder_path)
-                                    # debug.info(gitCommitCmd)
-                                    # subprocess.run(gitCommitCmd, shell=True)
+                                    self.setupProject(audio_file, folder_path, projName)
+                                    self.setupVersioning(folder_path)
 
-                                    # initGitCmd = "cd {0} & git init & git add . & git commit -m 'first_commit' ".format(folder_path)
-                                    initHgCmd = "hg init --cwd {0} & hg add --cwd {0} . & hg commit --cwd {0} -m 'first_commit' --user 'sanath111' ".format(folder_path)
-                                    debug.info(initHgCmd)
-                                    subprocess.run(initHgCmd, shell=True)
+                                    # initHgCmd = "hg init --cwd {0} & hg add --cwd {0} . & hg commit --cwd {0} -m 'first_commit' --user 'sanath111' ".format(folder_path)
+                                    # debug.info(initHgCmd)
+                                    # subprocess.run(initHgCmd, shell=True)
 
-                                    # subprocess.run("git init {0}".format(folder_path))
-                                    # subprocess.run("cd {0} & git add . ".format(folder_path))
-                                    # subprocess.run("cd {0} & git commit -m 'first_commit' ".format(folder_path))
                         self.main_ui.close()
                     except:
                         err_mess = str(sys.exc_info())
@@ -223,9 +266,9 @@ class newProject():
 if __name__ == '__main__':
     setproctitle.setproctitle("NEW_PROJECT")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = newProject()
     sys.exit(app.exec_())

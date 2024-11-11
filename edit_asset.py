@@ -42,10 +42,10 @@ class editAsset():
 
         self.asset = args.asset
         self.projName = self.asset.split(" : ")[0]
-        self.assetName = self.asset.split(" : ")[1]
+        self.stage = self.asset.split(" : ")[1]
         debug.info(self.asset)
         debug.info(self.projName)
-        debug.info(self.assetName)
+        debug.info(self.stage)
 
         self.fillDetails()
         self.setUsers()
@@ -63,7 +63,7 @@ class editAsset():
 
     def fillDetails(self):
         self.main_ui.assetBox.setText(self.asset)
-        queryGetUser = "select assignedUser from assets where projName='{0}' and assetName='{1}'".format(self.projName,self.assetName)
+        queryGetUser = "select assignedUser from assets where projName='{0}' and stage='{1}'".format(self.projName,self.stage)
         debug.info(queryGetUser)
         assets = self.db.execute(queryGetUser,dictionary=True)
         assignedUser = str(assets[0]["assignedUser"])
@@ -82,7 +82,7 @@ class editAsset():
         debug.info(user)
         if user:
             try:
-                updateUserQuery = "update assets set assignedUser='{0}' where projName='{1}' and assetName='{2}'".format(user,self.projName,self.assetName)
+                updateUserQuery = "update assets set assignedUser='{0}' where projName='{1}' and stage='{2}'".format(user,self.projName,self.stage)
                 updateAssignedUser = self.db.execute(updateUserQuery)
                 debug.info(updateAssignedUser)
                 if updateAssignedUser == 1:
@@ -98,9 +98,9 @@ class editAsset():
 if __name__ == '__main__':
     setproctitle.setproctitle("EDIT_ASSET")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = editAsset()
     sys.exit(app.exec_())

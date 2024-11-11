@@ -83,9 +83,9 @@ class loginPrompt():
 if __name__ == '__main__':
     setproctitle.setproctitle("LOGIN_PROMPT")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = loginPrompt()
     sys.exit(app.exec_())

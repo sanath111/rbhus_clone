@@ -2,3 +2,10 @@
 __pycache__
 __pycache__/
 __pycache__/*
+*~
+*.*swp
+env.set
+*.autosave
+*.lock
+*.idea/
+*.idea/*

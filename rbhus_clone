@@ -20,6 +20,7 @@ if [ "$DIR" != "$RDIR" ]; then
   true
 fi
 #echo "DIR is '$DIR'"
-echo "Loading..."
+source "$DIR"/rbhus_clone-env/bin/activate
 cd "$DIR" || return
-/usr/bin/python3 rbhus_clone.py "$@"
+python3 "$DIR"/login_prompt.py "$@"
+cd - || return

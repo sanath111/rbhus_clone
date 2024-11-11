@@ -19,6 +19,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+import constants
 
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
@@ -27,7 +28,8 @@ main_ui_file = os.path.join(projDir, "ui_files", "rbhus_clone.ui")
 asset_details_ui = os.path.join(projDir, "ui_files", "asset_details_row.ui")
 
 # root_folder = r"Z:\share\sanath\rbhus_clone_root"
-root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
+# root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
+root_folder = constants.root_folder
 
 new_project = os.path.join(projDir, "new_project.py")
 admin_tools = os.path.join(projDir, "admin_tools.py")
@@ -98,14 +100,15 @@ class rbhusClone():
         self.main_ui.move(qtRectangle.topLeft())
 
     def getAdmins(self):
-        get_master_admin = "SELECT * FROM master_admin"
-        mAU = self.db.execute(get_master_admin, dictionary=True)
-        self.master_admin = [x['name'] for x in mAU]
+        # get_master_admin = "SELECT * FROM master_admin"
+        get_user_details = "SELECT * FROM users"
+        user_dets = self.db.execute(get_user_details, dictionary=True)
+        self.master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
         debug.info(self.master_admin)
 
-        get_admins = "SELECT * FROM admins"
-        aU = self.db.execute(get_admins, dictionary=True)
-        self.admins = [x['name'] for x in aU]
+        # get_admins = "SELECT * FROM admins"
+        # aU = self.db.execute(get_admins, dictionary=True)
+        self.admins = [x['name'] for x in user_dets if  x['role'] == "admin" or x['role'] == "master_admin"]
         debug.info(self.admins)
 
     def authorize(self):
@@ -165,16 +168,16 @@ class rbhusClone():
             debug.info(text)
             queryAss = ""
             if self.main_ui.radioMineAss.isChecked():
-                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by assetName".format(text,self.user)
+                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by stage".format(text,self.user)
             else:
-                queryAss = "select * from assets where projName='{0}' order by assetName".format(text)
+                queryAss = "select * from assets where projName='{0}' order by stage".format(text)
             assets = self.db.execute(queryAss,dictionary=True)
             debug.info(assets)
             if assets:
                 for x in assets:
                     item_widget = assetDetailRowClass()
                     item_widget.labelUser.setText(x['assignedUser'])
-                    item_widget.labelAsset.setText(x['projName']+" : "+x['assetName'])
+                    item_widget.labelAsset.setText(x['projName']+" : "+x['stage'])
 
                     item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.assContextMenu(ui,pos=x))
 
@@ -321,9 +324,9 @@ class QListWidgetItemSort(QtWidgets.QListWidgetItem):
 if __name__ == '__main__':
     setproctitle.setproctitle("RBHUS_CLONE")
     app = QtWidgets.QApplication(sys.argv)
-    file = QFile(os.path.join(projDir, "stylesheet.qss"))
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # file = QFile(os.path.join(projDir, "stylesheet.qss"))
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     window = rbhusClone()
     sys.exit(app.exec_())
