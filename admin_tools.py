@@ -188,10 +188,13 @@ class adminTools():
         user = self.main_ui.userList_chrole.currentText()
         getRoleQuery = "select role from users where name='{0}' ".format(user)
         debug.info(getRoleQuery)
-        assets = self.db.execute(getRoleQuery, dictionary=True)
-        role = assets[0]['role']
-        debug.info(role)
-        self.main_ui.roleList_chrole.setCurrentText(role)
+        try:
+            assets = self.db.execute(getRoleQuery, dictionary=True)
+            role = assets[0]['role']
+            debug.info(role)
+            self.main_ui.roleList_chrole.setCurrentText(role)
+        except:
+            debug.info(str(sys.exc_info()))
 
     def changeRole(self):
         user = self.main_ui.userList_chrole.currentText()
