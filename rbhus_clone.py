@@ -35,7 +35,7 @@ new_project = os.path.join(projDir, "new_project.py")
 admin_tools = os.path.join(projDir, "admin_tools.py")
 version_list = os.path.join(projDir, "version_list.py")
 edit_asset = os.path.join(projDir, "edit_asset.py")
-
+login_prompt = os.path.join(projDir, "login_prompt.py")
 processes = []
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
@@ -299,6 +299,9 @@ class rbhusClone():
 
     def logout(self):
         self.main_ui.close()
+        debug.info("Opening login prompt")
+        subprocess.run(sys.executable + " " + login_prompt, shell=True)
+
 
 class assetDetailRowClass(QtWidgets.QWidget):
   def __init__(self,parent=None):
