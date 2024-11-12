@@ -209,7 +209,10 @@ class newProject():
                 if stage_and_user:
                     try:
                         # projPath = os.path.normpath(os.path.join(root_folder, projName))
-                        projPath = str(Path(root_folder) / projName)
+                        if os.name == 'nt':
+                            projPath = os.path.join(root_folder, projName).replace("\\", "\\\\")
+                        else:
+                            projPath = os.path.normpath(os.path.join(root_folder, projName))
                         projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName, projPath)
                         debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
