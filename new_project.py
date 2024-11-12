@@ -10,6 +10,8 @@ import shlex
 import rbhus_clone_db
 import debug
 import argparse
+from pathlib import Path
+
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -206,7 +208,8 @@ class newProject():
                 # if user:
                 if stage_and_user:
                     try:
-                        projPath = os.path.normpath(os.path.join(root_folder, projName))
+                        # projPath = os.path.normpath(os.path.join(root_folder, projName))
+                        projPath = str(Path(root_folder) / projName)
                         projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName, projPath)
                         debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
