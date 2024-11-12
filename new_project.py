@@ -150,7 +150,7 @@ class newProject():
             rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 '{audio_file}' '{folder_path}'"
-            paste_doc_cmd = f"rsync -azHXW --info=progress2 '{os.path.join(template_folder, "draft.docx")}' '{os.path.join(folder_path, proj_name + "_draft.docx")}'"
+            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_draft.docx')}\""
             rename_doc_cmd = ""
 
         debug.info(paste_audio_cmd)
