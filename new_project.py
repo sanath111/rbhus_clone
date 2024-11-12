@@ -145,7 +145,7 @@ class newProject():
 
     def setupProject(self, audio_file, folder_path, proj_name):
         if os.name == 'nt':
-            paste_audio_cmd = f"copy '{audio_file}' '{folder_path}'"
+            paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
             paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
             rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
         else:
@@ -167,9 +167,9 @@ class newProject():
         cmd_separator = '&' if os.name == 'nt' else '&&'
 
         init_hg_cmd = (
-            f"hg init --cwd '{folder_path}' {cmd_separator} "
-            f"hg add --cwd '{folder_path}' . {cmd_separator} "
-            f"hg commit --cwd '{folder_path}' -m 'first_commit' --user {self.user}"
+            f"hg init --cwd \"{folder_path}\" {cmd_separator} "
+            f"hg add --cwd \"{folder_path}\" . {cmd_separator} "
+            f"hg commit --cwd \"{folder_path}\" -m 'first_commit' --user {self.user}"
         )
 
         debug.info(init_hg_cmd)
