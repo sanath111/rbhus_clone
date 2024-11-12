@@ -52,7 +52,7 @@ class newProject():
 
         self.user = args.user
 
-        self.setAssAndUser()
+        self.setStageAndUser()
         # self.setUsers()
         # self.main_ui.draftBox.stateChanged.connect(lambda x : self.updateAssetsBox())
         # self.main_ui.correctionsBox.stateChanged.connect(lambda x : self.updateAssetsBox())
@@ -70,7 +70,7 @@ class newProject():
         self.main_ui.move(qtRectangle.topLeft())
 
 
-    def setAssAndUser(self):
+    def setStageAndUser(self):
         v_layout = QVBoxLayout(self.main_ui.assetFrame)
         
         query_stage_names = "select * from stages"
@@ -206,7 +206,8 @@ class newProject():
                 # if user:
                 if stage_and_user:
                     try:
-                        projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName,root_folder)
+                        projPath = os.path.normpath(os.path.join(root_folder, projName))
+                        projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName, projPath)
                         debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
                         if updateProjList == 1:

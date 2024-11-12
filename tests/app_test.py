@@ -198,6 +198,11 @@ class appTest():
             document.add_paragraph(content)
             document.save(file_path)
 
+            # document = Document()
+            # plain_text = text_edit.toPlainText()
+            # document.add_paragraph(plain_text)
+            # document.save(file_path+"regular_document.docx")
+
         except:
             debug.info(str(sys.exc_info()))
 
