@@ -208,7 +208,7 @@ class newProject():
                 # if user:
                 if stage_and_user:
                     try:
-                        # projPath = os.path.normpath(os.path.join(root_folder, projName))
+                        # projPath = os.path.join(root_folder, projName)
                         if os.name == 'nt':
                             projPath = os.path.join(root_folder, projName).replace("\\", "\\\\")
                         else:
@@ -227,7 +227,11 @@ class newProject():
                             assID = str(uuid.uuid4())
                             debug.info(assID)
                             # folder_path = root_folder+os.sep+projName+os.sep+asset
-                            folder_path = os.path.join(root_folder, projName, stage)
+                            # folder_path = os.path.join(root_folder, projName, stage)
+                            if os.name == 'nt':
+                                folder_path = os.path.join(root_folder, projName, stage).replace("\\", "\\\\")
+                            else:
+                                folder_path = os.path.normpath(os.path.join(root_folder, projName, stage))
                             debug.info(folder_path)
                             createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, stage, folder_path, user)
                             debug.info(createAssetQuery)
