@@ -93,6 +93,7 @@ class newProject():
             co_box.addItems(users)
             ch_box.stateChanged.connect(lambda x, ch_box=ch_box, co_box=co_box: self.updateStageAndUserDict(ch_box, co_box))
             co_box.currentIndexChanged.connect(lambda x, ch_box=ch_box, co_box=co_box: self.updateStageAndUserDict(ch_box, co_box))
+            ch_box.setChecked(True)
             h_layout.addWidget(ch_box)
             h_layout.addWidget(co_box)
 
