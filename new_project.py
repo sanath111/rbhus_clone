@@ -159,11 +159,6 @@ class newProject():
             rename_audio_cmd = ""
             rename_doc_cmd = ""
 
-        debug.info(paste_audio_cmd)
-        debug.info(paste_doc_cmd)
-        debug.info(rename_audio_cmd)
-        debug.info(rename_doc_cmd)
-
         self.run_command(paste_audio_cmd)
         self.run_command(paste_doc_cmd)
         if rename_audio_cmd:
@@ -181,12 +176,11 @@ class newProject():
             f"hg commit --cwd \"{folder_path}\" -m 'first_commit' --user {self.user}"
         )
 
-        debug.info(init_hg_cmd)
-
         self.run_command(init_hg_cmd)
 
 
     def run_command(self, cmd):
+        debug.info(cmd)
         try:
             result = subprocess.run(cmd, shell=True, check=True, text=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)

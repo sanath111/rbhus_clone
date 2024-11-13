@@ -256,31 +256,17 @@ class rbhusClone():
         source_path = os.path.join(root_folder, cur_proj, cur_stage)
         dest_path = os.path.join(root_folder, cur_proj, stage)
         if os.name == 'nt':
-            paste_audio_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\""
-            # paste_doc_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{dest_path}\""
-            paste_doc_cmd = f"xcopy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /F /Y "
-            # audio_filename = os.sep.split(audio_file)[-1]
-            # rename_audio_cmd = f"ren \"{os.path.join(dest_path, audio_filename)}\" \"{proj_name}_source.mp3\""
-            # rename_doc_cmd = f"ren \"{os.path.join(dest_path, cur_proj+'_'+cur_stage+'.docx')}\" \"{cur_proj+'_'+stage+'.docx'}\""
+            paste_audio_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\" /Y"
+            paste_doc_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /Y "
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{os.path.join(dest_path, cur_proj + '_source.mp3')}\""
             paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\""
-            rename_audio_cmd = ""
-            rename_doc_cmd = ""
-
-        debug.info(paste_audio_cmd)
-        debug.info(paste_doc_cmd)
-        # debug.info(rename_audio_cmd)
-        # debug.info(rename_doc_cmd)
 
         self.run_command(paste_audio_cmd)
         self.run_command(paste_doc_cmd)
-        # if rename_audio_cmd:
-        #     self.run_command(rename_audio_cmd)
-        # if rename_doc_cmd:
-        #     self.run_command(rename_doc_cmd)
 
     def run_command(self, cmd):
+        debug.info(cmd)
         try:
             result = subprocess.run(cmd, shell=True, check=True, text=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
