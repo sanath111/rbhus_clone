@@ -71,9 +71,13 @@ class rbhusClone():
         self.master_admin = []
         self.admins = []
         self.user = "nobody"
+        self.role = "none"
         try:
             if args.user:
                 self.user = args.user
+                get_role_cmd = f"SELECT role FROM users WHERE name='{self.user}'"
+                role = self.db.execute(get_role_cmd, dictionary=True)
+                self.role = role[0]['role']
             else:
                 self.user = system_user
         except:
@@ -177,7 +181,9 @@ class rbhusClone():
                 for x in assets:
                     item_widget = assetDetailRowClass()
                     item_widget.labelUser.setText(x['assignedUser'])
-                    item_widget.labelAsset.setText(x['projName']+" : "+x['stage'])
+                    # item_widget.labelAsset.setText(x['projName']+" : "+x['stage'])
+                    item_widget.labelProject.setText(x['projName'])
+                    item_widget.labelStage.setText(x['stage'])
 
                     item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.assContextMenu(ui,pos=x))
 
@@ -192,6 +198,8 @@ class rbhusClone():
     
     def assContextMenu(self, ui, pos):
         debug.info("Asset clicked")
+        cur_proj = ui.labelProject.text()
+        cur_stage = ui.labelStage.text()
         # selected_item = self.main_ui.listWidgetAssets.currentItem()
         # if selected_item is not None:
         #     itemWidget = self.main_ui.listWidgetAssets.itemWidget(selected_item)
@@ -200,31 +208,77 @@ class rbhusClone():
 
         menu = QtWidgets.QMenu()
         menuTools = QtWidgets.QMenu()
+        menuPush = QtWidgets.QMenu()
 
         menuTools.setTitle("Tools")
+        menuPush.setTitle("Send To")
         openAction = menu.addAction("Open")
         editAction = menuTools.addAction("Edit")
+
+        sub_action_dict = {}
+
+        get_stages_cmd = "select stage from assets where projName='{0}'".format(cur_proj)
+        stages = self.db.execute(get_stages_cmd, dictionary=True)
+        for x in stages:
+            if not x['stage'] == cur_stage:
+                get_access_cmd = "select access from stages where name='{0}'".format(x['stage'])
+                accesses = self.db.execute(get_access_cmd, dictionary=True)
+                if self.role in accesses[0]['access']:
+                    sub_action = menuPush.addAction(x['stage'])
+                    sub_action_dict[x['stage']] = sub_action
+
         if self.user in self.admins:
             menu.addMenu(menuTools)
-        # action = menu.exec_(self.main_ui.listWidgetAssets.mapToGlobal(pos))
+        if self.user == ui.labelUser.text():
+            menu.addMenu(menuPush)
+
         action = menu.exec_(ui.mapToGlobal(pos))
 
-        if (action == openAction):
-            # self.tab_open_doubleclick()
+        for x in sub_action_dict:
+            if action == sub_action_dict[x]:
+                debug.info("Push to "+x+" clicked")
+                self.pushAsset(x)
+
+        if action == openAction:
             debug.info("Open clicked")
-            assText = ui.labelAsset.text()
-            debug.info(assText)
-            # filepath = root_folder+os.sep+assText.replace(" : ", os.sep)
-            filepath = os.path.join(root_folder, assText.replace(" : ", os.sep))
-            # filepath = Path(root_folder) / assText.replace(" : ", os.sep)
+            filepath = os.path.join(root_folder, cur_proj, cur_stage)
+            assText = " : ".join([cur_proj, cur_stage])
             debug.info(filepath)
             self.versionList(filepath, assText)
 
-        if (action == editAction):
+        if action == editAction:
             debug.info("Edit clicked")
-            ass_name = ui.labelAsset.text()
+            ass_name = " : ".join([cur_proj, cur_stage])
             debug.info(ass_name)
             self.editAsset(ass_name)
+
+    def pushAsset(self, stage):
+        debug.info(stage)
+        # if os.name == 'nt':
+        #     paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
+        #     paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
+        #     rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
+        # else:
+        #     paste_audio_cmd = f"rsync -azHXW --info=progress2 '{audio_file}' '{folder_path}'"
+        #     paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_draft.docx')}\""
+        #     rename_doc_cmd = ""
+        #
+        # debug.info(paste_audio_cmd)
+        # debug.info(paste_doc_cmd)
+        # debug.info(rename_doc_cmd)
+        #
+        # self.run_command(paste_audio_cmd)
+        # self.run_command(paste_doc_cmd)
+        # if rename_doc_cmd:
+        #     self.run_command(rename_doc_cmd)
+
+    def run_command(self, cmd):
+        try:
+            result = subprocess.run(cmd, shell=True, check=True, text=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            debug.info(result.stdout.strip())
+        except subprocess.CalledProcessError as e:
+            debug.info(f"Command failed with error: {e.stderr}")
 
     def versionList(self, filepath, ass_name):
         debug.info("Opening version list")
@@ -235,8 +289,6 @@ class rbhusClone():
         p.readyReadStandardOutput.connect(self.read_out)
         p.readyReadStandardError.connect(self.read_err)
         # p.finished.connect(self.enableNewProjButt)
-        # p.start(sys.executable, version_list.split())
-        # p.start(sys.executable + " " + version_list + " --filepath " + filepath + " --asset " + "\""+ass_name+"\"")
         p.start(sys.executable, [version_list, "--filepath", filepath, "--asset", ass_name, "--user", self.user])
 
     def editAsset(self, ass_name):
@@ -246,9 +298,8 @@ class rbhusClone():
         debug.info(processes)
         p.readyReadStandardOutput.connect(self.read_out)
         p.readyReadStandardError.connect(self.read_err)
-        # p.start(sys.executable, edit_asset.split())
+        p.finished.connect(self.updateAssetsList)
         p.start(sys.executable + " " + edit_asset + " --asset " + "\""+ass_name+"\"")
-
 
     def newProject(self):
         debug.info("Opening new project")
@@ -259,7 +310,6 @@ class rbhusClone():
         p.readyReadStandardOutput.connect(self.read_out)
         p.readyReadStandardError.connect(self.read_err)
         p.finished.connect(self.enableNewProjButt)
-        # p.start(sys.executable, new_project.split())
         p.start(sys.executable, [new_project, "--user", self.user])
 
     def disableNewProjButt(self):

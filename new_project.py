@@ -35,7 +35,7 @@ root_folder = constants.root_folder
 template_folder = constants.template_folder
 
 text_formats = ["docx"]
-audio_formats = ["*.mp3","*.wav"]
+audio_formats = ["*.mp3"]
 
 stage_and_user = {}
 
@@ -150,18 +150,24 @@ class newProject():
         if os.name == 'nt':
             paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
             paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
+            audio_filename = os.sep.split(audio_file)[-1]
+            rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
             rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
         else:
-            paste_audio_cmd = f"rsync -azHXW --info=progress2 '{audio_file}' '{folder_path}'"
+            paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\""
             paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_draft.docx')}\""
+            rename_audio_cmd = ""
             rename_doc_cmd = ""
 
         debug.info(paste_audio_cmd)
         debug.info(paste_doc_cmd)
+        debug.info(rename_audio_cmd)
         debug.info(rename_doc_cmd)
 
         self.run_command(paste_audio_cmd)
         self.run_command(paste_doc_cmd)
+        if rename_audio_cmd:
+            self.run_command(rename_audio_cmd)
         if rename_doc_cmd:
             self.run_command(rename_doc_cmd)
 

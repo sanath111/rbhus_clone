@@ -70,7 +70,7 @@ class versionList():
         # self.main_ui.filesList.itemClicked.connect(lambda x, : self.showFileName(x))
         self.main_ui.openButt.clicked.connect(lambda x, filepath=self.folder: self.openFile(filepath))
         self.main_ui.commitButt.clicked.connect(lambda x : self.commitChanges())
-        self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
+        # self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
         
         self.main_ui.assetName.setText(self.asset)
         
@@ -242,8 +242,8 @@ class versionList():
         except:
             debug.info(str(sys.exc_info()))
 
-    def pushChanges(self):
-        debug.info("Push clicked")
+    # def pushChanges(self):
+    #     debug.info("Push clicked")
         # if self.assetName == "draft":
             # copyCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
 

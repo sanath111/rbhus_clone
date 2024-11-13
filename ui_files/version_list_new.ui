@@ -74,16 +74,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="pushButt">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>Push</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="4" column="0">
