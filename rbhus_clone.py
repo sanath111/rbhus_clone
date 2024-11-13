@@ -260,7 +260,7 @@ class rbhusClone():
             paste_doc_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{dest_path}\""
             # audio_filename = os.sep.split(audio_file)[-1]
             # rename_audio_cmd = f"ren \"{os.path.join(dest_path, audio_filename)}\" \"{proj_name}_source.mp3\""
-            rename_doc_cmd = f"ren \"{os.path.join(dest_path, cur_proj+'_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj+'_'+stage+'.docx')}\""
+            rename_doc_cmd = f"ren \"{os.path.join(dest_path, cur_proj+'_'+cur_stage+'.docx')}\" \"{cur_proj+'_'+stage+'.docx'}\""
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{os.path.join(dest_path, cur_proj + '_source.mp3')}\""
             paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\""
