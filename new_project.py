@@ -150,7 +150,7 @@ class newProject():
         if os.name == 'nt':
             paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
             paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
-            audio_filename = os.sep.split(audio_file)[-1]
+            audio_filename = audio_file.split(os.sep)[-1]
             rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
             rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
         else:
