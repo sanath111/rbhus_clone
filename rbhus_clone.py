@@ -264,6 +264,17 @@ class rbhusClone():
 
         self.run_command(paste_audio_cmd)
         self.run_command(paste_doc_cmd)
+        self.commitChanges(dest_path)
+
+    def commitChanges(self, dest_path):
+        cmd_separator = '&' if os.name == 'nt' else '&&'
+
+        init_hg_cmd = (
+            f"hg add --cwd \"{dest_path}\" . {cmd_separator} "
+            f"hg commit --cwd \"{dest_path}\" -m  \"new_commit\" --user {self.user}"
+        )
+
+        self.run_command(init_hg_cmd)
 
     def run_command(self, cmd):
         debug.info(cmd)

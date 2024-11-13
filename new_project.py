@@ -146,16 +146,16 @@ class newProject():
             self.main_ui.audioFileBox.setText(file_paths[0])
 
 
-    def setupProject(self, audio_file, folder_path, proj_name):
+    def setupProject(self, audio_file, folder_path, proj_name, stage):
         if os.name == 'nt':
             paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
             paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
             audio_filename = audio_file.split(os.sep)[-1]
             rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
-            rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_draft.docx\""
+            rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_{stage}.docx\""
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\""
-            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_draft.docx')}\""
+            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_'+stage+'.docx')}\""
             rename_audio_cmd = ""
             rename_doc_cmd = ""
 
@@ -239,7 +239,7 @@ class newProject():
                             updateAssList = self.db.execute(createAssetQuery)
                             if updateAssList == 1:
                                 os.makedirs(folder_path, exist_ok=True)
-                                if stage == "draft":
+                                # if stage == "draft":
                                     # pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
                                     # pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
                                     # pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)
@@ -252,8 +252,8 @@ class newProject():
                                     # debug.info(renameDocCmd)
                                     # subprocess.run(renameDocCmd, shell=True)
 
-                                    self.setupProject(audio_file, folder_path, projName)
-                                    self.setupVersioning(folder_path)
+                                self.setupProject(audio_file, folder_path, projName, stage)
+                                self.setupVersioning(folder_path)
 
                                     # initHgCmd = "hg init --cwd {0} & hg add --cwd {0} . & hg commit --cwd {0} -m 'first_commit' --user 'sanath111' ".format(folder_path)
                                     # debug.info(initHgCmd)
