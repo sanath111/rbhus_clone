@@ -259,8 +259,8 @@ class rbhusClone():
         source_path = os.path.join(root_folder, cur_proj, cur_stage)
         dest_path = os.path.join(root_folder, cur_proj, stage)
         if os.name == 'nt':
-            paste_audio_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\" /Y"
-            paste_doc_cmd = f"copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /Y "
+            paste_audio_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\" /Y"
+            paste_doc_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /Y "
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{os.path.join(dest_path, cur_proj + '_source.mp3')}\""
             paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\""
