@@ -149,8 +149,8 @@ class newProject():
 
     def setupProject(self, audio_file, folder_path, proj_name, stage):
         if os.name == 'nt':
-            paste_audio_cmd = f"cmd /c copy \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\""
-            paste_doc_cmd = f"cmd /c copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name+'_'+stage+'.docx')}\""
+            paste_audio_cmd = f"cmd /c copy \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\" /Y"
+            paste_doc_cmd = f"cmd /c copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name+'_'+stage+'.docx')}\" /Y"
             # audio_filename = audio_file.split(os.sep)[-1]
             # rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
             # rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_{stage}.docx\""
