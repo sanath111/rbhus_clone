@@ -249,8 +249,8 @@ class versionList():
         source_path = self.ass_path
         dest_path = utils.getAssPath(proj_name=self.proj_name,stage_name=dest_stage)
         if os.name == 'nt':
-            paste_audio_cmd = f"copy \"{os.path.join(source_path, self.proj_name + '_source.mp3')}\" \"{dest_path}\" /Y"
-            paste_doc_cmd = f"copy \"{os.path.join(source_path, self.proj_name + '_'+self.stage_name+'.docx')}\" \"{os.path.join(dest_path, self.proj_name + '_'+dest_stage+'.docx')}\" /Y "
+            paste_audio_cmd = f"cmd /c copy \"{os.path.join(source_path, self.proj_name + '_source.mp3')}\" \"{dest_path}\" /Y"
+            paste_doc_cmd = f"cmd /c copy \"{os.path.join(source_path, self.proj_name + '_'+self.stage_name+'.docx')}\" \"{os.path.join(dest_path, self.proj_name + '_'+dest_stage+'.docx')}\" /Y "
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, self.proj_name + '_source.mp3')}\" \"{os.path.join(dest_path, self.proj_name + '_source.mp3')}\""
             paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, self.proj_name + '_'+self.stage_name+'.docx')}\" \"{os.path.join(dest_path, self.proj_name + '_'+dest_stage+'.docx')}\""
