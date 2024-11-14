@@ -149,23 +149,23 @@ class newProject():
 
     def setupProject(self, audio_file, folder_path, proj_name, stage):
         if os.name == 'nt':
-            paste_audio_cmd = f"copy \"{audio_file}\" \"{folder_path}\""
-            paste_doc_cmd = f"copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{folder_path}\""
-            audio_filename = audio_file.split(os.sep)[-1]
-            rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
-            rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_{stage}.docx\""
+            paste_audio_cmd = f"cmd /c copy \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\""
+            paste_doc_cmd = f"cmd /c copy \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name+'_'+stage+'.docx')}\""
+            # audio_filename = audio_file.split(os.sep)[-1]
+            # rename_audio_cmd = f"ren \"{os.path.join(folder_path, audio_filename)}\" \"{proj_name}_source.mp3\""
+            # rename_doc_cmd = f"ren \"{os.path.join(folder_path, 'draft.docx')}\" \"{proj_name}_{stage}.docx\""
         else:
             paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{audio_file}\" \"{os.path.join(folder_path, proj_name + '_source.mp3')}\""
-            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name + '_'+stage+'.docx')}\""
-            rename_audio_cmd = ""
-            rename_doc_cmd = ""
+            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(template_folder, 'draft.docx')}\" \"{os.path.join(folder_path, proj_name+'_'+stage+'.docx')}\""
+            # rename_audio_cmd = ""
+            # rename_doc_cmd = ""
 
-        self.run_command(paste_audio_cmd)
-        self.run_command(paste_doc_cmd)
-        if rename_audio_cmd:
-            self.run_command(rename_audio_cmd)
-        if rename_doc_cmd:
-            self.run_command(rename_doc_cmd)
+        utils.run_command(paste_audio_cmd)
+        utils.run_command(paste_doc_cmd)
+        # if rename_audio_cmd:
+        #     utils.run_command(rename_audio_cmd)
+        # if rename_doc_cmd:
+        #     utils.run_command(rename_doc_cmd)
 
 
     def setupVersioning(self, folder_path):
@@ -185,18 +185,18 @@ class newProject():
         hg_add_cmd = f"hg add --cwd \"{folder_path}\" . "
         hg_commit_cmd = f"hg commit --cwd \"{folder_path}\" -m 'first commit' --user {self.user}"
 
-        init_result = utils.run_command(hg_init_cmd)
-        add_result = utils.run_command(hg_add_cmd)
-        commit_result = utils.run_command(hg_commit_cmd)
+        utils.run_command(hg_init_cmd)
+        utils.run_command(hg_add_cmd)
+        utils.run_command(hg_commit_cmd)
 
-    def run_command(self, cmd):
-        debug.info(cmd)
-        try:
-            result = subprocess.run(cmd, shell=True, check=True, text=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            debug.info(result.stdout.strip())
-        except subprocess.CalledProcessError as e:
-            debug.info(f"Command failed with error: {e.stderr}")
+    # def run_command(self, cmd):
+    #     debug.info(cmd)
+    #     try:
+    #         result = subprocess.run(cmd, shell=True, check=True, text=True,
+    #                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #         debug.info(result.stdout.strip())
+    #     except subprocess.CalledProcessError as e:
+    #         debug.info(f"Command failed with error: {e.stderr}")
 
 
     def createProject(self):
