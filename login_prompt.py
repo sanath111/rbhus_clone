@@ -72,11 +72,7 @@ class loginPrompt():
                     debug.info("Password matched")
                     self.main_ui.messageLabel.setText("Password matched")
                     self.main_ui.close()
-                    # subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
-                    print(f"Launching subprocess with: {sys.executable} {rbhus_clone} -u {username}")
-                    debug.info(f"Launching subprocess with: {sys.executable} {rbhus_clone} -u {username}")
-                    subprocess.run([sys.executable, rbhus_clone, '-u', username], shell=False)
-                    sys.exit()
+                    subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
                 else:
                     debug.info("Wrong password")
                     self.main_ui.messageLabel.setText("Password does not match")
