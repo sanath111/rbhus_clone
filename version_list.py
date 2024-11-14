@@ -3,6 +3,8 @@
 
 import os
 import sys
+from sys import exc_info
+
 import setproctitle
 import uuid
 import subprocess
@@ -11,6 +13,7 @@ import rbhus_clone_db
 import debug
 import argparse
 from pathlib import Path
+import utils
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -39,8 +42,9 @@ audio_formats = ["mp3"]
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 parser = argparse.ArgumentParser(description="Utility to manage versions")
-parser.add_argument("-f","--filepath",dest="filepath",help="file path")
-parser.add_argument("-a","--asset",dest="asset",help="asset name")
+# parser.add_argument("-f","--filepath",dest="filepath",help="file path")
+# parser.add_argument("-a","--asset",dest="asset",help="asset name")
+parser.add_argument("-a","--ass_id",dest="ass_id",help="asset id")
 parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
 
@@ -48,32 +52,44 @@ args = parser.parse_args()
 class versionList():
     db = rbhus_clone_db.db()
     def __init__(self):
-       
+
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("VERSION LIST")
 
         self.user = args.user
+        # get_role_cmd = f"SELECT role FROM users WHERE name='{self.user}'"
+        # role = self.db.execute(get_role_cmd, dictionary=True)
+        self.role = utils.getRole(self.user)
 
         self.current_files = []
-        self.folder = args.filepath
 
-        self.asset = args.asset
-        self.projName = self.asset.split(" : ")[0]
-        self.stage = self.asset.split(" : ")[1]
-        debug.info(self.folder)
-        debug.info(self.asset)
-        debug.info(self.projName)
-        debug.info(self.stage)
+        self.ass_dets = utils.getAssDets(args.ass_id)
+        debug.info(self.ass_dets)
+        self.ass_path = self.ass_dets['path']
+        self.proj_name = self.ass_dets['projName']
+        self.stage_name = self.ass_dets['stage']
+        self.ass_user = self.ass_dets['assignedUser']
+
+        # self.folder = args.filepath
+        # self.asset = args.asset
+        # self.projName = self.asset.split(" : ")[0]
+        # self.stage = self.asset.split(" : ")[1]
+        # debug.info(self.folder)
+        # debug.info(self.asset)
+        # debug.info(self.projName)
+        # debug.info(self.stage)
 
         self.loadVersions()
         self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
         # self.main_ui.filesList.itemClicked.connect(lambda x, : self.showFileName(x))
-        self.main_ui.openButt.clicked.connect(lambda x, filepath=self.folder: self.openFile(filepath))
-        self.main_ui.commitButt.clicked.connect(lambda x : self.commitChanges())
+        self.main_ui.openButt.clicked.connect(lambda x, filepath=self.ass_path: self.openFile(filepath))
+        self.main_ui.commitButt.clicked.connect(lambda x, path=self.ass_path: self.commitChanges(path))
         # self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
-        
-        self.main_ui.assetName.setText(self.asset)
-        
+        self.main_ui.pushButt.setMenu(self.popupToolButton())
+        self.main_ui.pushButt.triggered.connect(self.popupToolButtonTriggered)
+
+        self.main_ui.assetName.setText(" : ".join([self.proj_name, self.stage_name]))
+
         #Show Window
         self.main_ui.show()
         self.main_ui.update()
@@ -96,7 +112,7 @@ class versionList():
             # debug.info(folder)
             # os.chdir(str(folder))
             # hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
-            get_commits_cmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short}\n"]
+            get_commits_cmd = ["hg", "log", "--cwd", self.ass_path, "--template", "{node|short}\n"]
             # hgLogCmd = "hg log --cwd \'{0}\' --template \'{node|short} - {date|isodate}\'\n".format(self.folder)
             debug.info(get_commits_cmd)
             commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
@@ -104,21 +120,11 @@ class versionList():
             debug.info(commits)
             for commit_hash in commits:
                 # commit_hash = commit.split()[0]
-                commit_dets_cmd = ["hg", "log", "--cwd", self.folder, "--rev", commit_hash, "--template", "{rev+1} - {author} - {date(date, '%d-%m-%Y %I:%M %p')}"]
+                commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1} - {author} - {date(date, '%d-%m-%Y %I:%M %p')}"]
                 commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8")
                 list_item = QListWidgetItem(commit_dets, self.main_ui.versionList)
                 list_item.setData(3, commit_hash)
                 self.main_ui.versionList.addItem(list_item)
-
-                # item_widget = versionDetailRowClass()
-                # item_widget.commit_num.setText(commit_number)
-                # item_widget.commit_dets.setText(commit)
-                #
-                # item = QListWidgetItemSort()
-                # item.setSizeHint(item_widget.sizeHint())
-                #
-                # self.main_ui.versionList.addItem(item)
-                # self.main_ui.versionList.setItemWidget(item, item_widget)
 
             self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
             self.updateFileList()
@@ -137,50 +143,10 @@ class versionList():
             # commit_hash = text.split()[0]
 
             # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
-            files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.folder]).decode("utf-8").splitlines()
+            files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.ass_path]).decode("utf-8").splitlines()
             debug.info(files)
             debug.info(type(files))
             self.current_files = files
-
-            
-            # for file in files:
-            #     if file.split('.')[-1] in text_formats:
-            #         file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_text.svg"))
-            #     elif file.split('.')[-1] in audio_formats:
-            #         file_icon = QtGui.QPixmap(os.path.join(projDir, "image_files", "file_music.svg"))
-            #     item_widget = fileThumbsClass()
-            #     item_widget.labelFileName.setText(file)
-            #     item_widget.labelIcon.setPixmap(file_icon)
-
-            #     item_widget.customContextMenuRequested.connect(lambda x, ui=item_widget: self.fileContextMenu(ui,pos=x))
-
-            #     item = QListWidgetItemSort()
-            #     item.setSizeHint(item_widget.sizeHint())
-
-            #     self.main_ui.filesList.addItem(item)
-            #     self.main_ui.filesList.setItemWidget(item, item_widget)
-
-    # def showFileName(self, item):
-    #     item_widget = self.main_ui.filesList.itemWidget(item)
-    #     filename = item_widget.labelFileName.text()
-    #     self.main_ui.messageLabel.clear()
-    #     self.main_ui.messageLabel.setText(filename)
-
-    # def fileContextMenu(self, ui, pos):
-    #     debug.info("File clicked")
-
-    #     menu = QtWidgets.QMenu()
-    #     openAction = menu.addAction("Open")
-
-    #     action = menu.exec_(ui.mapToGlobal(pos))
-
-    #     if (action == openAction):
-    #         debug.info("Open clicked")
-    #         filename = ui.labelFileName.text()
-    #         filepath = self.folder+os.sep+filename
-    #         debug.info(filepath)
-    #         self.openFile(filepath)
-
 
     def openFile(self, filepath):
         # selected_file = self.main_ui.filesList.currentItem()
@@ -192,7 +158,7 @@ class versionList():
             commit_hash = selected_commit.data(3)
 
             # subprocess.run(["git", "checkout", commit_hash, "--", self.folder], cwd=self.folder)
-            subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.folder])
+            subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.ass_path])
 
             # text = selected_file.text()
             
@@ -203,9 +169,9 @@ class versionList():
             audio_file = ""
             for file in self.current_files:
                 if file.endswith("docx"):
-                    text_file = self.folder+os.sep+file
+                    text_file = self.ass_path+os.sep+file
                 if file.endswith("mp3"):
-                    audio_file = self.folder+os.sep+file
+                    audio_file = self.ass_path+os.sep+file
 
             debug.info("Opening file")
             p = QProcess(parent=self.main_ui)
@@ -226,26 +192,72 @@ class versionList():
             for process in processes:
                 print ('stderr:', str(process.readAllStandardError()).strip())
 
-    def commitChanges(self):
+    def commitChanges(self, path):
+        self.main_ui.messageLabel.clear()
         try:
+            if not self.user == self.ass_user:
+                self.main_ui.messageLabel.setText("Asset not assigned to you.")
+                return
+
             # self.main_ui.filesList.clear()
-            subprocess.run(["hg", "add", "--cwd", self.folder, "."], shell=True)
-            p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", self.user], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-            for line in p.stdout:
-                debug.info(line)
-                if "nothing changed" in line:
-                    self.main_ui.messageLabel.setText("Nothing to Commit")
-                    break
-                else:
-                    self.main_ui.messageLabel.setText("Commit Success")
+            # subprocess.run(["hg", "add", "--cwd", self.folder, "."], shell=True)
+            # p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", self.user], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+
+            hg_add_cmd =f"hg add --cwd \"{path}\" . "
+            hg_commit_cmd = f"hg commit --cwd \"{path}\" -m  \"new_commit\" --user {self.user}"
+
+            add_result = utils.run_command(hg_add_cmd)
+            commit_result = utils.run_command(hg_commit_cmd)
+            if add_result == 'success':
+                if commit_result:
+                    self.main_ui.messageLabel.setText(commit_result)
+            else:
+                self.main_ui.messageLabel.setText(add_result)
             self.loadVersions()
-        except:
+
+        except Exception as ex :
+            debug.info("An unexpected error occurred: ", ex)
             debug.info(str(sys.exc_info()))
 
-    # def pushChanges(self):
-    #     debug.info("Push clicked")
-        # if self.assetName == "draft":
-            # copyCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
+    def popupToolButton(self):
+        menu = QtWidgets.QMenu()
+
+        sub_action_dict = {}
+        stages = utils.getAllStages(self.proj_name)
+        for x in stages:
+            if not x['stage'] == self.stage_name:
+                get_access_cmd = "select access from stages where name='{0}'".format(x['stage'])
+                accesses = self.db.execute(get_access_cmd, dictionary=True)
+                if self.role in accesses[0]['access']:
+                    sub_action = menu.addAction(x['stage'])
+                    sub_action_dict[x['stage']] = sub_action
+
+        if self.user == self.ass_user:
+            return menu
+        else:
+            self.main_ui.messageLabel.setText("Asset not assigned to you.")
+            return None
+
+    def popupToolButtonTriggered(self, action):
+        dest_stage = action.text().strip()
+        debug.info(f"Push to {dest_stage} clicked")
+        self.main_ui.messageLabel.clear()
+        self.pushAsset(dest_stage)
+
+    def pushAsset(self, dest_stage):
+        self.main_ui.messageLabel.clear()
+        source_path = self.ass_path
+        dest_path = utils.getAssPath(proj_name=self.proj_name,stage_name=dest_stage)
+        if os.name == 'nt':
+            paste_audio_cmd = f"copy \"{os.path.join(source_path, self.proj_name + '_source.mp3')}\" \"{dest_path}\" /Y"
+            paste_doc_cmd = f"copy \"{os.path.join(source_path, self.proj_name + '_'+self.stage_name+'.docx')}\" \"{os.path.join(dest_path, self.proj_name + '_'+dest_stage+'.docx')}\" /Y "
+        else:
+            paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, self.proj_name + '_source.mp3')}\" \"{os.path.join(dest_path, self.proj_name + '_source.mp3')}\""
+            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, self.proj_name + '_'+self.stage_name+'.docx')}\" \"{os.path.join(dest_path, self.proj_name + '_'+dest_stage+'.docx')}\""
+
+        paste_audio_result = utils.run_command(paste_audio_cmd)
+        paste_doc_result = utils.run_command(paste_doc_cmd)
+        self.commitChanges(dest_path)
 
 
 class versionDetailRowClass(QtWidgets.QWidget):

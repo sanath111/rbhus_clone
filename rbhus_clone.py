@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 import constants
+import utils
 
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
@@ -241,10 +242,12 @@ class rbhusClone():
 
         if action == openAction:
             debug.info("Open clicked")
-            filepath = os.path.join(root_folder, cur_proj, cur_stage)
-            assText = " : ".join([cur_proj, cur_stage])
-            debug.info(filepath)
-            self.versionList(filepath, assText)
+            # filepath = os.path.join(root_folder, cur_proj, cur_stage)
+            # assText = " : ".join([cur_proj, cur_stage])
+            # debug.info(filepath)
+            ass_id = utils.getAssID(proj_name=cur_proj, stage_name=cur_stage)
+            debug.info(ass_id)
+            self.versionList(ass_id)
 
         if action == editAction:
             debug.info("Edit clicked")
@@ -285,7 +288,7 @@ class rbhusClone():
         except subprocess.CalledProcessError as e:
             debug.info(f"Command failed with error: {e.stderr}")
 
-    def versionList(self, filepath, ass_name):
+    def versionList(self, ass_id):
         debug.info("Opening version list")
         p = QProcess(parent=self.main_ui)
         processes.append(p)
@@ -294,7 +297,7 @@ class rbhusClone():
         p.readyReadStandardOutput.connect(self.read_out)
         p.readyReadStandardError.connect(self.read_err)
         # p.finished.connect(self.enableNewProjButt)
-        p.start(sys.executable, [version_list, "--filepath", filepath, "--asset", ass_name, "--user", self.user])
+        p.start(sys.executable, [version_list, "--ass_id", ass_id, "--user", self.user])
 
     def editAsset(self, ass_name):
         debug.info("Opening edit asset")
