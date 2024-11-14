@@ -11,6 +11,7 @@ import rbhus_clone_db
 import debug
 import argparse
 from pathlib import Path
+import utils
 
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
@@ -172,14 +173,21 @@ class newProject():
             folder_path = folder_path.replace("\\\\", "\\")
         cmd_separator = '&' if os.name == 'nt' else '&&'
 
-        init_hg_cmd = (
-            f"hg init --cwd \"{folder_path}\" {cmd_separator} "
-            f"hg add --cwd \"{folder_path}\" . {cmd_separator} "
-            f"hg commit --cwd \"{folder_path}\" -m 'first commit' --user {self.user}"
-        )
+        # init_hg_cmd = (
+        #     f"hg init --cwd \"{folder_path}\" {cmd_separator} "
+        #     f"hg add --cwd \"{folder_path}\" . {cmd_separator} "
+        #     f"hg commit --cwd \"{folder_path}\" -m 'first commit' --user {self.user}"
+        # )
 
-        self.run_command(init_hg_cmd)
+        # self.run_command(init_hg_cmd)
 
+        hg_init_cmd = f"hg init --cwd \"{folder_path}\""
+        hg_add_cmd = f"hg add --cwd \"{folder_path}\" . "
+        hg_commit_cmd = f"hg commit --cwd \"{folder_path}\" -m 'first commit' --user {self.user}"
+
+        init_result = utils.run_command(hg_init_cmd)
+        add_result = utils.run_command(hg_add_cmd)
+        commit_result = utils.run_command(hg_commit_cmd)
 
     def run_command(self, cmd):
         debug.info(cmd)
