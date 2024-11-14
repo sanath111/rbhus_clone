@@ -168,6 +168,7 @@ class newProject():
 
 
     def setupVersioning(self, folder_path):
+        folder_path = folder_path.replace("\\\\", "\\")
         cmd_separator = '&' if os.name == 'nt' else '&&'
 
         init_hg_cmd = (
