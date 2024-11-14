@@ -74,7 +74,7 @@ class loginPrompt():
                     self.main_ui.close()
                     # subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
                     subprocess.run([sys.executable, rbhus_clone, '-u', username], shell=False)
-
+                    sys.exit()
                 else:
                     debug.info("Wrong password")
                     self.main_ui.messageLabel.setText("Password does not match")
