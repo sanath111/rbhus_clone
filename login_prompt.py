@@ -42,7 +42,7 @@ class loginPrompt():
 
         #Show Window
         self.main_ui.show()
-        self.main_ui.showFullScreen()
+        # self.main_ui.showFullScreen()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -72,7 +72,9 @@ class loginPrompt():
                     debug.info("Password matched")
                     self.main_ui.messageLabel.setText("Password matched")
                     self.main_ui.close()
-                    subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
+                    # subprocess.run(sys.executable + " " + rbhus_clone + " -u " + username, shell=True)
+                    subprocess.run([sys.executable, rbhus_clone, '-u', username], shell=False)
+
                 else:
                     debug.info("Wrong password")
                     self.main_ui.messageLabel.setText("Password does not match")
