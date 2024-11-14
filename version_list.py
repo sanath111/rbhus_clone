@@ -80,10 +80,11 @@ class versionList():
         # debug.info(self.stage)
 
         self.loadVersions()
-        self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
+        self.main_ui.versionTable.itemSelectionChanged.connect(self.updateFileList)
+        # self.main_ui.versionList.itemClicked.connect(lambda x : self.updateFileList())
         # self.main_ui.filesList.itemClicked.connect(lambda x, : self.showFileName(x))
-        self.main_ui.openButt.clicked.connect(lambda x, filepath=self.ass_path: self.openFile(filepath))
-        self.main_ui.commitButt.clicked.connect(lambda x, path=self.ass_path: self.commitChanges(path))
+        self.main_ui.openButt.clicked.connect(lambda x: self.openFile())
+        self.main_ui.commitButt.clicked.connect(lambda x, path=self.ass_path: self.commitChanges(path, "regular commit"))
         # self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
         self.main_ui.pushButt.setMenu(self.popupToolButton())
         self.main_ui.pushButt.triggered.connect(self.popupToolButtonTriggered)
@@ -100,13 +101,13 @@ class versionList():
         self.main_ui.move(qtRectangle.topLeft())
 
     def loadVersions(self):
-        self.main_ui.versionList.clear()
+        # self.main_ui.versionList.clear()
 
         # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
         # debug.info(gitConfigCmd)
         # subprocess.run(gitConfigCmd, shell=True)
         
-        cur_dir = os.getcwd()
+        # cur_dir = os.getcwd()
         try:
             # folder = Path(self.folder)
             # debug.info(folder)
@@ -118,15 +119,37 @@ class versionList():
             commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
             # commits = subprocess.check_output(shlex.split(hgLogCmd)).decode("utf-8").splitlines()
             debug.info(commits)
-            for commit_hash in commits:
-                # commit_hash = commit.split()[0]
-                commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1} - {author} - {date(date, '%d-%m-%Y %I:%M %p')}"]
-                commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8")
-                list_item = QListWidgetItem(commit_dets, self.main_ui.versionList)
-                list_item.setData(3, commit_hash)
-                self.main_ui.versionList.addItem(list_item)
 
-            self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
+            self.main_ui.versionTable.setColumnCount(4)
+            self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
+            # self.main_ui.versionTable.horizontalHeader().setStretchLastSection(True)
+            # self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+            self.main_ui.versionTable.setRowCount(len(commits))
+
+            for row, commit_hash in enumerate(commits):
+                # commit_hash = commit.split()[0]
+                commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1}\n{author}\n{date(date, '%d-%m-%Y %I:%M %p')}\n{desc}"]
+                commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8").splitlines()
+                # list_item = QListWidgetItem(commit_dets, self.main_ui.versionList)
+                # list_item.setData(3, commit_hash)
+                # self.main_ui.versionList.addItem(list_item)
+
+                for col, detail in enumerate(commit_dets):
+                    cell_item = QTableWidgetItem(detail)
+                    if col == 0:
+                        cell_item.setData(Qt.UserRole, commit_hash)
+                    self.main_ui.versionTable.setItem(row, col, cell_item)
+                    if col == 3:
+                        self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.Stretch)
+                    else:
+                        self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
+
+            # self.main_ui.versionTable.resizeColumnsToContents()
+
+            if len(commits) > 0:
+                self.main_ui.versionTable.selectRow(0)
+
+            # self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
             self.updateFileList()
         except:
             debug.info(str(sys.exc_info()))
@@ -135,11 +158,15 @@ class versionList():
 
     def updateFileList(self):
         # self.main_ui.filesList.clear()
-        selected_item = self.main_ui.versionList.currentItem()
-        if selected_item is not None:
-            text = selected_item.text()
-            debug.info(text)
-            commit_hash = selected_item.data(3)
+        # selected_item = self.main_ui.versionList.currentItem()
+        selected_items = self.main_ui.versionTable.selectedItems()
+        # if selected_item is not None:
+        if selected_items:
+            selected_row = selected_items[0].row()
+            commit_hash = self.main_ui.versionTable.item(selected_row, 0).data(Qt.UserRole)
+            # text = selected_item.text()
+            debug.info(commit_hash)
+            # commit_hash = selected_item.data(3)
             # commit_hash = text.split()[0]
 
             # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
@@ -148,15 +175,19 @@ class versionList():
             debug.info(type(files))
             self.current_files = files
 
-    def openFile(self, filepath):
+    def openFile(self):
         # selected_file = self.main_ui.filesList.currentItem()
         # if selected_file is not None:
-        selected_commit = self.main_ui.versionList.currentItem()
-        if selected_commit is not None:
-            commit_text = selected_commit.text()
+        # selected_commit = self.main_ui.versionList.currentItem()
+        selected_items = self.main_ui.versionTable.selectedItems()
+        # if selected_commit is not None:
+        if selected_items:
+            # commit_text = selected_commit.text()
             # commit_hash = commit_text.split()[0]
-            commit_hash = selected_commit.data(3)
-
+            # commit_hash = selected_commit.data(3)
+            selected_row = selected_items[0].row()
+            commit_hash = self.main_ui.versionTable.item(selected_row, 0).data(Qt.UserRole)
+            debug.info(commit_hash)
             # subprocess.run(["git", "checkout", commit_hash, "--", self.folder], cwd=self.folder)
             subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.ass_path])
 
@@ -192,7 +223,7 @@ class versionList():
             for process in processes:
                 print ('stderr:', str(process.readAllStandardError()).strip())
 
-    def commitChanges(self, path):
+    def commitChanges(self, path, message):
         self.main_ui.messageLabel.clear()
         try:
             if not self.user == self.ass_user:
@@ -204,7 +235,7 @@ class versionList():
             # p = subprocess.Popen(["hg", "commit", "--cwd", self.folder, "-m" , "new_commit", "--user", self.user], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
             hg_add_cmd =f"hg add --cwd \"{path}\" . "
-            hg_commit_cmd = f"hg commit --cwd \"{path}\" -m  \"new_commit\" --user {self.user}"
+            hg_commit_cmd = f"hg commit --cwd \"{path}\" -m  \"{message}\" --user {self.user}"
 
             add_result = utils.run_command(hg_add_cmd)
             commit_result = utils.run_command(hg_commit_cmd)
@@ -257,7 +288,7 @@ class versionList():
 
         paste_audio_result = utils.run_command(paste_audio_cmd)
         paste_doc_result = utils.run_command(paste_doc_cmd)
-        self.commitChanges(dest_path)
+        self.commitChanges(dest_path, f"from {self.stage_name}")
 
 
 class versionDetailRowClass(QtWidgets.QWidget):

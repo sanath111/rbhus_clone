@@ -209,36 +209,36 @@ class rbhusClone():
 
         menu = QtWidgets.QMenu()
         menuTools = QtWidgets.QMenu()
-        menuPush = QtWidgets.QMenu()
+        # menuPush = QtWidgets.QMenu()
 
         menuTools.setTitle("Tools")
-        menuPush.setTitle("Send To")
+        # menuPush.setTitle("Send To")
         openAction = menu.addAction("Open")
         editAction = menuTools.addAction("Edit")
 
-        sub_action_dict = {}
-
-        get_stages_cmd = "select stage from assets where projName='{0}'".format(cur_proj)
-        stages = self.db.execute(get_stages_cmd, dictionary=True)
-        for x in stages:
-            if not x['stage'] == cur_stage:
-                get_access_cmd = "select access from stages where name='{0}'".format(x['stage'])
-                accesses = self.db.execute(get_access_cmd, dictionary=True)
-                if self.role in accesses[0]['access']:
-                    sub_action = menuPush.addAction(x['stage'])
-                    sub_action_dict[x['stage']] = sub_action
+        # sub_action_dict = {}
+        #
+        # get_stages_cmd = "select stage from assets where projName='{0}'".format(cur_proj)
+        # stages = self.db.execute(get_stages_cmd, dictionary=True)
+        # for x in stages:
+        #     if not x['stage'] == cur_stage:
+        #         get_access_cmd = "select access from stages where name='{0}'".format(x['stage'])
+        #         accesses = self.db.execute(get_access_cmd, dictionary=True)
+        #         if self.role in accesses[0]['access']:
+        #             sub_action = menuPush.addAction(x['stage'])
+        #             sub_action_dict[x['stage']] = sub_action
 
         if self.user in self.admins:
             menu.addMenu(menuTools)
-        if self.user == ui.labelUser.text():
-            menu.addMenu(menuPush)
+        # if self.user == ui.labelUser.text():
+        #     menu.addMenu(menuPush)
 
         action = menu.exec_(ui.mapToGlobal(pos))
 
-        for x in sub_action_dict:
-            if action == sub_action_dict[x]:
-                debug.info("Push to "+x+" clicked")
-                self.pushAsset(x, cur_proj, cur_stage)
+        # for x in sub_action_dict:
+        #     if action == sub_action_dict[x]:
+        #         debug.info("Push to "+x+" clicked")
+        #         self.pushAsset(x, cur_proj, cur_stage)
 
         if action == openAction:
             debug.info("Open clicked")
@@ -255,38 +255,38 @@ class rbhusClone():
             debug.info(ass_name)
             self.editAsset(ass_name)
 
-    def pushAsset(self, stage, cur_proj, cur_stage):
-        source_path = os.path.join(root_folder, cur_proj, cur_stage)
-        dest_path = os.path.join(root_folder, cur_proj, stage)
-        if os.name == 'nt':
-            paste_audio_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\" /Y"
-            paste_doc_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /Y "
-        else:
-            paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{os.path.join(dest_path, cur_proj + '_source.mp3')}\""
-            paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\""
-
-        self.run_command(paste_audio_cmd)
-        self.run_command(paste_doc_cmd)
-        self.commitChanges(dest_path)
-
-    def commitChanges(self, dest_path):
-        cmd_separator = '&' if os.name == 'nt' else '&&'
-
-        init_hg_cmd = (
-            f"hg add --cwd \"{dest_path}\" . {cmd_separator} "
-            f"hg commit --cwd \"{dest_path}\" -m  \"new_commit\" --user {self.user}"
-        )
-
-        self.run_command(init_hg_cmd)
-
-    def run_command(self, cmd):
-        debug.info(cmd)
-        try:
-            result = subprocess.run(cmd, shell=True, check=True, text=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            debug.info(result.stdout.strip())
-        except subprocess.CalledProcessError as e:
-            debug.info(f"Command failed with error: {e.stderr}")
+    # def pushAsset(self, stage, cur_proj, cur_stage):
+    #     source_path = os.path.join(root_folder, cur_proj, cur_stage)
+    #     dest_path = os.path.join(root_folder, cur_proj, stage)
+    #     if os.name == 'nt':
+    #         paste_audio_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{dest_path}\" /Y"
+    #         paste_doc_cmd = f"cmd /c copy \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\" /Y "
+    #     else:
+    #         paste_audio_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_source.mp3')}\" \"{os.path.join(dest_path, cur_proj + '_source.mp3')}\""
+    #         paste_doc_cmd = f"rsync -azHXW --info=progress2 \"{os.path.join(source_path, cur_proj + '_'+cur_stage+'.docx')}\" \"{os.path.join(dest_path, cur_proj + '_'+stage+'.docx')}\""
+    #
+    #     self.run_command(paste_audio_cmd)
+    #     self.run_command(paste_doc_cmd)
+    #     self.commitChanges(dest_path)
+    #
+    # def commitChanges(self, dest_path):
+    #     cmd_separator = '&' if os.name == 'nt' else '&&'
+    #
+    #     init_hg_cmd = (
+    #         f"hg add --cwd \"{dest_path}\" . {cmd_separator} "
+    #         f"hg commit --cwd \"{dest_path}\" -m  \"new_commit\" --user {self.user}"
+    #     )
+    #
+    #     self.run_command(init_hg_cmd)
+    #
+    # def run_command(self, cmd):
+    #     debug.info(cmd)
+    #     try:
+    #         result = subprocess.run(cmd, shell=True, check=True, text=True,
+    #                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    #         debug.info(result.stdout.strip())
+    #     except subprocess.CalledProcessError as e:
+    #         debug.info(f"Command failed with error: {e.stderr}")
 
     def versionList(self, ass_id):
         debug.info("Opening version list")

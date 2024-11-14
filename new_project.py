@@ -173,7 +173,7 @@ class newProject():
         init_hg_cmd = (
             f"hg init --cwd \"{folder_path}\" {cmd_separator} "
             f"hg add --cwd \"{folder_path}\" . {cmd_separator} "
-            f"hg commit --cwd \"{folder_path}\" -m 'first_commit' --user {self.user}"
+            f"hg commit --cwd \"{folder_path}\" -m 'first commit' --user {self.user}"
         )
 
         self.run_command(init_hg_cmd)
