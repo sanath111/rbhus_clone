@@ -14,4 +14,4 @@ if not os.path.isfile(bat_file):
     print(f"Error: The specified BAT file does not exist: {bat_file}")
     sys.exit(1)
 
-subprocess.run([bat_file], shell=False)
+subprocess.run([bat_file], shell=True)
