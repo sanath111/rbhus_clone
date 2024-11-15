@@ -40,6 +40,7 @@ main_ui_file = os.path.join(projDir,  "tests", "app_test.ui")
 # root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
+os.environ['QT_SCALE_FACTOR'] = '1'
 
 parser = argparse.ArgumentParser(description="Utility to manage assets")
 parser.add_argument("-t","--text",dest="text",help="text")
@@ -150,6 +151,7 @@ class appTest():
 
         #Show Window
         self.main_ui.show()
+        self.main_ui.showMaximized()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
