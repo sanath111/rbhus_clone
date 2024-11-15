@@ -70,6 +70,9 @@
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
         <item>
          <property name="text">
           <string>t</string>

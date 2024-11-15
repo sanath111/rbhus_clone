@@ -5,4 +5,5 @@ source rbhus_clone-env/bin/activate
 unset PYTHONPATH
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
+pyinstaller --onefile rbhus_clone_launcher_lin.py
 echo "----- Created venv -------"

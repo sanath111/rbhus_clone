@@ -5,3 +5,4 @@ bcrypt
 docx
 python-docx
 beautifulsoup4
+pyinstaller
