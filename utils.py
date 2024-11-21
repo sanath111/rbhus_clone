@@ -57,6 +57,35 @@ def getAllStages(proj_name):
     stages = db.execute(get_stages_cmd, dictionary=True)
     return stages
 
+def getAdmins():
+    get_user_details = "SELECT * FROM users"
+    user_dets = db.execute(get_user_details, dictionary=True)
+    master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
+    admins = [x['name'] for x in user_dets if x['role'] == "admin" or x['role'] == "master_admin"]
+    return master_admin, admins
+
+def getStageName(index):
+    get_stage_name = f"SELECT name FROM stages WHERE `index`={index}"
+    stage_name_dict = db.execute(get_stage_name, dictionary=True)
+    stage_name = stage_name_dict[0]['name']
+    return str(stage_name)
+
+def getStageDets():
+    get_stage_details = "SELECT * FROM stages"
+    stage_dets = db.execute(get_stage_details, dictionary=True)
+    return stage_dets
+
+def getProjStatus(proj_name):
+    get_proj_status = f"SELECT status FROM projects WHERE projName='{proj_name}'"
+    status_dict = db.execute(get_proj_status, dictionary=True)
+    status = status_dict[0]['status']
+    return status
+
+def setProjStatus(proj_name, status):
+    set_proj_status = f"UPDATE projects SET status='{status}' WHERE projName='{proj_name}'"
+    set_status_result = db.execute(set_proj_status)
+    return set_status_result
+
 def run_command(cmd):
     debug.info(f"Executing command: {cmd}")
 

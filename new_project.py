@@ -224,7 +224,7 @@ class newProject():
                             projPath = os.path.join(root_folder, projName).replace("\\", "\\\\")
                         else:
                             projPath = os.path.normpath(os.path.join(root_folder, projName))
-                        projUpdateQuery = "INSERT INTO projects (projName, path) VALUES (\"{0}\",\"{1}\") ".format(projName, projPath)
+                        projUpdateQuery = "INSERT INTO projects (projName, path, status) VALUES (\"{0}\",\"{1}\",\"{2}\") ".format(projName, projPath, 0)
                         debug.info(projUpdateQuery)
                         updateProjList = self.db.execute(projUpdateQuery)
                         if updateProjList == 1:

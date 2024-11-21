@@ -63,22 +63,25 @@ class rbhusClone():
         self.main_ui.adminToolsButt.clicked.connect(lambda x : self.adminTools())
         
         self.main_ui.listWidgetProjs.itemClicked.connect(lambda x : self.updateAssetsList())
+        self.main_ui.listWidgetAssets.itemClicked.connect(self.updateStatusLabel)
 
         self.main_ui.radioMineAss.clicked.connect(lambda x : self.updateAssetsList())
         self.main_ui.radioAllAss.clicked.connect(lambda x : self.updateAssetsList())
 
         self.main_ui.logoutButton.clicked.connect(lambda x : self.logout())
 
-        self.master_admin = []
-        self.admins = []
+        # self.master_admin = []
+        # self.admins = []
+        self.master_admin, self.admins = utils.getAdmins()
         self.user = "nobody"
         self.role = "none"
         try:
             if args.user:
                 self.user = args.user
-                get_role_cmd = f"SELECT role FROM users WHERE name='{self.user}'"
-                role = self.db.execute(get_role_cmd, dictionary=True)
-                self.role = role[0]['role']
+                # get_role_cmd = f"SELECT role FROM users WHERE name='{self.user}'"
+                # role = self.db.execute(get_role_cmd, dictionary=True)
+                # self.role = role[0]['role']
+                self.role = utils.getRole(self.user)
             else:
                 self.user = system_user
         except:
@@ -86,7 +89,7 @@ class rbhusClone():
 
         self.main_ui.usernameLabel.setText(self.user)
 
-        self.getAdmins()
+        # self.getAdmins()
         self.authorize()
         self.updateProjectsList()
 
@@ -96,8 +99,8 @@ class rbhusClone():
 
         #Show Window
         self.main_ui.show()
-        # self.main_ui.showMaximized()
-        self.main_ui.showFullScreen()
+        self.main_ui.showMaximized()
+        # self.main_ui.showFullScreen()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -105,17 +108,17 @@ class rbhusClone():
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
 
-    def getAdmins(self):
-        # get_master_admin = "SELECT * FROM master_admin"
-        get_user_details = "SELECT * FROM users"
-        user_dets = self.db.execute(get_user_details, dictionary=True)
-        self.master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
-        debug.info(self.master_admin)
-
-        # get_admins = "SELECT * FROM admins"
-        # aU = self.db.execute(get_admins, dictionary=True)
-        self.admins = [x['name'] for x in user_dets if  x['role'] == "admin" or x['role'] == "master_admin"]
-        debug.info(self.admins)
+    # def getAdmins(self):
+    #     # get_master_admin = "SELECT * FROM master_admin"
+    #     get_user_details = "SELECT * FROM users"
+    #     user_dets = self.db.execute(get_user_details, dictionary=True)
+    #     self.master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
+    #     debug.info(self.master_admin)
+    #
+    #     # get_admins = "SELECT * FROM admins"
+    #     # aU = self.db.execute(get_admins, dictionary=True)
+    #     self.admins = [x['name'] for x in user_dets if  x['role'] == "admin" or x['role'] == "master_admin"]
+    #     debug.info(self.admins)
 
     def authorize(self):
         """
@@ -170,13 +173,18 @@ class rbhusClone():
         self.main_ui.listWidgetAssets.clear()
         selected_item = self.main_ui.listWidgetProjs.currentItem()
         if selected_item is not None:
-            text = selected_item.text()
-            debug.info(text)
+            proj_text = selected_item.text()
+            debug.info(proj_text)
+            proj_status = utils.getProjStatus(proj_text)
+            debug.info(proj_status)
+            proj_status_stage = utils.getStageName(proj_status)
+            self.main_ui.statusLabel.setText(f"Project Status: In {proj_status_stage}")
+
             queryAss = ""
             if self.main_ui.radioMineAss.isChecked():
-                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by stage".format(text,self.user)
+                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by stage".format(proj_text,self.user)
             else:
-                queryAss = "select * from assets where projName='{0}' order by stage".format(text)
+                queryAss = "select * from assets where projName='{0}' order by stage".format(proj_text)
             assets = self.db.execute(queryAss,dictionary=True)
             debug.info(assets)
             if assets:
@@ -197,7 +205,15 @@ class rbhusClone():
             
             # self.main_ui.listWidgetAssets.itemClicked.connect(lambda x : self.assClicked())
             # self.main_ui.listWidgetAssets.customContextMenuRequested.connect(self.assContextMenu)
-    
+
+    def updateStatusLabel(self):
+        selected_item = self.main_ui.listWidgetProjs.currentItem()
+        if selected_item is not None:
+            proj_text = selected_item.text()
+            proj_status = utils.getProjStatus(proj_text)
+            proj_status_stage = utils.getStageName(proj_status)
+            self.main_ui.statusLabel.setText(f"Project Status: In {proj_status_stage}")
+
     def assContextMenu(self, ui, pos):
         debug.info("Asset clicked")
         cur_proj = ui.labelProject.text()

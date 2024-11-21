@@ -57,8 +57,6 @@ class versionList():
         self.main_ui.setWindowTitle("VERSION LIST")
 
         self.user = args.user
-        # get_role_cmd = f"SELECT role FROM users WHERE name='{self.user}'"
-        # role = self.db.execute(get_role_cmd, dictionary=True)
         self.role = utils.getRole(self.user)
 
         self.current_files = []
@@ -70,14 +68,17 @@ class versionList():
         self.stage_name = self.ass_dets['stage']
         self.ass_user = self.ass_dets['assignedUser']
 
-        # self.folder = args.filepath
-        # self.asset = args.asset
-        # self.projName = self.asset.split(" : ")[0]
-        # self.stage = self.asset.split(" : ")[1]
-        # debug.info(self.folder)
-        # debug.info(self.asset)
-        # debug.info(self.projName)
-        # debug.info(self.stage)
+        stage_dets = utils.getStageDets()
+        self.stage_dets_dict = {item['name']: {'index': item['index'], 'access': item['access']} for item in stage_dets}
+        debug.info(self.stage_dets_dict)
+
+        self.stage_index = self.stage_dets_dict[self.stage_name]['index']
+
+        self.commit_dets_dict = {}
+
+        self.loadingVersions = False
+        self.pushingAssets = False
+        self.buttsVisibility()
 
         self.loadVersions()
         self.main_ui.versionTable.itemSelectionChanged.connect(self.updateFileList)
@@ -86,10 +87,18 @@ class versionList():
         self.main_ui.openButt.clicked.connect(lambda x: self.openFile())
         self.main_ui.commitButt.clicked.connect(lambda x, path=self.ass_path: self.commitChanges(path, "regular commit"))
         # self.main_ui.pushButt.clicked.connect(lambda x : self.pushChanges())
-        self.main_ui.pushButt.setMenu(self.popupToolButton())
-        self.main_ui.pushButt.triggered.connect(self.popupToolButtonTriggered)
+        menu = self.popupToolButton()
+        if menu:
+            self.main_ui.pushButt.setMenu(menu)
+            self.main_ui.pushButt.triggered.connect(self.popupToolButtonTriggered)
+        else:
+            self.main_ui.pushButt.setMenu(None)
+            self.main_ui.pushButt.clicked.connect(lambda x: self.popupToolButtonClicked())
 
-        self.main_ui.assetName.setText(" : ".join([self.proj_name, self.stage_name]))
+        proj_status = utils.getProjStatus(self.proj_name)
+        proj_status_stage = next((key for key, value in self.stage_dets_dict.items() if value['index'] == proj_status), None)
+        self.main_ui.assetName.setText(" : ".join(['Asset', self.stage_name]))
+        self.main_ui.projStatus.setText(" : ".join(['Status', 'In '+proj_status_stage]))
 
         #Show Window
         self.main_ui.show()
@@ -100,61 +109,89 @@ class versionList():
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
 
+    # def loadVersions(self):
+    #     try:
+    #         get_commits_cmd = ["hg", "log", "--cwd", self.ass_path, "--template", "{node|short}\n"]
+    #         debug.info(get_commits_cmd)
+    #         commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
+    #         debug.info(commits)
+    #
+    #         self.main_ui.versionTable.setColumnCount(4)
+    #         self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
+    #         self.main_ui.versionTable.setRowCount(len(commits))
+    #
+    #         for row, commit_hash in enumerate(commits):
+    #             commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1}\n{author}\n{date(date, '%d-%m-%Y %I:%M %p')}\n{desc}"]
+    #             commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8").splitlines()
+    #
+    #             for col, detail in enumerate(commit_dets):
+    #                 cell_item = QTableWidgetItem(detail)
+    #                 if col == 0:
+    #                     cell_item.setData(Qt.UserRole, commit_hash)
+    #                 self.main_ui.versionTable.setItem(row, col, cell_item)
+    #                 if col == 3:
+    #                     self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.Stretch)
+    #                 else:
+    #                     self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
+    #
+    #         if len(commits) > 0:
+    #             self.main_ui.versionTable.selectRow(0)
+    #
+    #         self.updateFileList()
+    #     except:
+    #         debug.info(str(sys.exc_info()))
+
     def loadVersions(self):
-        # self.main_ui.versionList.clear()
+        # Initialize the table
+        # Clear the table before loading new data
+        self.loadingVersions = True
+        self.buttsVisibility()
+        self.main_ui.versionTable.clear()
+        self.main_ui.versionTable.setRowCount(0)  # Reset the row count
+        self.main_ui.versionTable.setColumnCount(4)
+        self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
+        # self.main_ui.versionTable.setRowCount(0)
 
-        # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
-        # debug.info(gitConfigCmd)
-        # subprocess.run(gitConfigCmd, shell=True)
-        
-        # cur_dir = os.getcwd()
-        try:
-            # folder = Path(self.folder)
-            # debug.info(folder)
-            # os.chdir(str(folder))
-            # hgLogCmd = ["hg", "log", "--cwd", self.folder, "--template", "{node|short} - {date|isodate}\n"]
-            get_commits_cmd = ["hg", "log", "--cwd", self.ass_path, "--template", "{node|short}\n"]
-            # hgLogCmd = "hg log --cwd \'{0}\' --template \'{node|short} - {date|isodate}\'\n".format(self.folder)
-            debug.info(get_commits_cmd)
-            commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
-            # commits = subprocess.check_output(shlex.split(hgLogCmd)).decode("utf-8").splitlines()
-            debug.info(commits)
+        # Start the thread
+        self.load_versions_thread = LoadVersionsThread(self.ass_path)
+        self.load_versions_thread.row_loaded.connect(self.addRow)
+        self.load_versions_thread.error_occurred.connect(self.onError)
+        self.load_versions_thread.finished.connect(self.onThreadFinished)
+        self.load_versions_thread.start()
 
-            self.main_ui.versionTable.setColumnCount(4)
-            self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
-            # self.main_ui.versionTable.horizontalHeader().setStretchLastSection(True)
-            # self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-            self.main_ui.versionTable.setRowCount(len(commits))
+    def addRow(self, row, details):
+        # Increment row count as rows are added dynamically
+        self.main_ui.versionTable.setRowCount(row + 1)
 
-            for row, commit_hash in enumerate(commits):
-                # commit_hash = commit.split()[0]
-                commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1}\n{author}\n{date(date, '%d-%m-%Y %I:%M %p')}\n{desc}"]
-                commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8").splitlines()
-                # list_item = QListWidgetItem(commit_dets, self.main_ui.versionList)
-                # list_item.setData(3, commit_hash)
-                # self.main_ui.versionList.addItem(list_item)
+        commit_hash = details[0]
+        for col, detail in enumerate(details[1:]):
+            cell_item = QTableWidgetItem(detail)
+            if col == 0:
+                cell_item.setData(Qt.UserRole, commit_hash)
+            self.main_ui.versionTable.setItem(row, col, cell_item)
+            if col == 3:
+                self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QHeaderView.Stretch)
+            else:
+                self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
 
-                for col, detail in enumerate(commit_dets):
-                    cell_item = QTableWidgetItem(detail)
-                    if col == 0:
-                        cell_item.setData(Qt.UserRole, commit_hash)
-                    self.main_ui.versionTable.setItem(row, col, cell_item)
-                    if col == 3:
-                        self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.Stretch)
-                    else:
-                        self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
+        # Select the first row once it's added
+        if row == 0:
+            self.main_ui.versionTable.selectRow(0)
 
-            # self.main_ui.versionTable.resizeColumnsToContents()
+        self.commit_dets_dict[row] = details
 
-            if len(commits) > 0:
-                self.main_ui.versionTable.selectRow(0)
+    def onError(self, error_msg):
+        debug.info(f"Error: {error_msg}")
 
-            # self.main_ui.versionList.setCurrentItem(self.main_ui.versionList.item(0))
-            self.updateFileList()
-        except:
-            debug.info(str(sys.exc_info()))
-        # finally:
-            # os.chdir(cur_dir)
+    def onThreadFinished(self):
+        debug.info("Data loading completed!")
+        self.load_versions_thread.row_loaded.disconnect()
+        self.load_versions_thread.finished.disconnect()
+        self.load_versions_thread = None
+        self.updateFileList()
+        self.loadingVersions = False
+        self.buttsVisibility()
 
     def updateFileList(self):
         # self.main_ui.filesList.clear()
@@ -172,8 +209,21 @@ class versionList():
             # files = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit_hash], cwd=self.folder).decode("utf-8").splitlines()
             files = subprocess.check_output(["hg", "manifest", "-r", commit_hash, "--cwd", self.ass_path]).decode("utf-8").splitlines()
             debug.info(files)
-            debug.info(type(files))
+            # debug.info(type(files))
             self.current_files = files
+
+    def buttsVisibility(self):
+        proj_status = utils.getProjStatus(self.proj_name)
+        debug.info(proj_status)
+
+        if (self.user != self.ass_user or
+            self.stage_name == 'final' or
+            self.loadingVersions or
+            self.pushingAssets or
+            self.stage_index != proj_status):
+            self.main_ui.pushButt.setEnabled(False)
+        else:
+            self.main_ui.pushButt.setEnabled(True)
 
     def openFile(self):
         # selected_file = self.main_ui.filesList.currentItem()
@@ -192,7 +242,7 @@ class versionList():
             subprocess.run(["hg", "update", "-r", commit_hash, "--cwd", self.ass_path])
 
             # text = selected_file.text()
-            
+
             # openCmd = "start {0}".format(filepath)
             # # subprocess.Popen(shlex.split(openCmd))
             # subprocess.run(openCmd, shell=True)
@@ -212,16 +262,16 @@ class versionList():
             p.readyReadStandardError.connect(self.read_err)
             # p.start(sys.executable, edit_asset.split())
             p.start(sys.executable + " " + app_test + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
-    
+
     def read_out(self):
         if processes:
             for process in processes:
-                print ('stdout:', str(process.readAllStandardOutput()).strip())
+                debug.info ('stdout:', str(process.readAllStandardOutput()).strip())
 
     def read_err(self):
         if processes:
             for process in processes:
-                print ('stderr:', str(process.readAllStandardError()).strip())
+                debug.info ('stderr:', str(process.readAllStandardError()).strip())
 
     def commitChanges(self, path, message):
         self.main_ui.messageLabel.clear()
@@ -251,32 +301,61 @@ class versionList():
             debug.info(str(sys.exc_info()))
 
     def popupToolButton(self):
+        if self.user != self.ass_user:
+            self.main_ui.messageLabel.setText("Asset not assigned to you.")
+            return None
+        if self.stage_name == 'final':
+            return None
+        if self.stage_name == 'draft':
+            return None
+
         menu = QtWidgets.QMenu()
 
         sub_action_dict = {}
         stages = utils.getAllStages(self.proj_name)
+
         for x in stages:
             if not x['stage'] == self.stage_name:
-                get_access_cmd = "select access from stages where name='{0}'".format(x['stage'])
-                accesses = self.db.execute(get_access_cmd, dictionary=True)
-                if self.role in accesses[0]['access']:
-                    sub_action = menu.addAction(x['stage'])
-                    sub_action_dict[x['stage']] = sub_action
+                stage_details = self.stage_dets_dict[x['stage']]
+                current_stage_details = self.stage_dets_dict[self.stage_name]
+                # TODO: check for availability of the stage which can push to final
+                if self.role in stage_details['access']:
+                    if stage_details['index'] == current_stage_details['index'] + 1 or stage_details['index'] <= current_stage_details['index']:
+                        sub_action = menu.addAction(x['stage'])
+                        sub_action_dict[x['stage']] = sub_action
 
-        if self.user == self.ass_user:
-            return menu
-        else:
-            self.main_ui.messageLabel.setText("Asset not assigned to you.")
-            return None
+        return menu
 
     def popupToolButtonTriggered(self, action):
+        if not action:
+            return
         dest_stage = action.text().strip()
         debug.info(f"Push to {dest_stage} clicked")
         self.main_ui.messageLabel.clear()
         self.pushAsset(dest_stage)
 
+    def popupToolButtonClicked(self):
+        debug.info(f"Push to clicked")
+        debug.info(self.commit_dets_dict)
+        dest_stage = ""
+        if self.stage_name == 'draft':
+            for key, value in self.commit_dets_dict.items():
+                if 'from' in value[-1]:
+                    debug.info(f"extracting dest_stage using commits: {value[-1]}")
+                    dest_stage = value[-1].lstrip('from').strip()
+                    break
+            if not dest_stage:
+                draft_index = self.stage_dets_dict['draft']['index']
+                debug.info(f"extracting dest_stage using db: {draft_index}")
+                dest_stage = next((key for key, value in self.stage_dets_dict.items() if value['index'] == draft_index+1), None)
+
+        debug.info(dest_stage)
+        self.pushAsset(dest_stage)
+
     def pushAsset(self, dest_stage):
         self.main_ui.messageLabel.clear()
+        self.pushingAssets = True
+        self.buttsVisibility()
         source_path = self.ass_path
         dest_path = utils.getAssPath(proj_name=self.proj_name,stage_name=dest_stage)
         if os.name == 'nt':
@@ -289,18 +368,38 @@ class versionList():
         paste_audio_result = utils.run_command(paste_audio_cmd)
         paste_doc_result = utils.run_command(paste_doc_cmd)
         self.commitChanges(dest_path, f"from {self.stage_name}")
+        utils.setProjStatus(self.proj_name, self.stage_dets_dict[dest_stage]['index'])
+        proj_status = utils.getProjStatus(self.proj_name)
+        proj_status_stage = next((key for key, value in self.stage_dets_dict.items() if value['index'] == proj_status), None)
+        self.main_ui.projStatus.setText(" : ".join(['Status', 'In '+proj_status_stage]))
+        self.pushingAssets = False
+        self.buttsVisibility()
 
 
-class versionDetailRowClass(QtWidgets.QWidget):
-  def __init__(self,parent=None):
-    super(versionDetailRowClass, self).__init__(parent)
-    uic.loadUi(version_details_ui,baseinstance=self)
+class LoadVersionsThread(QThread):
+    row_loaded = pyqtSignal(int, list)
+    error_occurred = pyqtSignal(str)
+    def __init__(self, ass_path, parent=None):
+        super().__init__(parent)
+        self.ass_path = ass_path
 
-
-class fileThumbsClass(QtWidgets.QWidget):
-  def __init__(self,parent=None):
-    super(fileThumbsClass, self).__init__(parent)
-    uic.loadUi(file_thumbs_ui,baseinstance=self)
+    def run(self):
+        try:
+            get_commits_cmd = ["hg", "log", "--cwd", self.ass_path, "--template", "{node|short}\n"]
+            commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
+            debug.info(commits)
+            for row, commit_hash in enumerate(commits):
+                commit_dets_cmd = [
+                    "hg", "log", "--cwd", self.ass_path, "--rev", commit_hash,
+                    "--template", "{rev+1}\n{author}\n{date(date, '%d-%m-%Y %I:%M %p')}\n{desc}"
+                ]
+                commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8").splitlines()
+                commit_dets.insert(0, commit_hash)  # Include the hash for later use
+                debug.info(commit_dets)
+                self.row_loaded.emit(row, commit_dets)  # Emit each row
+        except Exception as e:
+            debug.info(str(exc_info()))
+            self.error_occurred.emit(str(e))
 
 
 class QListWidgetItemSort(QtWidgets.QListWidgetItem):
