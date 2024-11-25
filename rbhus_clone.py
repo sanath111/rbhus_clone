@@ -99,7 +99,7 @@ class rbhusClone():
 
         #Show Window
         # self.main_ui.show()
-        # self.main_ui.showMaximized()
+        self.main_ui.showMaximized()
         # # self.main_ui.showFullScreen()
         # self.main_ui.update()
 
@@ -409,7 +409,5 @@ if __name__ == '__main__':
     # stream = QTextStream(file)
     # app.setStyleSheet(stream.readAll())
     window = rbhusClone()
-    window.show()
-    window.showMaximized()
-    window.update()
     sys.exit(app.exec_())
+
