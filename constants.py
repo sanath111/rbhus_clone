@@ -3,6 +3,8 @@
 
 import os
 
+kannada_fonts = ["Nudi", "Baraha"]
+
 db_params = {}
 
 if os.name == 'nt':

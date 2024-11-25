@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 from lxml import etree, html
 import re
 import utils
+import constants
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -196,7 +197,7 @@ class Text_Editor():
         font_box.clear()
         font_database = QtGui.QFontDatabase()
         for font in font_database.families():
-            if "Nudi" in font:
+            if any(font_family in font for font_family in constants.kannada_fonts):
                 debug.info(font)
                 font_box.addItem(font)
 
