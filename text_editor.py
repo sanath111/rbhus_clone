@@ -14,9 +14,9 @@ import argparse
 import docx
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.shared import Pt
-from docx.shared import Inches
+from docx.shared import Pt, Inches, RGBColor
 from bs4 import BeautifulSoup
+from lxml import etree, html
 import re
 
 from PyQt5.QtCore import *
@@ -32,10 +32,10 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtPrintSupport import QPrinter
 
-projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
+projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir,  "tests", "app_test.ui")
+main_ui_file = os.path.join(projDir,  "ui_files", "text_editor.ui")
 
 # root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
@@ -48,35 +48,25 @@ parser.add_argument("-a","--audio",dest="audio",help="audio")
 args = parser.parse_args()
 
 
-def launchApps():
-    try:
-        # Specify the path to the application executable
-        application_path = r"C:\Program Files (x86)\Nudi 6.1\Nudi 6.1.exe"
-        # Use the subprocess module to launch the application in a minimized state
-        subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
-        # subprocess.run("start "+application_path, shell=True)
-    
-        libreoffice_path = r"C:\Program Files\LibreOffice\program\swriter.exe {0}".format(args.text)
-        subprocess.Popen(libreoffice_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
-    except:
-        debug.info(str(sys.exc_info()))
 
-
-class appTest():
-    # db = rbhus_clone_db.db()
+class Text_Editor():
     def __init__(self):
         # Load main ui
         self.main_ui = uic.loadUi(main_ui_file)
-        self.main_ui.setWindowTitle("APP TEST")
+        self.main_ui.setWindowTitle("TEXT EDITOR")
 
         # Text Controls
 
         self.text_editors = []
         self.create_text_edit()
         
-        textLayout = QVBoxLayout()
-        textLayout.addWidget(self.text_editors[0])
-        self.main_ui.textFrame.setLayout(textLayout)
+        # textLayout = QVBoxLayout()
+        # textLayout.addWidget(self.text_editors[0])
+        # self.main_ui.textFrame.setLayout(textLayout)
+
+        # Set main window size to fit the QTextEdit
+        # self.main_ui.setFixedSize(self.text_edit.size())
+
 
         if args.text:
             debug.info(args.text)
@@ -106,6 +96,7 @@ class appTest():
 
         self.main_ui.saveButt.clicked.connect(self.save_file)
         self.main_ui.printButt.clicked.connect(self.print_file)
+        # self.main_ui.exportButt.clicked.connect(self.export_as_docx)
         self.main_ui.boldButt.clicked.connect(self.set_bold)
         self.main_ui.italicButt.clicked.connect(self.set_italic)
         self.main_ui.underlineButt.clicked.connect(self.set_underline)
@@ -119,7 +110,7 @@ class appTest():
         # Audio Controls
 
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
-        videoWidget = QVideoWidget()
+        # videoWidget = QVideoWidget()
         if args.audio:
             # fileName = r"C:\Users\Dell\Documents\rbhus_clone_root\template\test_video.mp3"
             fileName = args.audio
@@ -140,10 +131,10 @@ class appTest():
         self.main_ui.volumeSlider.setValue(50)
         self.main_ui.volumeSlider.sliderMoved.connect(self.set_volume)
 
-        videoLayout = QVBoxLayout()
-        videoLayout.addWidget(videoWidget)
-        self.main_ui.videoFrame.setLayout(videoLayout)
-        self.mediaPlayer.setVideoOutput(videoWidget)
+        # videoLayout = QVBoxLayout()
+        # videoLayout.addWidget(videoWidget)
+        # self.main_ui.videoFrame.setLayout(videoLayout)
+        # self.mediaPlayer.setVideoOutput(videoWidget)
 
         self.mediaPlayer.stateChanged.connect(self.media_state_changed)
         self.mediaPlayer.positionChanged.connect(self.position_changed)
@@ -155,7 +146,7 @@ class appTest():
 
         #Show Window
         self.main_ui.show()
-        # self.main_ui.showMaximized()
+        self.main_ui.showMaximized()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -169,15 +160,22 @@ class appTest():
         # Use the subprocess module to launch the application in a minimized state
         subprocess.Popen(application_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
         # subprocess.run("start "+application_path, shell=True)
+        # libreoffice_path = r"C:\Program Files\LibreOffice\program\swriter.exe {0}".format(args.text)
+        # subprocess.Popen(libreoffice_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
 
     def create_text_edit(self):
-        text_edit = QTextEdit()
-        text_edit.setMinimumSize(595, 842)
-        text_edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # text_edit = QTextEdit()
+        text_edit = self.main_ui.text_edit
+        # text_edit.setMinimumSize(595, 842)
+        dpi = 76
+        a4_width = int(8.27 * dpi)  # 210mm in pixels
+        a4_height = int(11.69 * dpi)  # 297mm in pixels
+        text_edit.setFixedSize(a4_width, a4_height)
+        # text_edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         # text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Hide vertical scroll bar
         # text_edit.setFixedHeight(text_edit.fontMetrics().lineSpacing() * self.max_lines)  # Limit height
-        text_edit.textChanged.connect(self.handle_text_changed)
-        self.text_editors.append(text_edit)        
+        # text_edit.textChanged.connect(self.handle_text_changed)
+        self.text_editors.append(text_edit)
     
     def load_document(self):
         file_path = args.text
@@ -216,6 +214,45 @@ class appTest():
         dlg = QPrintDialog()
         if dlg.exec_():
             self.text_editors[-1].print_(dlg.printer())
+
+    def export_as_docx(self):
+        text_edit = self.text_editors[-1]
+        file_path = "/home/sanath/Downloads/test.docx"
+
+        try:
+            # text_edit = self.text_editors[-1]
+
+            # Save the HTML content directly to a docx
+            html_doc = Document()
+            html_content = text_edit.toHtml()
+            if not html_content.startswith(' '):
+                html_content = ' ' + html_content
+            html_doc.add_paragraph(html_content)
+            html_doc.save(file_path)
+
+            # Save a properly formatted docx without HTML tags
+            formatted_doc = Document()
+            plain_text = text_edit.toPlainText()  # Get plain text
+            html_soup = BeautifulSoup(text_edit.toHtml(), "html.parser")
+
+            # Apply formatting if any, based on the parsed HTML
+            for paragraph in html_soup.find_all("p"):
+                p = formatted_doc.add_paragraph()
+                for part in paragraph.contents:
+                    if part.name == "b":  # Bold text
+                        p.add_run(part.text).bold = True
+                    elif part.name == "i":  # Italics text
+                        p.add_run(part.text).italic = True
+                    elif part.name == "u":  # Underlined text
+                        p.add_run(part.text).underline = True
+                    else:  # Plain text
+                        p.add_run(part.string)
+
+            formatted_file_path = file_path.replace(".docx", "_formatted.docx")
+            formatted_doc.save(formatted_file_path)
+
+        except Exception as e:
+            debug.info(f"Error while saving file: {str(e)}")
 
     def handle_text_changed(self):
         current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget
@@ -343,8 +380,7 @@ class appTest():
 
 
 if __name__ == '__main__':
-    setproctitle.setproctitle("APP_TEST")
-    # launchApps()
+    setproctitle.setproctitle("TEXT_EDITOR")
     app = QtWidgets.QApplication(sys.argv)
-    window = appTest()
+    window = Text_Editor()
     sys.exit(app.exec_())

@@ -31,7 +31,8 @@ main_ui_file = os.path.join(projDir, "ui_files", "version_list_new.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 version_details_ui = os.path.join(projDir, "ui_files", "version_details_row.ui")
 
-app_test = os.path.join(projDir, "tests", "app_test.py")
+# app_test = os.path.join(projDir, "tests", "app_test.py")
+text_editor = os.path.join(projDir, "text_editor.py")
 processes = []
 
 text_formats = ["docx", "txt"]
@@ -261,7 +262,8 @@ class versionList():
             p.readyReadStandardOutput.connect(self.read_out)
             p.readyReadStandardError.connect(self.read_err)
             # p.start(sys.executable, edit_asset.split())
-            p.start(sys.executable + " " + app_test + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
+            p.start(sys.executable + " " + text_editor + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
+            # p.start(sys.executable, [text_editor, "--text", text_file, "--audio", audio_file])
 
     def read_out(self):
         if processes:
