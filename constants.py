@@ -3,7 +3,7 @@
 
 import os
 
-kannada_fonts = ["Nudi", "Baraha"]
+kannada_fonts = ["Baraha", "Kannada"]
 
 db_params = {}
 
