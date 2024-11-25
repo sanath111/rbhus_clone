@@ -147,7 +147,7 @@ class Text_Editor():
 
         #Show Window
         self.main_ui.show()
-        self.main_ui.showMaximized()
+        # self.main_ui.showMaximized()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -165,19 +165,13 @@ class Text_Editor():
         # subprocess.Popen(libreoffice_path, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW))
 
     def create_text_edit(self):
-        # text_edit = QTextEdit()
-        text_edit = self.main_ui.text_edit
-        # text_edit.setMinimumSize(595, 842)
-        # dpi = 76
-        # a4_width = int(8.27 * dpi)  # 210mm in pixels
-        # a4_height = int(11.69 * dpi)  # 297mm in pixels
-        # text_edit.setFixedSize(a4_width, a4_height)
-        # text_edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        # text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Hide vertical scroll bar
-        # text_edit.setFixedHeight(text_edit.fontMetrics().lineSpacing() * self.max_lines)  # Limit height
-        # text_edit.textChanged.connect(self.handle_text_changed)
-        self.text_editors.append(text_edit)
-    
+        try:
+            text_edit = self.main_ui.text_edit
+            self.text_editors.append(text_edit)
+
+        except Exception as e:
+            debug.info(f"Error: {e}")
+
     def load_document(self):
         file_path = args.text
         text_edit = self.text_editors[-1]

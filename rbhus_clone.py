@@ -98,10 +98,10 @@ class rbhusClone():
             # self.main_ui.radioAllAss.setChecked(True)
 
         #Show Window
-        # self.main_ui.show()
-        self.main_ui.showMaximized()
+        self.main_ui.show()
+        # self.main_ui.showMaximized()
         # # self.main_ui.showFullScreen()
-        # self.main_ui.update()
+        self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
         centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
