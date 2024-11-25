@@ -61,6 +61,7 @@ class Text_Editor():
 
         self.text_editors = []
         self.create_text_edit()
+        self.set_limited_fonts()
         
         # textLayout = QVBoxLayout()
         # textLayout.addWidget(self.text_editors[0])
@@ -77,8 +78,9 @@ class Text_Editor():
         sizes = ["8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "32", "36", "48", "72"]
         self.main_ui.fontSizeBox.addItems(sizes)
         # self.set_font(QFont("NudiParijatha"))
-        self.main_ui.fontBox.setCurrentFont(QFont("NudiParijatha"))
-        self.main_ui.fontBox.currentFontChanged.connect(self.set_font)
+        # self.main_ui.fontBox.setCurrentFont(QFont("NudiParijatha"))
+        # self.main_ui.fontBox.currentFontChanged.connect(self.set_font)
+        self.main_ui.fontBox.currentIndexChanged.connect(self.set_font)
         self.main_ui.fontSizeBox.currentIndexChanged.connect(self.set_font_size)
         
         self.main_ui.boldButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "bold.svg")))
@@ -189,6 +191,15 @@ class Text_Editor():
         except Exception as e:
             debug.info(f"Error: {e}")
 
+    def set_limited_fonts(self):
+        font_box = self.main_ui.fontBox
+        font_box.clear()
+        font_database = QtGui.QFontDatabase()
+        for font in font_database.families():
+            if "Nudi" in font:
+                debug.info(font)
+                font_box.addItem(font)
+
     def load_document(self):
         file_path = args.text
         text_edit = self.text_editors[-1]
@@ -266,23 +277,27 @@ class Text_Editor():
         except Exception as e:
             debug.info(f"Error while saving file: {str(e)}")
 
-    def handle_text_changed(self):
-        current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget
-        document_height = current_text_edit.document().size().height()
-        visible_height = current_text_edit.viewport().height()
+    # def handle_text_changed(self):
+    #     current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget
+    #     document_height = current_text_edit.document().size().height()
+    #     visible_height = current_text_edit.viewport().height()
+    #
+    #     if document_height > visible_height:
+    #         self.create_text_edit()
+    #         layout = self.main_ui.textFrame.layout()
+    #         layout.addWidget(self.text_editors[-1])
 
-        if document_height > visible_height:
-            self.create_text_edit()
-            layout = self.main_ui.textFrame.layout()
-            layout.addWidget(self.text_editors[-1])
 
-
-    def set_font(self, font):
-        self.text_editors[-1].setCurrentFont(font)
-        self.set_font_size()
-        self.set_bold(checked=self.main_ui.boldButt.isChecked())
-        self.set_italic(checked=self.main_ui.italicButt.isChecked())
-        self.set_underline(checked=self.main_ui.underlineButt.isChecked())
+    def set_font(self):
+        font = self.main_ui.fontBox.currentText().strip()
+        try:
+            self.text_editors[-1].setCurrentFont(QFont(font))
+            self.set_font_size()
+            self.set_bold(checked=self.main_ui.boldButt.isChecked())
+            self.set_italic(checked=self.main_ui.italicButt.isChecked())
+            self.set_underline(checked=self.main_ui.underlineButt.isChecked())
+        except Exception as e:
+            debug.info(f"Error: {e}")
 
     def set_font_size(self):
         font_size = self.main_ui.fontSizeBox.currentText()

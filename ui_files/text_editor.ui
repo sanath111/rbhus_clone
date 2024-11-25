@@ -57,9 +57,15 @@
        </widget>
       </item>
       <item>
-       <widget class="QFontComboBox" name="fontBox">
-        <property name="currentText">
-         <string>Arial</string>
+       <widget class="QComboBox" name="fontBox">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

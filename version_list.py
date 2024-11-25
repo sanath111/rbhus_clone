@@ -3,7 +3,7 @@
 
 import os
 import sys
-from sys import exc_info
+from sys import exc_info, exception
 
 import setproctitle
 import uuid
@@ -256,14 +256,19 @@ class versionList():
                     audio_file = self.ass_path+os.sep+file
 
             debug.info("Opening file")
-            p = QProcess(parent=self.main_ui)
-            processes.append(p)
-            debug.info(processes)
-            p.readyReadStandardOutput.connect(self.read_out)
-            p.readyReadStandardError.connect(self.read_err)
-            # p.start(sys.executable, edit_asset.split())
-            # p.start(sys.executable + " " + text_editor + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
-            p.start(sys.executable, [text_editor, "--text", text_file, "--audio", audio_file, "--user", self.user])
+            try:
+                p = QProcess(parent=self.main_ui)
+                processes.append(p)
+                debug.info(processes)
+                # p.readyReadStandardOutput.connect(self.read_out)
+                # p.readyReadStandardError.connect(self.read_err)
+                p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+                p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
+                # p.start(sys.executable, edit_asset.split())
+                # p.start(sys.executable + " " + text_editor + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
+                p.start(sys.executable, [text_editor, "--text", text_file, "--audio", audio_file, "--user", self.user])
+            except Exception as e:
+                debug.info(f"Error: {e}")
 
     def read_out(self):
         if processes:
