@@ -45,6 +45,7 @@ os.environ['QT_SCALE_FACTOR'] = '1'
 parser = argparse.ArgumentParser(description="Utility to manage assets")
 parser.add_argument("-t","--text",dest="text",help="text")
 parser.add_argument("-a","--audio",dest="audio",help="audio")
+parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
 
 
@@ -167,10 +168,10 @@ class Text_Editor():
         # text_edit = QTextEdit()
         text_edit = self.main_ui.text_edit
         # text_edit.setMinimumSize(595, 842)
-        dpi = 76
-        a4_width = int(8.27 * dpi)  # 210mm in pixels
-        a4_height = int(11.69 * dpi)  # 297mm in pixels
-        text_edit.setFixedSize(a4_width, a4_height)
+        # dpi = 76
+        # a4_width = int(8.27 * dpi)  # 210mm in pixels
+        # a4_height = int(11.69 * dpi)  # 297mm in pixels
+        # text_edit.setFixedSize(a4_width, a4_height)
         # text_edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         # text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Hide vertical scroll bar
         # text_edit.setFixedHeight(text_edit.fontMetrics().lineSpacing() * self.max_lines)  # Limit height
