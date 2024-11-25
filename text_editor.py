@@ -18,6 +18,7 @@ from docx.shared import Pt, Inches, RGBColor
 from bs4 import BeautifulSoup
 from lxml import etree, html
 import re
+import utils
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -142,6 +143,7 @@ class Text_Editor():
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
         self.mediaPlayer.error.connect(self.handle_error)
 
+        self.authorize()
         if os.name == 'nt':
             self.launchNudi()
 
@@ -154,6 +156,21 @@ class Text_Editor():
         centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.main_ui.move(qtRectangle.topLeft())
+
+    def authorize(self):
+        """
+        Decide who has access to what
+        """
+        master_admin, admins = utils.getAdmins()
+        user = args.user
+        if user:
+            debug.info(user)
+            if user in admins:
+                self.main_ui.printButt.setEnabled(True)
+                self.main_ui.fontBox.setEnabled(True)
+            else:
+                self.main_ui.printButt.setEnabled(False)
+                self.main_ui.fontBox.setEnabled(False)
 
     def launchNudi(self):
         # Specify the path to the application executable

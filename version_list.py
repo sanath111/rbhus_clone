@@ -263,7 +263,7 @@ class versionList():
             p.readyReadStandardError.connect(self.read_err)
             # p.start(sys.executable, edit_asset.split())
             # p.start(sys.executable + " " + text_editor + " --text " + "\""+text_file+"\"" + " --audio " + "\""+audio_file+"\"")
-            p.start(sys.executable, [text_editor, "--text", text_file, "--audio", audio_file])
+            p.start(sys.executable, [text_editor, "--text", text_file, "--audio", audio_file, "--user", self.user])
 
     def read_out(self):
         if processes:
