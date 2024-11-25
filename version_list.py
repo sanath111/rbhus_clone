@@ -3,7 +3,7 @@
 
 import os
 import sys
-from sys import exc_info, exception
+# from sys import exc_info, exception
 
 import setproctitle
 import uuid
