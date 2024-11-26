@@ -62,7 +62,7 @@ class Text_Editor():
 
         self.text_editors = []
         self.create_text_edit()
-        self.set_limited_fonts()
+        # self.set_limited_fonts()
         
         # textLayout = QVBoxLayout()
         # textLayout.addWidget(self.text_editors[0])
@@ -80,8 +80,8 @@ class Text_Editor():
         self.main_ui.fontSizeBox.addItems(sizes)
         # self.set_font(QFont("NudiParijatha"))
         # self.main_ui.fontBox.setCurrentFont(QFont("NudiParijatha"))
-        # self.main_ui.fontBox.currentFontChanged.connect(self.set_font)
-        self.main_ui.fontBox.currentIndexChanged.connect(self.set_font)
+        self.main_ui.fontBox.currentFontChanged.connect(self.set_font)
+        # self.main_ui.fontBox.currentIndexChanged.connect(self.set_font)
         self.main_ui.fontSizeBox.currentIndexChanged.connect(self.set_font_size)
         
         self.main_ui.boldButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "bold.svg")))
@@ -289,10 +289,10 @@ class Text_Editor():
     #         layout.addWidget(self.text_editors[-1])
 
 
-    def set_font(self):
-        font = self.main_ui.fontBox.currentText().strip()
+    def set_font(self, font):
+        # font = self.main_ui.fontBox.currentText().strip()
         try:
-            self.text_editors[-1].setCurrentFont(QFont(font))
+            self.text_editors[-1].setCurrentFont(font)
             self.set_font_size()
             self.set_bold(checked=self.main_ui.boldButt.isChecked())
             self.set_italic(checked=self.main_ui.italicButt.isChecked())

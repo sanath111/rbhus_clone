@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1002</width>
-    <height>994</height>
+    <height>1013</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,17 +57,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="fontBox">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
+       <widget class="QFontComboBox" name="fontBox"/>
       </item>
       <item>
        <widget class="QComboBox" name="fontSizeBox"/>
