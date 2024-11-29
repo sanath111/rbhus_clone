@@ -7,9 +7,11 @@ import setproctitle
 import uuid
 import subprocess
 import shlex
-import rbhus_clone_db
+# import rbhus_clone_db
+# import rbhus_clone_db_sqlite
 import debug
 import bcrypt
+import utils
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -31,7 +33,8 @@ os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 
 class adminTools():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
+    # db = rbhus_clone_db_sqlite.db()
     def __init__(self):
        
         self.main_ui = uic.loadUi(main_ui_file)
@@ -57,27 +60,29 @@ class adminTools():
     def setUsers(self):
         self.main_ui.userList_chpwd.clear()
         self.main_ui.userList_chrole.clear()
-        queryUsers = "select * from users"
-        assets = self.db.execute(queryUsers,dictionary=True)
-        users = [x['name'] for x in assets]
+        # queryUsers = "SELECT * FROM users"
+        # assets = self.db.execute(queryUsers,dictionary=True)
+        # users = [x['name'] for x in assets]
+        users = utils.getUsers()
         debug.info(users)
         self.main_ui.userList_chpwd.addItems(users)
         self.main_ui.userList_chrole.addItems(users)
 
     def setRoles(self):
-        self.main_ui.roleList_adusr.clear()
-        self.main_ui.roleList_chrole.clear()
-        queryRoles = "select * from roles"
-        assets = self.db.execute(queryRoles,dictionary=True)
-        roles = [x['role'] for x in assets]
+        # self.main_ui.roleList_adusr.clear()
+        # self.main_ui.roleList_chrole.clear()
+        # queryRoles = "SELECT * FROM roles"
+        # assets = self.db.execute(queryRoles,dictionary=True)
+        # roles = [x['role'] for x in assets]
+        roles = utils.getRoles()
         debug.info(roles)
         self.main_ui.roleList_adusr.addItems(roles)
         self.main_ui.roleList_chrole.addItems(roles)
 
     def addUser(self):
-        username = self.main_ui.usernameBox.text()
-        password = self.main_ui.passwordBox.text()
-        role = self.main_ui.roleList_adusr.currentText()
+        username = self.main_ui.usernameBox.text().strip()
+        password = self.main_ui.passwordBox.text().strip()
+        role = self.main_ui.roleList_adusr.currentText().strip()
 
         if username:
             if password:
@@ -90,20 +95,25 @@ class adminTools():
                     hashed_password = bcrypt.hashpw(password, salt)
                     hashed_password = hashed_password.decode('utf-8')
                     debug.info(hashed_password)
-                    userUpdateQuery = "insert into users (name,password,role) values (\"{0}\",\"{1}\",\"{2}\") ".format(username, hashed_password,role)
-                    debug.info(userUpdateQuery)
+                    # userUpdateQuery = "insert into users (name,password,role) values (\"{0}\",\"{1}\",\"{2}\") ".format(username, hashed_password,role)
+                    # userUpdateQuery = f"INSERT INTO users VALUES ('{username}','{hashed_password}','{role}') "
+                    # debug.info(userUpdateQuery)
                     try:
                         reply = QMessageBox.question(self.main_ui, 'Confirmation',
                                                      'Are you sure you want to create user?',
                                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                         if reply == QMessageBox.Yes:
-                            updateUserList = self.db.execute(userUpdateQuery)
-                            debug.info(updateUserList)
-                            if updateUserList == 1:
-                                debug.info("User created")
+                            # updateUserList = self.db.execute(userUpdateQuery)
+                            # updateUserList = self.db.execute(userUpdateQuery)
+                            add_user_result = utils.addUser(username, hashed_password, role)
+                            debug.info(add_user_result)
+                            if add_user_result == 1:
+                                debug.info("User Created")
                                 self.main_ui.messageLabel.setText("User Created")
                                 self.setUsers()
-                            elif "Duplicate entry" in updateUserList:
+                            elif "Duplicate entry" in add_user_result:
+                                self.main_ui.messageLabel.setText("User already exists")
+                            elif "UNIQUE constraint failed" in add_user_result:
                                 self.main_ui.messageLabel.setText("User already exists")
                         else:
                             return
@@ -119,20 +129,23 @@ class adminTools():
             self.main_ui.messageLabel.setText("Please provide a valid username")
 
     def changePassword(self):
-        username = self.main_ui.userList_chpwd.currentText()
-        old_password = self.main_ui.oldPasswordBox.text()
-        new_password = self.main_ui.newPasswordBox.text()
+        username = self.main_ui.userList_chpwd.currentText().strip()
+        old_password = self.main_ui.oldPasswordBox.text().strip()
+        new_password = self.main_ui.newPasswordBox.text().strip()
         if username:
-            queryAllUsers = "select name from users"
-            all_users = self.db.execute(queryAllUsers,dictionary=True)
-            users = [x['name'] for x in all_users]
+            # queryAllUsers = "SELECT name FROM users"
+            # all_users = self.db.execute(queryAllUsers,dictionary=True)
+            # users = [x['name'] for x in all_users]
+            users = utils.getUsers()
             debug.info(users)
             if username in users:
                 if old_password:
-                    queryPassword = "select * from users where name='{0}' ".format(username)
-                    passDets = self.db.execute(queryPassword,dictionary=True)
+                    # queryPassword = "SELECT * FROM users WHERE name='{0}' ".format(username)
+                    # passDets = self.db.execute(queryPassword,dictionary=True)
+                    passDets = utils.getPassword(username)
                     if passDets:
-                        storedPass = passDets[0]['password'].encode('utf-8')
+                        # storedPass = passDets[0]['password'].encode('utf-8')
+                        storedPass = passDets.encode('utf-8')
                         debug.info(storedPass)
                         if bcrypt.checkpw(old_password.encode('utf-8'), storedPass):
                             debug.info("Password matched")
@@ -147,17 +160,18 @@ class adminTools():
                                         hashed_password = bcrypt.hashpw(new_password, salt)
                                         hashed_password = hashed_password.decode('utf-8')
                                         debug.info(hashed_password)
-                                        passwordUpdateQuery = "update users set password='{0}' where name='{1}' ".format(hashed_password, username)
-                                        debug.info(passwordUpdateQuery)
+                                        # passwordUpdateQuery = f"UPDATE users SET password='{hashed_password}' WHERE name='{username}' "
+                                        # debug.info(passwordUpdateQuery)
                                         try:
                                             reply = QMessageBox.question(self.main_ui, 'Confirmation',
                                                                          'Are you sure you want to update password?',
                                                                          QMessageBox.Yes | QMessageBox.No,
                                                                          QMessageBox.No)
                                             if reply == QMessageBox.Yes:
-                                                updatePassword = self.db.execute(passwordUpdateQuery)
-                                                debug.info(updatePassword)
-                                                if updatePassword == 1:
+                                                # updatePassword = self.db.execute(passwordUpdateQuery)
+                                                # debug.info(updatePassword)
+                                                update_pass_result = utils.updatePassword(username, hashed_password)
+                                                if update_pass_result == 1:
                                                     debug.info("Password Updated")
                                                     self.main_ui.messageLabel.setText("Password Updated")
                                             else:
@@ -185,12 +199,13 @@ class adminTools():
             self.main_ui.messageLabel.setText("Please provide a valid username")
 
     def updateRole(self):
-        user = self.main_ui.userList_chrole.currentText()
-        getRoleQuery = "select role from users where name='{0}' ".format(user)
-        debug.info(getRoleQuery)
+        user = self.main_ui.userList_chrole.currentText().strip()
+        # getRoleQuery = f"SELECT role FROM users WHERE name='{user}' "
+        # debug.info(getRoleQuery)
         try:
-            assets = self.db.execute(getRoleQuery, dictionary=True)
-            role = assets[0]['role']
+            # assets = self.db.execute(getRoleQuery, dictionary=True)
+            # role = assets[0]['role']
+            role = utils.getRole(user)
             debug.info(role)
             self.main_ui.roleList_chrole.setCurrentText(role)
         except:
@@ -202,16 +217,17 @@ class adminTools():
         debug.info(user)
         if user:
             try:
-                userUpdateQuery = "update users set role='{0}' where name='{1}' ".format(role,user)
-                debug.info(userUpdateQuery)
+                # userUpdateQuery = f"UPDATE users SET role='{role}' WHERE name='{user}' "
+                # debug.info(userUpdateQuery)
                 reply = QMessageBox.question(self.main_ui, 'Confirmation',
                                              'Are you sure you want to update role?',
                                              QMessageBox.Yes | QMessageBox.No,
                                              QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    updateUserList = self.db.execute(userUpdateQuery)
-                    debug.info(updateUserList)
-                    if updateUserList == 1:
+                    # updateUserList = self.db.execute(userUpdateQuery)
+                    # debug.info(updateUserList)
+                    update_role_result = utils.updateRole(user, role)
+                    if update_role_result == 1:
                         debug.info("User role updated")
                         self.main_ui.messageLabel.setText("User role updated")
                 else:

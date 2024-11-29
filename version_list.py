@@ -62,7 +62,7 @@ class versionList():
 
         self.current_files = []
 
-        self.ass_dets = utils.getAssDets(args.ass_id)
+        self.ass_dets = utils.getAssDetsByAssId(args.ass_id)
         debug.info(self.ass_dets)
         self.ass_path = self.ass_dets['path']
         self.proj_name = self.ass_dets['projName']

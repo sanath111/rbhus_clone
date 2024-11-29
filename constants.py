@@ -15,9 +15,11 @@ else:
     db_params = {'host': "mysqlserver", 'db': "test", 'port': 4501, 'user': "hruser", 'passwd': "5Dt09WXa"}
 
 template_folder = os.path.join(root_folder, "template")
+database_folder = os.path.join(root_folder, "database")
 
 if not os.path.exists(root_folder):
     os.mkdir(root_folder)
 if not os.path.exists(template_folder):
     os.mkdir(template_folder)
-
+if not os.path.exists(database_folder):
+    os.mkdir(database_folder)

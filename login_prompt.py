@@ -7,9 +7,11 @@ import setproctitle
 import uuid
 import subprocess
 import shlex
-import rbhus_clone_db
+# import rbhus_clone_db
+# import rbhus_clone_db_sqlite
 import debug
 import bcrypt
+import utils
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -31,7 +33,8 @@ os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 os.environ['QT_SCALE_FACTOR'] = '1.4'
 
 class loginPrompt():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
+    # db = rbhus_clone_db_sqlite.db()
     def __init__(self):
     
         self.main_ui = uic.loadUi(main_ui_file)
@@ -42,7 +45,7 @@ class loginPrompt():
 
         #Show Window
         self.main_ui.show()
-        self.main_ui.showFullScreen()
+        # self.main_ui.showFullScreen()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -51,21 +54,26 @@ class loginPrompt():
         self.main_ui.move(qtRectangle.topLeft())
 
     def login(self):
-        username = self.main_ui.username.text()
-        password = self.main_ui.password.text()
+        username = self.main_ui.username.text().strip()
+        password = self.main_ui.password.text().strip()
         debug.info(username)
         debug.info(password)
 
-        queryAllUsers = "select name from users"
-        all_users = self.db.execute(queryAllUsers,dictionary=True)
-        users = [x['name'] for x in all_users]
+        # queryAllUsers = "SELECT name FROM users"
+        # all_users = self.db.execute(queryAllUsers,dictionary=True)
+        # all_users = self.db.execute(queryAllUsers, dictionary=True)
+        # debug.info(all_users)
+        # users = [x['name'] for x in all_users]
+        users = utils.getUsers()
         debug.info(users)
         if username in users:
-            queryPassword = "select * from users where name='{0}' ".format(username)
-            passDets = self.db.execute(queryPassword,dictionary=True)
+            # queryPassword = "SELECT * FROM users WHERE name='{0}' ".format(username)
+            # passDets = self.db.execute(queryPassword,dictionary=True)
+            # passDets = self.db.execute(queryPassword, dictionary=True)
+            passDets = utils.getPassword(username)
             if passDets:
-                debug.info(passDets)
-                storedPass = passDets[0]['password'].encode('utf-8')
+                # debug.info(passDets)
+                storedPass = passDets.encode('utf-8')
                 debug.info(storedPass)
 
                 if bcrypt.checkpw(password.encode('utf-8'), storedPass):

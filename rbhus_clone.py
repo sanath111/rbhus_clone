@@ -5,7 +5,8 @@ import os
 import sys
 import setproctitle
 import subprocess
-import rbhus_clone_db
+# import rbhus_clone_db
+# import rbhus_clone_db_sqlite
 import debug
 import argparse
 import getpass
@@ -51,7 +52,8 @@ args = parser.parse_args()
 
 
 class rbhusClone():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
+    # db = rbhus_clone_db_sqlite.db()
     def __init__(self):
        
         self.main_ui = uic.loadUi(main_ui_file)
@@ -100,7 +102,7 @@ class rbhusClone():
         #Show Window
         self.main_ui.show()
         # self.main_ui.showMaximized()
-        self.main_ui.showFullScreen()
+        # self.main_ui.showFullScreen()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
@@ -160,8 +162,10 @@ class rbhusClone():
 
     def updateProjectsList(self):
         self.main_ui.listWidgetProjs.clear()
-        queryProj = "select projName from projects"
-        projects = self.db.execute(queryProj,dictionary=True)
+        # queryProj = "select projName from projects"
+        # projects = self.db.execute(queryProj,dictionary=True)
+        projects = utils.getProjNames()
+        debug.info(projects)
         if projects:
             for x in projects:
                 item = QtWidgets.QListWidgetItem()
@@ -180,12 +184,14 @@ class rbhusClone():
             proj_status_stage = utils.getStageName(proj_status)
             self.main_ui.statusLabel.setText(f"Project Status: In {proj_status_stage}")
 
-            queryAss = ""
+            # queryAss = ""
             if self.main_ui.radioMineAss.isChecked():
-                queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by stage".format(proj_text,self.user)
+                assets = utils.getAssDetsByProjName(proj_text, ass_user=self.user)
+                # queryAss = "select * from assets where projName='{0}' and assignedUser='{1}' order by stage".format(proj_text,self.user)
             else:
-                queryAss = "select * from assets where projName='{0}' order by stage".format(proj_text)
-            assets = self.db.execute(queryAss,dictionary=True)
+                assets = utils.getAssDetsByProjName(proj_text)
+            #     queryAss = "select * from assets where projName='{0}' order by stage".format(proj_text)
+            # assets = self.db.execute(queryAss,dictionary=True)
             debug.info(assets)
             if assets:
                 for x in assets:
@@ -311,8 +317,10 @@ class rbhusClone():
         processes.append(p)
         debug.info(processes)
         # p.started.connect(self.disableNewProjButt)
-        p.readyReadStandardOutput.connect(self.read_out)
-        p.readyReadStandardError.connect(self.read_err)
+        # p.readyReadStandardOutput.connect(self.read_out)
+        # p.readyReadStandardError.connect(self.read_err)
+        p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+        p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
         # p.finished.connect(self.enableNewProjButt)
         p.start(sys.executable, [version_list, "--ass_id", ass_id, "--user", self.user])
 
@@ -321,8 +329,10 @@ class rbhusClone():
         p = QProcess(parent=self.main_ui)
         processes.append(p)
         debug.info(processes)
-        p.readyReadStandardOutput.connect(self.read_out)
-        p.readyReadStandardError.connect(self.read_err)
+        # p.readyReadStandardOutput.connect(self.read_out)
+        # p.readyReadStandardError.connect(self.read_err)
+        p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+        p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
         p.finished.connect(self.updateAssetsList)
         p.start(sys.executable + " " + edit_asset + " --asset " + "\""+ass_name+"\"")
 
@@ -332,8 +342,10 @@ class rbhusClone():
         processes.append(p)
         debug.info(processes)
         p.started.connect(self.disableNewProjButt)
-        p.readyReadStandardOutput.connect(self.read_out)
-        p.readyReadStandardError.connect(self.read_err)
+        # p.readyReadStandardOutput.connect(self.read_out)
+        # p.readyReadStandardError.connect(self.read_err)
+        p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+        p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
         p.finished.connect(self.enableNewProjButt)
         p.start(sys.executable, [new_project, "--user", self.user])
 
@@ -350,8 +362,10 @@ class rbhusClone():
         processes.append(p)
         debug.info(processes)
         p.started.connect(self.disableAdminToolsButt)
-        p.readyReadStandardOutput.connect(self.read_out)
-        p.readyReadStandardError.connect(self.read_err)
+        # p.readyReadStandardOutput.connect(self.read_out)
+        # p.readyReadStandardError.connect(self.read_err)
+        p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+        p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
         p.finished.connect(self.enableAdminTooolsButt)
         p.start(sys.executable, admin_tools.split())
 

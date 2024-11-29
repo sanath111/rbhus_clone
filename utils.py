@@ -5,6 +5,7 @@ import os
 import sys
 import subprocess
 import rbhus_clone_db
+import rbhus_clone_db_sqlite
 import debug
 import argparse
 import constants
@@ -13,8 +14,70 @@ import shlex
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-db = rbhus_clone_db.db()
+db = rbhus_clone_db_sqlite.db()
 
+
+### Users Table ###
+
+def getUsers():
+    get_user_details = "SELECT name FROM users"
+    user_dets = db.execute(get_user_details, dictionary=True)
+    all_users = [x['name'] for x in user_dets]
+    return all_users
+
+def getPassword(user):
+    get_pass_cmd = f"SELECT password FROM users WHERE name='{user}'"
+    pass_dict = db.execute(get_pass_cmd, dictionary=True)
+    password = pass_dict[0]['password']
+    return str(password.strip())
+
+def getRole(user):
+    get_role_cmd = f"SELECT role FROM users WHERE name='{user}'"
+    role_dict = db.execute(get_role_cmd, dictionary=True)
+    role = role_dict[0]['role']
+    return str(role.strip())
+
+def getAdmins():
+    get_user_details = "SELECT * FROM users"
+    user_dets = db.execute(get_user_details, dictionary=True)
+    master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
+    admins = [x['name'] for x in user_dets if x['role'] == "admin" or x['role'] == "master_admin"]
+    return master_admin, admins
+
+def addUser(username, password, role):
+    add_user_cmd = f"INSERT INTO users (name,password,role) VALUES ('{username}','{password}','{role}') "
+    add_user_result = db.execute(add_user_cmd)
+    return add_user_result
+
+def updatePassword(username, password):
+    update_pass_cmd = f"UPDATE users SET password='{password}' WHERE name='{username}' "
+    update_pass_result = db.execute(update_pass_cmd)
+    return update_pass_result
+
+def updateRole(username, role):
+    update_role_cmd = f"UPDATE users SET role='{role}' WHERE name='{username}' "
+    update_role_result = db.execute(update_role_cmd)
+    return update_role_result
+
+### Projects Table ###
+
+def getProjNames():
+    query_proj = "SELECT projName from projects"
+    projects = db.execute(query_proj,dictionary=True)
+    return projects
+
+def getProjStatus(proj_name):
+    get_proj_status = f"SELECT status FROM projects WHERE projName='{proj_name}'"
+    status_dict = db.execute(get_proj_status, dictionary=True)
+    status = status_dict[0]['status']
+    return status
+
+def setProjStatus(proj_name, status):
+    set_proj_status = f"UPDATE projects SET status='{status}' WHERE projName='{proj_name}'"
+    set_status_result = db.execute(set_proj_status)
+    return set_status_result
+
+### Assets Table ###
 
 def getAssID(proj_name, stage_name):
     get_ass_id_cmd = f"SELECT assetID FROM assets WHERE projName='{proj_name}' and stage='{stage_name}'"
@@ -40,29 +103,26 @@ def getAssUser(asset_id):
     user = user_dict[0]['assignedUser']
     return str(user.strip())
 
-def getAssDets(asset_id):
+def getAssDetsByAssId(asset_id):
     get_ass_dets_cmd = f"SELECT * FROM assets WHERE assetID='{asset_id}'"
     ass_dict = db.execute(get_ass_dets_cmd, dictionary=True)
     dets = ass_dict[0]
     return dets
 
-def getRole(user):
-    get_role_cmd = f"SELECT role FROM users WHERE name='{user}'"
-    role_dict = db.execute(get_role_cmd, dictionary=True)
-    role = role_dict[0]['role']
-    return str(role.strip())
+def getAssDetsByProjName(proj_name, ass_user=None):
+    if ass_user:
+        get_ass_dets_cmd = f"SELECT * FROM assets WHERE projName='{proj_name}' AND assignedUser='{ass_user}' ORDER BY stage"
+    else:
+        get_ass_dets_cmd = f"SELECT * FROM assets WHERE projName='{proj_name}' ORDER BY stage"
+    ass_dict = db.execute(get_ass_dets_cmd, dictionary=True)
+    return ass_dict
 
 def getAllStages(proj_name):
     get_stages_cmd = f"SELECT stage FROM assets where projName='{proj_name}'"
     stages = db.execute(get_stages_cmd, dictionary=True)
     return stages
 
-def getAdmins():
-    get_user_details = "SELECT * FROM users"
-    user_dets = db.execute(get_user_details, dictionary=True)
-    master_admin = [x['name'] for x in user_dets if x['role'] == "master_admin"]
-    admins = [x['name'] for x in user_dets if x['role'] == "admin" or x['role'] == "master_admin"]
-    return master_admin, admins
+### Stages Table ###
 
 def getStageName(index):
     get_stage_name = f"SELECT name FROM stages WHERE `index`={index}"
@@ -75,16 +135,15 @@ def getStageDets():
     stage_dets = db.execute(get_stage_details, dictionary=True)
     return stage_dets
 
-def getProjStatus(proj_name):
-    get_proj_status = f"SELECT status FROM projects WHERE projName='{proj_name}'"
-    status_dict = db.execute(get_proj_status, dictionary=True)
-    status = status_dict[0]['status']
-    return status
+### Roles Table ###
 
-def setProjStatus(proj_name, status):
-    set_proj_status = f"UPDATE projects SET status='{status}' WHERE projName='{proj_name}'"
-    set_status_result = db.execute(set_proj_status)
-    return set_status_result
+def getRoles():
+    get_all_roles = "SELECT role FROM roles"
+    role_dets = db.execute(get_all_roles, dictionary=True)
+    all_roles = [x['role'] for x in role_dets]
+    return all_roles
+
+### Run Commands ###
 
 def run_command(cmd):
     debug.info(f"Executing command: {cmd}")
