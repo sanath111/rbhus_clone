@@ -7,7 +7,7 @@ import setproctitle
 import uuid
 import subprocess
 import shlex
-import rbhus_clone_db
+# import rbhus_clone_db
 import debug
 import argparse
 from pathlib import Path
@@ -47,7 +47,7 @@ parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
 
 class newProject():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
     def __init__(self):
        
         self.main_ui = uic.loadUi(main_ui_file)
@@ -76,14 +76,16 @@ class newProject():
     def setStageAndUser(self):
         v_layout = QVBoxLayout(self.main_ui.assetFrame)
         
-        query_stage_names = "select * from stages"
-        stage_names = self.db.execute(query_stage_names,dictionary=True)
+        # query_stage_names = "select * from stages"
+        # stage_names = self.db.execute(query_stage_names,dictionary=True)
+        stage_names = utils.getStageDets()
         stage_names = [x['name'] for x in stage_names]
         debug.info(stage_names)
 
-        query_users = "select * from users"
-        users = self.db.execute(query_users,dictionary=True)
-        users = [x['name'] for x in users]
+        # query_users = "select * from users"
+        # users = self.db.execute(query_users,dictionary=True)
+        # users = [x['name'] for x in users]
+        users = utils.getUsers()
         debug.info(users)
 
         for stage_name in stage_names:
@@ -200,7 +202,7 @@ class newProject():
 
 
     def createProject(self):
-        projName = self.main_ui.nameBox.text()
+        projName = self.main_ui.nameBox.text().strip()
         debug.info(projName)
 
         # gitConfigCmd = "git config --global user.email \"{0}\" & git config --global user.name \"{1}\" ".format("sanathshetty111@gmail.com","sanath111")
@@ -218,73 +220,66 @@ class newProject():
                 # debug.info(user)
                 # if user:
                 if stage_and_user:
-                    try:
-                        # projPath = os.path.join(root_folder, projName)
-                        if os.name == 'nt':
-                            projPath = os.path.join(root_folder, projName).replace("\\", "\\\\")
-                        else:
-                            projPath = os.path.normpath(os.path.join(root_folder, projName))
-                        projUpdateQuery = "INSERT INTO projects (projName, path, status) VALUES (\"{0}\",\"{1}\",\"{2}\") ".format(projName, projPath, 0)
-                        debug.info(projUpdateQuery)
-                        updateProjList = self.db.execute(projUpdateQuery)
-                        if updateProjList == 1:
-                            debug.info("Updated proj list")
-                        for aNU in stage_and_user:
-                            stage = aNU
-                            user = stage_and_user[aNU]
-                            debug.info(stage)
-                            debug.info(user)
-                            # for ass in assetNames:
-                            assID = str(uuid.uuid4())
-                            debug.info(assID)
-                            # folder_path = root_folder+os.sep+projName+os.sep+asset
-                            # folder_path = os.path.join(root_folder, projName, stage)
+                    reply = QMessageBox.question(self.main_ui, 'Confirmation',
+                                                 'Are you sure you want to create this project?',
+                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if reply == QMessageBox.Yes:
+                        self.main_ui.messageLabel.setText("Creating Project ... ")
+                        try:
+                            # projPath = os.path.join(root_folder, projName)
                             if os.name == 'nt':
-                                folder_path = os.path.join(root_folder, projName, stage).replace("\\", "\\\\")
+                                projPath = os.path.join(root_folder, projName).replace("\\", "\\\\")
                             else:
-                                folder_path = os.path.normpath(os.path.join(root_folder, projName, stage))
-                            debug.info(folder_path)
-                            createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, stage, folder_path, user)
-                            debug.info(createAssetQuery)
-                            updateAssList = self.db.execute(createAssetQuery)
-                            if updateAssList == 1:
-                                os.makedirs(folder_path, exist_ok=True)
-                                # if stage == "draft":
-                                    # pasteAudioCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(audio_file, folder_path)
-                                    # pasteDocCmd = "rsync -azHXW --info=progress2 \"{0}\" \"{1}\" ".format(template_folder+"draft.docx",folder_path+os.sep+projName+"_draft.docx")
-                                    # pasteAudioCmd = "copy {0} {1} ".format(audio_file, folder_path)
-                                    # debug.info(pasteAudioCmd)
-                                    # subprocess.run(pasteAudioCmd, shell=True)
-                                    # pasteDocCmd = "copy {0} {1} ".format(template_folder+os.sep+"draft.docx",folder_path)
-                                    # debug.info(pasteDocCmd)
-                                    # subprocess.run(pasteDocCmd, shell=True)
-                                    # renameDocCmd = "ren {0} {1} ".format(folder_path+os.sep+"draft.docx", projName+"_draft.docx")
-                                    # debug.info(renameDocCmd)
-                                    # subprocess.run(renameDocCmd, shell=True)
+                                projPath = os.path.normpath(os.path.join(root_folder, projName))
+                            # projUpdateQuery = "INSERT INTO projects (projName, path, status) VALUES (\"{0}\",\"{1}\",\"{2}\") ".format(projName, projPath, 0)
+                            # debug.info(projUpdateQuery)
+                            # updateProjList = self.db.execute(projUpdateQuery)
+                            create_proj_result = utils.createNewProject(projName, projPath, proj_status=0)
+                            if create_proj_result == 1:
+                                debug.info("Updated proj list")
+                                for aNU in stage_and_user:
+                                    stage = aNU
+                                    user = stage_and_user[aNU]
+                                    debug.info(stage)
+                                    debug.info(user)
+                                    # for ass in assetNames:
+                                    assID = str(uuid.uuid4())
+                                    debug.info(assID)
+                                    # folder_path = root_folder+os.sep+projName+os.sep+asset
+                                    # folder_path = os.path.join(root_folder, projName, stage)
+                                    if os.name == 'nt':
+                                        folder_path = os.path.join(root_folder, projName, stage).replace("\\", "\\\\")
+                                    else:
+                                        folder_path = os.path.normpath(os.path.join(root_folder, projName, stage))
+                                    debug.info(folder_path)
+                                    # createAssetQuery = "insert into assets (assetID, projName, stage, path, assignedUser) values (\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\") ".format(assID, projName, stage, folder_path, user)
+                                    # debug.info(createAssetQuery)
+                                    # updateAssList = self.db.execute(createAssetQuery)
+                                    create_ass_result = utils.createNewAsset(assID, projName, stage, folder_path, user)
+                                    if create_ass_result == 1:
+                                        os.makedirs(folder_path, exist_ok=True)
+                                        self.setupProject(audio_file, folder_path, projName, stage)
+                                        self.setupVersioning(folder_path)
+                                    elif "Duplicate entry" in create_ass_result:
+                                        self.main_ui.messageLabel.setText("Asset already exists")
+                                    elif "UNIQUE constraint failed" in create_ass_result:
+                                        self.main_ui.messageLabel.setText("Asset already exists")
+                                self.main_ui.close()
+                            elif "Duplicate entry" in create_proj_result:
+                                self.main_ui.messageLabel.setText("Project already exists")
+                            elif "UNIQUE constraint failed" in create_proj_result:
+                                self.main_ui.messageLabel.setText("Project already exists")
 
-                                self.setupProject(audio_file, folder_path, projName, stage)
-                                self.setupVersioning(folder_path)
-
-                                    # initHgCmd = "hg init --cwd {0} & hg add --cwd {0} . & hg commit --cwd {0} -m 'first_commit' --user 'sanath111' ".format(folder_path)
-                                    # debug.info(initHgCmd)
-                                    # subprocess.run(initHgCmd, shell=True)
-
-                        self.main_ui.close()
-                    except:
-                        err_mess = str(sys.exc_info())
-                        debug.info(err_mess)
-                        if "Duplicate entry" in err_mess:
-                            debug.info("Duplicate entry")
-                            self.main_ui.messageLabel.setText("Project already exists")
+                        except:
+                            debug.info(str(sys.exc_info()))
+                    else:
+                        return
                 else:
-                    debug.info("No asset selected")
-                    self.main_ui.messageLabel.setText("Please select an asset")
+                    debug.info("No stages selected")
+                    self.main_ui.messageLabel.setText("Please select a stage")
             else:
                 debug.info("No audio file selected")
                 self.main_ui.messageLabel.setText("Please select an audio file")
-            # else:
-            #     debug.info("No asset selected")
-            #     self.main_ui.messageLabel.setText("Please select an asset")
         else:
             debug.info("No Project name given")
             self.main_ui.messageLabel.setText("Please provide a project name")

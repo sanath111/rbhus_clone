@@ -77,6 +77,11 @@ def setProjStatus(proj_name, status):
     set_status_result = db.execute(set_proj_status)
     return set_status_result
 
+def createNewProject(proj_name, proj_path, proj_status):
+    new_proj_cmd = f"INSERT INTO projects (projName, path, status) VALUES ('{proj_name}', '{proj_path}', {proj_status}) "
+    create_proj_result = db.execute(new_proj_cmd)
+    return create_proj_result
+
 ### Assets Table ###
 
 def getAssID(proj_name, stage_name):
@@ -121,6 +126,11 @@ def getAllStages(proj_name):
     get_stages_cmd = f"SELECT stage FROM assets where projName='{proj_name}'"
     stages = db.execute(get_stages_cmd, dictionary=True)
     return stages
+
+def createNewAsset(ass_id, proj_name, stage, path, ass_user):
+    new_ass_cmd = f"INSERT INTO assets (assetID, projName, stage, path, assignedUser) VALUES ('{ass_id}','{proj_name}','{stage}','{path}','{ass_user}') "
+    create_ass_result = db.execute(new_ass_cmd)
+    return create_ass_result
 
 ### Stages Table ###
 
