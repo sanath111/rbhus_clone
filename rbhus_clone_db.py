@@ -13,12 +13,6 @@ tempDir = tempfile.gettempdir()
 
 db_params = constants.db_params
 
-# dbHostname = "localhost"
-# dbPort = "3306"
-# dbDatabase = "test"
-# username = "root"
-# password="password"
-
 
 class db:
   def __init__(self):
@@ -33,16 +27,6 @@ class db:
     except:
       debug.debug(str(sys.exc_info()))
     debug.debug("Db connection closed" +"\n")
-
-
-  
-  # def _connDb(self,hostname,port,dbname,user,password):
-  #   try:
-  #     conn = MySQLdb.connect(host = hostname,port=port,db = dbname,user=user,password=password)
-  #     conn.autocommit(1)
-  #   except:
-  #     raise
-  #   return(conn)
     
   def _connRbhus(self):
     while 1:
@@ -114,3 +98,4 @@ class db:
             pass
           self.disconnect()
           raise
+
