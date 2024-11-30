@@ -274,9 +274,12 @@ class rbhusClone():
 
         if action == editAction:
             debug.info("Edit clicked")
-            ass_name = " : ".join([cur_proj, cur_stage])
-            debug.info(ass_name)
-            self.editAsset(ass_name)
+            # ass_name = " : ".join([cur_proj, cur_stage])
+            # debug.info(ass_name)
+            # self.editAsset(ass_name)
+            ass_id = utils.getAssID(proj_name=cur_proj, stage_name=cur_stage)
+            debug.info(ass_id)
+            self.editAsset(ass_id)
 
     # def pushAsset(self, stage, cur_proj, cur_stage):
     #     source_path = os.path.join(root_folder, cur_proj, cur_stage)
@@ -324,7 +327,7 @@ class rbhusClone():
         # p.finished.connect(self.enableNewProjButt)
         p.start(sys.executable, [version_list, "--ass_id", ass_id, "--user", self.user])
 
-    def editAsset(self, ass_name):
+    def editAsset(self, ass_id):
         debug.info("Opening edit asset")
         p = QProcess(parent=self.main_ui)
         processes.append(p)
@@ -334,7 +337,8 @@ class rbhusClone():
         p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
         p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
         p.finished.connect(self.updateAssetsList)
-        p.start(sys.executable + " " + edit_asset + " --asset " + "\""+ass_name+"\"")
+        # p.start(sys.executable + " " + edit_asset + " --asset " + "\""+ass_name+"\"")
+        p.start(sys.executable, [edit_asset, "--ass_id", ass_id, "--user", self.user])
 
     def newProject(self):
         debug.info("Opening new project")

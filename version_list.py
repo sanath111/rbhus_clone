@@ -9,7 +9,7 @@ import setproctitle
 import uuid
 import subprocess
 import shlex
-import rbhus_clone_db
+# import rbhus_clone_db
 import debug
 import argparse
 from pathlib import Path
@@ -51,7 +51,7 @@ args = parser.parse_args()
 
 
 class versionList():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
     def __init__(self):
 
         self.main_ui = uic.loadUi(main_ui_file)
@@ -62,7 +62,8 @@ class versionList():
 
         self.current_files = []
 
-        self.ass_dets = utils.getAssDetsByAssId(args.ass_id)
+        self.ass_id = args.ass_id
+        self.ass_dets = utils.getAssDetsByAssId(self.ass_id)
         debug.info(self.ass_dets)
         self.ass_path = self.ass_dets['path']
         self.proj_name = self.ass_dets['projName']

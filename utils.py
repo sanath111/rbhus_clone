@@ -132,6 +132,11 @@ def createNewAsset(ass_id, proj_name, stage, path, ass_user):
     create_ass_result = db.execute(new_ass_cmd)
     return create_ass_result
 
+def updateAssUser(proj_name, stage_name, username):
+    update_ass_user_cmd = f"UPDATE assets SET assignedUser='{username}' WHERE projName='{proj_name}' AND stage='{stage_name}' "
+    update_ass_user_result = db.execute(update_ass_user_cmd)
+    return update_ass_user_result
+
 ### Stages Table ###
 
 def getStageName(index):

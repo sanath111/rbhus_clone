@@ -7,9 +7,10 @@ import setproctitle
 import uuid
 import subprocess
 import shlex
-import rbhus_clone_db
+# import rbhus_clone_db
 import debug
 import argparse
+import utils
 
 from PyQt5 import QtCore, uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
@@ -30,22 +31,33 @@ main_ui_file = os.path.join(projDir, "ui_files", "edit_asset.ui")
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 
 parser = argparse.ArgumentParser(description="Utility to manage versions")
-parser.add_argument("-a","--asset",dest="asset",help="asset name")
+# parser.add_argument("-a","--asset",dest="asset",help="asset name")
+parser.add_argument("-a","--ass_id",dest="ass_id",help="asset id")
+parser.add_argument("-u","--user",dest="user",help="user")
 args = parser.parse_args()
 
 class editAsset():
-    db = rbhus_clone_db.db()
+    # db = rbhus_clone_db.db()
     def __init__(self):
        
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("EDIT ASSET")
 
-        self.asset = args.asset
-        self.projName = self.asset.split(" : ")[0]
-        self.stage = self.asset.split(" : ")[1]
-        debug.info(self.asset)
-        debug.info(self.projName)
-        debug.info(self.stage)
+        # self.asset = args.asset
+        # self.projName = self.asset.split(" : ")[0]
+        # self.stage = self.asset.split(" : ")[1]
+        # debug.info(self.asset)
+        # debug.info(self.projName)
+        # debug.info(self.stage)
+
+        self.ass_id = args.ass_id
+        self.ass_dets = utils.getAssDetsByAssId(self.ass_id)
+        debug.info(self.ass_dets)
+        self.ass_path = self.ass_dets['path']
+        self.proj_name = self.ass_dets['projName']
+        self.stage_name = self.ass_dets['stage']
+        self.ass_user = self.ass_dets['assignedUser']
+
 
         self.fillDetails()
         self.setUsers()
@@ -62,31 +74,35 @@ class editAsset():
         self.main_ui.move(qtRectangle.topLeft())
 
     def fillDetails(self):
-        self.main_ui.assetBox.setText(self.asset)
-        queryGetUser = "select assignedUser from assets where projName='{0}' and stage='{1}'".format(self.projName,self.stage)
-        debug.info(queryGetUser)
-        assets = self.db.execute(queryGetUser,dictionary=True)
-        assignedUser = str(assets[0]["assignedUser"])
+        self.main_ui.assetBox.setText(" : ".join([self.proj_name, self.stage_name]))
+        # queryGetUser = "select assignedUser from assets where projName='{0}' and stage='{1}'".format(self.proj_name,self.stage_name)
+        # debug.info(queryGetUser)
+        # assets = self.db.execute(queryGetUser,dictionary=True)
+        # assignedUser = str(assets[0]["assignedUser"])
+        assignedUser = utils.getAssUser(self.ass_id)
         debug.info(assignedUser)
         self.main_ui.currUserBox.setText(assignedUser)
 
     def setUsers(self):
-        queryUsers = "select * from users"
-        assets = self.db.execute(queryUsers,dictionary=True)
-        users = [x['name'] for x in assets]
+        # queryUsers = "select * from users"
+        # assets = self.db.execute(queryUsers,dictionary=True)
+        # users = [x['name'] for x in assets]
+        users = utils.getUsers()
         debug.info(users)
         self.main_ui.newUserBox.addItems(users)
 
     def assignAsset(self):
-        user = self.main_ui.newUserBox.currentText()
-        debug.info(user)
-        if user:
+        new_user = self.main_ui.newUserBox.currentText().strip()
+        debug.info(new_user)
+        if new_user:
             try:
-                updateUserQuery = "update assets set assignedUser='{0}' where projName='{1}' and stage='{2}'".format(user,self.projName,self.stage)
-                updateAssignedUser = self.db.execute(updateUserQuery)
-                debug.info(updateAssignedUser)
-                if updateAssignedUser == 1:
+                # updateUserQuery = "update assets set assignedUser='{0}' where projName='{1}' and stage='{2}'".format(user,self.proj_name,self.stage_name)
+                # updateAssignedUser = self.db.execute(updateUserQuery)
+                update_ass_user_result = utils.updateAssUser(self.proj_name, self.stage_name, new_user)
+                debug.info(update_ass_user_result)
+                if update_ass_user_result == 1:
                     debug.info("Assigned user updated")
+                    self.fillDetails()
                     self.main_ui.messageLabel.setText("Assigned user updated")
             except:
                 debug.info(str(sys.exc_info()))
