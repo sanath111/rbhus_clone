@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+mkdir -p ~/Documents/
+cd ~/Documents/ || exit
+git clone https://github.com/sanath111/rbhus_clone.git
+cd rbhus_clone || exit
+git checkout v3.0
+cd - || exit
+mkdir -p ~/Documents/rbhus_clone_root
+zip -ur ./rbhus_clone_root/backup.zip ./rbhus_clone_root/*
+rsync -av ~/Documents/rbhus_clone/template ~/Documents/rbhus_clone_root/
+rsync -av ~/Documents/rbhus_clone/database ~/Documents/rbhus_clone_root/
