@@ -11,7 +11,7 @@ if os.name == 'nt':
     root_folder = r"D:\rbhus_clone_root"
     db_params = {'host': "localhost", 'db': "test", 'port': 3306, 'user': "root", 'passwd': "password"}
 else:
-    root_folder = r"/home/sanath/Documents/rbhus_clone_root"
+    root_folder = os.path.expanduser(r"~/Documents/rbhus_clone_root")
     db_params = {'host': "mysqlserver", 'db': "test", 'port': 4501, 'user': "hruser", 'passwd': "5Dt09WXa"}
 
 template_folder = os.path.join(root_folder, "template")
