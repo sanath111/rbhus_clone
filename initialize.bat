@@ -1,16 +1,16 @@
 @echo off
 setlocal
 
-cd "D:\" || exit /b
+cd D:
 git clone https://github.com/sanath111/rbhus_clone.git
 cd rbhus_clone || exit /b
 git checkout v3.0
 cd .. || exit /b
-mkdir "D:\rbhus_clone_root"
-powershell -command "Compress-Archive -Path 'D:\rbhus_clone_root\*' -DestinationPath 'D:\rbhus_clone_root\backup.zip' -Force"
-xcopy /E /I "D:\rbhus_clone\template" "D:\rbhus_clone_root\template"
-xcopy /E /I "D:\rbhus_clone\database" "D:\rbhus_clone_root\database"
-cd "D:\rbhus_clone" || exit /b
-bash "D:\rbhus_clone\bootstrap.bat"
+mkdir "rbhus_clone_root"
+powershell -command "Compress-Archive -Path 'rbhus_clone_root\*' -DestinationPath 'rbhus_clone_root\backup.zip' -Force"
+xcopy /E /I "rbhus_clone\template" "rbhus_clone_root\template"
+xcopy /E /I "rbhus_clone\database" "rbhus_clone_root\database"
+cd "rbhus_clone" || exit /b
+call "bootstrap.bat"
 
 endlocal
