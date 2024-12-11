@@ -10,6 +10,8 @@ set "bootstrap_script=bootstrap.bat"
 set "root_dir=D:\"
 set "clone_dir=rbhus_clone"
 set "output_dir=rbhus_clone_root"
+set "shortcut_name=rbhus_clone_launcher_win.lnk"
+set "shortcut_target="D:\Repos\rbhus_clone\dist\rbhus_clone_launcher_win.exe""
 
 :: Ensure script is run as administrator
 whoami /groups | find "S-1-5-32-544" >nul || (
@@ -40,6 +42,24 @@ runas /user:%username% cmd /c ^
     xcopy /E /I "%clone_dir%\database" "%output_dir%\database" /Y && ^
     cd %clone_dir% && ^
     call %bootstrap_script%^"
+
+:: Determine the Startup directory for the new user
+for /f "tokens=3 delims= " %%A in ('reg query "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v Startup') do (
+    set "startup_dir=%%A"
+)
+
+if not defined startup_dir (
+    echo Failed to determine the Startup directory. Exiting.
+    exit /b
+)
+
+:: Create a shortcut in the Startup folder
+echo Creating shortcut in Startup directory...
+powershell -Command ^
+    "$ws = New-Object -ComObject WScript.Shell; ^
+    $shortcut = $ws.CreateShortcut('%startup_dir%\%shortcut_name%'); ^
+    $shortcut.TargetPath = '%shortcut_target%'; ^
+    $shortcut.Save()"
 
 :: Completion message
 echo All tasks completed successfully.
