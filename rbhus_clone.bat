@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+rem Kill start menu and taskbar
+taskkill /F /IM explorer.exe
+
 rem Resolve the full path to the script
 set "SOURCE=%~f0"
 :loop
