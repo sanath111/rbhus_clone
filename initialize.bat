@@ -28,10 +28,6 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-:: Force the creation of the user's profile
-echo Forcing creation of user profile...
-runas /user:%username% /noprofile "cmd /c echo Profile creation" >nul 2>&1
-
 :: Create a temporary batch file for the new user
 echo Preparing commands for the new user...
 set "temp_batch=%temp%\run_commands_as_user.bat"
