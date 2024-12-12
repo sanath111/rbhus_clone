@@ -9,7 +9,7 @@ set "root_dir=D:\"
 set "clone_dir=rbhus_clone"
 set "output_dir=rbhus_clone_root"
 set "shortcut_name=rbhus_clone_launcher_win.lnk"
-set "shortcut_target=D:\Repos\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
+set "shortcut_target=D:\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
 set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 
 echo Initializing...
@@ -26,10 +26,7 @@ cd %clone_dir%
 call %bootstrap_script%
 
 echo Creating shortcut in Startup directory...
-powershell -Command ^
-    "$ws = New-Object -ComObject WScript.Shell; ^
-    $shortcut = $ws.CreateShortcut('%startup_dir%\%shortcut_name%'); ^
-    $shortcut.TargetPath = '%shortcut_target%'; ^
-    $shortcut.Save()"
+powershell -command "New-Object -ComObject WScript.Shell).CreateShortcut('%startup_dir%\%shortcut_name%').TargetPath = '%shortcut_target%'; (New-Object -ComObject WScript.Shell).CreateShortcut('%startup_dir%\%shortcut_name%').Save()"
+echo Shortcut created: %startup_dir%\%shortcut_name%
 
 endlocal
