@@ -12,6 +12,14 @@ set "shortcut_name=rbhus_clone_launcher_win.lnk"
 set "shortcut_target=D:\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
 set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 
+where python >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Python is not installed.
+    echo Press enter key after installing python
+    python
+    pause
+)
+
 echo Initializing...
 cd /d %root_dir%
 git clone %repo_url%
