@@ -26,7 +26,10 @@ cd %clone_dir%
 call %bootstrap_script%
 
 echo Creating shortcut in Startup directory...
-powershell -command "New-Object -ComObject WScript.Shell).CreateShortcut('%startup_dir%\%shortcut_name%').TargetPath = '%shortcut_target%'; (New-Object -ComObject WScript.Shell).CreateShortcut('%startup_dir%\%shortcut_name%').Save()"
-echo Shortcut created: %startup_dir%\%shortcut_name%
+powershell -Command ^
+    "$ws = New-Object -ComObject WScript.Shell; ^
+    $shortcut = $ws.CreateShortcut('%startup_dir%\%shortcut_name%'); ^
+    $shortcut.TargetPath = '%shortcut_target%'; ^
+    $shortcut.Save()"
 
 endlocal
