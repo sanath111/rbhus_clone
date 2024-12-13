@@ -1,6 +1,7 @@
 @echo off
 setlocal
 
+set "script_name=%~f0"
 set "username=kiosk-user"
 set "repo_url=https://github.com/sanath111/rbhus_clone.git"
 set "version_tag=v3.0"
@@ -15,20 +16,20 @@ set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Men
 echo Initializing...
 
 python --version >nul 2>&1
-if %errorlevel% neq 0 (
+if errorlevel 1 (
     echo Python is not installed.
     echo Press Enter to open the Microsoft Store to install Python.
     pause
     python
-    echo Press Enter once Python is installed.
+    echo After installing Python, Press enter to rerun this script.
     pause
-    python --version >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo Python is still not installed or properly configured. Exiting.
-        pause
-        exit /b
-    )
+    timeout /t 5 >nul
+    start "" "%script_name%"
+    exit /b
 )
+
+:: If Python is installed, proceed with the script
+echo Python is installed. Proceeding with the script...
 
 cd /d %root_dir%
 git clone %repo_url%
