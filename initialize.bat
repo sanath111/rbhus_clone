@@ -35,6 +35,7 @@ cd /d %root_dir%
 git clone %repo_url%
 cd %clone_dir%
 git checkout %version_tag%
+git pull
 cd ..
 mkdir %output_dir%
 powershell -Command "Compress-Archive -Path '%output_dir%\*' -DestinationPath '%output_dir%\backup.zip' -Force"
