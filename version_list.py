@@ -104,6 +104,7 @@ class versionList():
 
         #Show Window
         self.main_ui.show()
+        self.main_ui.showMaximized()
         self.main_ui.update()
 
         qtRectangle = self.main_ui.frameGeometry()
