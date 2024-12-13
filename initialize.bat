@@ -12,15 +12,24 @@ set "shortcut_name=rbhus_clone_launcher_win.lnk"
 set "shortcut_target=D:\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
 set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 
-where python >nul 2>&1
+echo Initializing...
+
+python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo Python is not installed.
-    echo Press enter key after installing python
-    python
+    echo Press Enter to open the Microsoft Store to install Python.
     pause
+    python
+    echo Press Enter once Python is installed.
+    pause
+    python --version >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo Python is still not installed or properly configured. Exiting.
+        pause
+        exit /b
+    )
 )
 
-echo Initializing...
 cd /d %root_dir%
 git clone %repo_url%
 cd %clone_dir%
@@ -35,5 +44,6 @@ call %bootstrap_script%
 
 echo Creating shortcut in Startup directory...
 powershell -Command "$ws = New-Object -ComObject WScript.Shell; $shortcut = $ws.CreateShortcut('%startup_dir%\%shortcut_name%'); $shortcut.TargetPath = '%shortcut_target%'; $shortcut.Save()"
+pause
 
 endlocal
