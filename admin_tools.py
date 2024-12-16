@@ -51,12 +51,12 @@ class adminTools():
         #Show Window
         # self.main_ui.show()
         self.main_ui.showMaximized()
-        self.main_ui.update()
+        # self.main_ui.update()
 
-        qtRectangle = self.main_ui.frameGeometry()
-        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.main_ui.move(qtRectangle.topLeft())
+        # qtRectangle = self.main_ui.frameGeometry()
+        # centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        # qtRectangle.moveCenter(centerPoint)
+        # self.main_ui.move(qtRectangle.topLeft())
 
     def setUsers(self):
         self.main_ui.userList_chpwd.clear()
