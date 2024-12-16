@@ -49,7 +49,7 @@ class adminTools():
         self.main_ui.userList_chrole.currentIndexChanged.connect(lambda x : self.updateRole())
 
         #Show Window
-        self.main_ui.show()
+        # self.main_ui.show()
         self.main_ui.showMaximized()
         self.main_ui.update()
 

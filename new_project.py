@@ -64,7 +64,7 @@ class newProject():
         self.main_ui.createButt.clicked.connect(lambda x : self.createProject())
 
         #Show Window
-        self.main_ui.show()
+        # self.main_ui.show()
         self.main_ui.showMaximized()
         self.main_ui.update()
 
