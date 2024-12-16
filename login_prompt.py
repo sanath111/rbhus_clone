@@ -48,10 +48,10 @@ class loginPrompt():
         self.main_ui.showFullScreen()
         self.main_ui.update()
 
-        qtRectangle = self.main_ui.frameGeometry()
-        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.main_ui.move(qtRectangle.topLeft())
+        # qtRectangle = self.main_ui.frameGeometry()
+        # centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        # qtRectangle.moveCenter(centerPoint)
+        # self.main_ui.move(qtRectangle.topLeft())
 
     def login(self):
         username = self.main_ui.username.text().strip()

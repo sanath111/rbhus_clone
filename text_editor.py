@@ -155,10 +155,10 @@ class Text_Editor():
         self.main_ui.showMaximized()
         self.main_ui.update()
 
-        qtRectangle = self.main_ui.frameGeometry()
-        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.main_ui.move(qtRectangle.topLeft())
+        # qtRectangle = self.main_ui.frameGeometry()
+        # centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        # qtRectangle.moveCenter(centerPoint)
+        # self.main_ui.move(qtRectangle.topLeft())
 
     def authorize(self):
         """

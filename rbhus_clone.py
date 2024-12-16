@@ -105,10 +105,10 @@ class rbhusClone():
         self.main_ui.showFullScreen()
         self.main_ui.update()
 
-        qtRectangle = self.main_ui.frameGeometry()
-        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.main_ui.move(qtRectangle.topLeft())
+        # qtRectangle = self.main_ui.frameGeometry()
+        # centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        # qtRectangle.moveCenter(centerPoint)
+        # self.main_ui.move(qtRectangle.topLeft())
 
     # def getAdmins(self):
     #     # get_master_admin = "SELECT * FROM master_admin"
