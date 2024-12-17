@@ -27,7 +27,7 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir, "ui_files", "version_list_new.ui")
+main_ui_file = os.path.join(projDir, "ui_files", "version_list.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 version_details_ui = os.path.join(projDir, "ui_files", "version_details_row.ui")
 

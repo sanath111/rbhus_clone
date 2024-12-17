@@ -27,7 +27,7 @@ import constants
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir,  "ui_files", "new_project_new.ui")
+main_ui_file = os.path.join(projDir,  "ui_files", "new_project.ui")
 
 # root_folder = r"Z:\share\sanath\rbhus_clone_root"
 # root_folder = r"C:\Users\aum\Documents\rbhus_clone_root"
