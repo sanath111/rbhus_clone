@@ -1,0 +1,5 @@
+"D:\softwares\vc.exe"
+"D:\softwares\7zip.exe"
+"D:\softwares\nudi.exe"
+"D:\softwares\git.exe"
+"D:\softwares\hg.msi"
