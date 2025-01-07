@@ -44,8 +44,8 @@ xcopy /E /I "%clone_dir%\database" "%output_dir%\database" /Y
 cd %clone_dir%
 call %bootstrap_script%
 
-echo Creating shortcut in Startup directory...
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $shortcut = $ws.CreateShortcut('%startup_dir%\%shortcut_name%'); $shortcut.TargetPath = '%shortcut_target%'; $shortcut.Save()"
+echo Creating Registry entry...
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d "%shortcut_target%" /f
 pause
 exit /b
 
