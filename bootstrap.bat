@@ -9,7 +9,7 @@ set PYTHONPATH=
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 echo "----- Created python environment -------"
-pyinstaller --onefile rbhus_clone_launcher_win.py
-echo "----- Created launcher -------"
+:: pyinstaller --onefile rbhus_clone_launcher_win.py
+:: echo "----- Created launcher -------"
 deactivate
 echo "----- Deactivated environment -------"

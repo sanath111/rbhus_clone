@@ -9,9 +9,11 @@ set "bootstrap_script=bootstrap.bat"
 set "root_dir=D:\"
 set "clone_dir=rbhus_clone"
 set "output_dir=rbhus_clone_root"
-set "shortcut_name=rbhus_clone_launcher_win.lnk"
-set "shortcut_target=D:\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
-set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+set "vbs_target=wscript.exe \"%root_dir%\rbhus_clone\rbhus_clone.vbs\""
+
+:: set "shortcut_name=rbhus_clone_launcher_win.lnk"
+:: set "shortcut_target=D:\rbhus_clone\dist\rbhus_clone_launcher_win.exe"
+:: set "startup_dir=C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 
 echo Initializing...
 
@@ -45,7 +47,7 @@ cd %clone_dir%
 call %bootstrap_script%
 
 echo Creating Registry entry...
-reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d "%shortcut_target%" /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d %vbs_target% /f
 pause
 exit /b
 
