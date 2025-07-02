@@ -57,6 +57,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="exportButt">
+        <property name="text">
+         <string>Export PDF</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QFontComboBox" name="fontBox"/>
       </item>
       <item>

@@ -56,14 +56,14 @@ class Text_Editor():
     def __init__(self):
         # Load main ui
         self.main_ui = uic.loadUi(main_ui_file)
-        self.main_ui.setWindowTitle("TEXT EDITOR")
+        self.main_ui.setWindowTitle(args.text.split(os.sep)[-1])
 
         # Text Controls
 
         self.text_editors = []
         self.create_text_edit()
         # self.set_limited_fonts()
-        
+
         # textLayout = QVBoxLayout()
         # textLayout.addWidget(self.text_editors[0])
         # self.main_ui.textFrame.setLayout(textLayout)
@@ -83,7 +83,7 @@ class Text_Editor():
         self.main_ui.fontBox.currentFontChanged.connect(self.set_font)
         # self.main_ui.fontBox.currentIndexChanged.connect(self.set_font)
         self.main_ui.fontSizeBox.currentIndexChanged.connect(self.set_font_size)
-        
+
         self.main_ui.boldButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "bold.svg")))
         self.main_ui.italicButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "italic.svg")))
         self.main_ui.underlineButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "underline.svg")))
@@ -101,7 +101,7 @@ class Text_Editor():
 
         self.main_ui.saveButt.clicked.connect(self.save_file)
         self.main_ui.printButt.clicked.connect(self.print_file)
-        # self.main_ui.exportButt.clicked.connect(self.export_as_docx)
+        self.main_ui.exportButt.clicked.connect(self.export_as_pdf)
         self.main_ui.boldButt.clicked.connect(self.set_bold)
         self.main_ui.italicButt.clicked.connect(self.set_italic)
         self.main_ui.underlineButt.clicked.connect(self.set_underline)
@@ -120,7 +120,7 @@ class Text_Editor():
             # fileName = r"C:\Users\Dell\Documents\rbhus_clone_root\template\test_video.mp3"
             fileName = args.audio
         self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(fileName)))
-        
+
         self.main_ui.playButton.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "play.svg")))
         self.main_ui.forwardButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "chevron-right.svg")))
         self.main_ui.backwardButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "chevron-left.svg")))
@@ -170,9 +170,11 @@ class Text_Editor():
             debug.info(user)
             if user in admins:
                 self.main_ui.printButt.setEnabled(True)
+                self.main_ui.exportButt.setEnabled(True)
                 self.main_ui.fontBox.setEnabled(True)
             else:
                 self.main_ui.printButt.setEnabled(False)
+                self.main_ui.exportButt.setEnabled(False)
                 self.main_ui.fontBox.setEnabled(False)
 
     def launchNudi(self):
@@ -278,6 +280,27 @@ class Text_Editor():
         except Exception as e:
             debug.info(f"Error while saving file: {str(e)}")
 
+    def export_as_pdf(self):
+        if not args.text:
+            debug.info("No --text path provided.")
+            return
+
+        # Derive the PDF path from the --text file path
+        base_path = os.path.splitext(args.text)[0]
+        pdf_path = base_path + ".pdf"
+
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName(pdf_path)
+        # printer.setPageMargins(QMargin(15, 15, 15, 15), QPageLayout.Millimeter)
+        printer.setFullPage(False)
+
+        try:
+            self.text_editors[-1].document().print_(printer)
+            debug.info(f"Exported PDF to: {pdf_path}")
+        except Exception as e:
+            debug.info(f"Failed to export PDF: {e}")
+
     # def handle_text_changed(self):
     #     current_text_edit = self.text_editors[-1]  # Get the current QTextEdit widget
     #     document_height = current_text_edit.document().size().height()
@@ -357,7 +380,7 @@ class Text_Editor():
 
     def set_alignment_right(self):
         self.text_editors[-1].setAlignment(Qt.AlignRight)
-    
+
     def set_alignment_justify(self):
         self.text_editors[-1].setAlignment(Qt.AlignJustify)
 
@@ -367,7 +390,7 @@ class Text_Editor():
             self.mediaPlayer.pause()
         else:
             self.mediaPlayer.play()
-            
+
     def media_state_changed(self, state):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.main_ui.playButton.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "pause.svg")))

@@ -38,6 +38,8 @@ admin_tools = os.path.join(projDir, "admin_tools.py")
 version_list = os.path.join(projDir, "version_list.py")
 edit_asset = os.path.join(projDir, "edit_asset.py")
 login_prompt = os.path.join(projDir, "login_prompt.py")
+pdf_viewer = os.path.join(projDir, "pdf_viewer.py")
+
 processes = []
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
@@ -194,6 +196,9 @@ class rbhusClone():
             # assets = self.db.execute(queryAss,dictionary=True)
             debug.info(assets)
             if assets:
+                # Sort assets by stage index
+                assets.sort(key=lambda a: utils.getStageIndex(a['stage']))
+
                 for x in assets:
                     item_widget = assetDetailRowClass()
                     item_widget.labelUser.setText(x['assignedUser'])
@@ -205,6 +210,9 @@ class rbhusClone():
 
                     item = QListWidgetItemSort()
                     item.setSizeHint(item_widget.sizeHint())
+
+                    # Set stage index as sorting key
+                    item.setData(QtCore.Qt.UserRole, utils.getStageIndex(x['stage']))
 
                     self.main_ui.listWidgetAssets.addItem(item)
                     self.main_ui.listWidgetAssets.setItemWidget(item, item_widget)
@@ -222,8 +230,8 @@ class rbhusClone():
 
     def assContextMenu(self, ui, pos):
         debug.info("Asset clicked")
-        cur_proj = ui.labelProject.text()
-        cur_stage = ui.labelStage.text()
+        cur_proj = ui.labelProject.text().strip()
+        cur_stage = ui.labelStage.text().strip()
         # selected_item = self.main_ui.listWidgetAssets.currentItem()
         # if selected_item is not None:
         #     itemWidget = self.main_ui.listWidgetAssets.itemWidget(selected_item)
@@ -232,12 +240,18 @@ class rbhusClone():
 
         menu = QtWidgets.QMenu()
         menuTools = QtWidgets.QMenu()
+        menuReadOnly = QtWidgets.QMenu()
         # menuPush = QtWidgets.QMenu()
 
         menuTools.setTitle("Tools")
+        menuReadOnly.setTitle("Set Read Only")
         # menuPush.setTitle("Send To")
         openAction = menu.addAction("Open")
         editAction = menuTools.addAction("Edit")
+        if utils.getProjReadStatus(cur_proj) == 0:
+            readSetAction = menuReadOnly.addAction("On")
+        else:
+            readSetAction = menuReadOnly.addAction("Off")
 
         # sub_action_dict = {}
         #
@@ -253,6 +267,7 @@ class rbhusClone():
 
         if self.user in self.admins:
             menu.addMenu(menuTools)
+            menu.addMenu(menuReadOnly)
         # if self.user == ui.labelUser.text():
         #     menu.addMenu(menuPush)
 
@@ -268,9 +283,21 @@ class rbhusClone():
             # filepath = os.path.join(root_folder, cur_proj, cur_stage)
             # assText = " : ".join([cur_proj, cur_stage])
             # debug.info(filepath)
-            ass_id = utils.getAssID(proj_name=cur_proj, stage_name=cur_stage)
-            debug.info(ass_id)
-            self.versionList(ass_id)
+            if utils.getProjReadStatus(cur_proj) == 1:
+                pdf_file = os.path.join(utils.getAssPath(proj_name=cur_proj,stage_name="final"),cur_proj+"_final.pdf")
+                try:
+                    p = QProcess(parent=self.main_ui)
+                    processes.append(p)
+                    debug.info(processes)
+                    p.readyReadStandardOutput.connect(lambda: debug.info(p.readAllStandardOutput().data().decode()))
+                    p.readyReadStandardError.connect(lambda: debug.info(p.readAllStandardError().data().decode()))
+                    p.start(sys.executable, [pdf_viewer, "--file", pdf_file])
+                except Exception as e:
+                    debug.info(f"Error: {e}")
+            else:
+                ass_id = utils.getAssID(proj_name=cur_proj, stage_name=cur_stage)
+                debug.info(ass_id)
+                self.versionList(ass_id)
 
         if action == editAction:
             debug.info("Edit clicked")
@@ -280,6 +307,13 @@ class rbhusClone():
             ass_id = utils.getAssID(proj_name=cur_proj, stage_name=cur_stage)
             debug.info(ass_id)
             self.editAsset(ass_id)
+
+        if action == readSetAction:
+            debug.info("Read Set clicked")
+            if utils.getProjReadStatus(cur_proj) == 0:
+                utils.setProjReadStatus(cur_proj, 1)
+            else:
+                utils.setProjReadStatus(cur_proj, 0)
 
     # def pushAsset(self, stage, cur_proj, cur_stage):
     #     source_path = os.path.join(root_folder, cur_proj, cur_stage)

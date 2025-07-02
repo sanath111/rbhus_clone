@@ -80,6 +80,8 @@ class newProject():
         # query_stage_names = "select * from stages"
         # stage_names = self.db.execute(query_stage_names,dictionary=True)
         stage_names = utils.getStageDets()
+        # Sort stages by stage index
+        stage_names.sort(key=lambda s: utils.getStageIndex(s['name']))
         stage_names = [x['name'] for x in stage_names]
         debug.info(stage_names)
 

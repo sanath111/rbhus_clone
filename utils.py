@@ -72,10 +72,21 @@ def getProjStatus(proj_name):
     status = status_dict[0]['status']
     return status
 
+def getProjReadStatus(proj_name):
+    get_proj_read_status = f"SELECT readOnly FROM projects WHERE projName='{proj_name}'"
+    read_status_dict = db.execute(get_proj_read_status, dictionary=True)
+    read_status = read_status_dict[0]['readOnly']
+    return read_status
+
 def setProjStatus(proj_name, status):
     set_proj_status = f"UPDATE projects SET status='{status}' WHERE projName='{proj_name}'"
     set_status_result = db.execute(set_proj_status)
     return set_status_result
+
+def setProjReadStatus(proj_name, read_status):
+    set_proj_read_status = f"UPDATE projects SET readOnly='{read_status}' WHERE projName='{proj_name}'"
+    set_read_status_result = db.execute(set_proj_read_status)
+    return set_read_status_result
 
 def createNewProject(proj_name, proj_path, proj_status):
     new_proj_cmd = f"INSERT INTO projects (projName, path, status) VALUES ('{proj_name}', '{proj_path}', {proj_status}) "
@@ -101,6 +112,7 @@ def getAssPath(asset_id=None, proj_name=None, stage_name=None):
         path_dict = db.execute(get_path_cmd, dictionary=True)
         path = path_dict[0]['path']
         return str(path.strip())
+    return None
 
 def getAssUser(asset_id):
     get_ass_user_cmd = f"SELECT assignedUser FROM assets WHERE assetID='{asset_id}'"
@@ -144,6 +156,12 @@ def getStageName(index):
     stage_name_dict = db.execute(get_stage_name, dictionary=True)
     stage_name = stage_name_dict[0]['name']
     return str(stage_name)
+
+def getStageIndex(stage_name):
+    get_stage_index = f"SELECT `index` FROM stages WHERE `name`='{stage_name}'"
+    stage_index_dict = db.execute(get_stage_index, dictionary=True)
+    stage_index = stage_index_dict[0]['index']
+    return str(stage_index)
 
 def getStageDets():
     get_stage_details = "SELECT * FROM stages"
