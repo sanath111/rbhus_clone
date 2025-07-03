@@ -39,7 +39,16 @@ class loginPrompt():
     
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle("LOGIN PROMPT")
-        
+
+        self.main_ui.username.clear()
+        users = utils.getUsers()
+        debug.info(users)
+        self.main_ui.username.addItems(users)
+
+        self.main_ui.toggle_button.setCheckable(True)
+        self.main_ui.toggle_button.setFixedWidth(60)
+        self.main_ui.toggle_button.toggled.connect(self.toggle_password_visibility)
+
         self.main_ui.loginButton.clicked.connect(lambda x : self.login())
         self.main_ui.loginButton.setShortcut(Qt.Key_Return)
 
@@ -53,8 +62,16 @@ class loginPrompt():
         # qtRectangle.moveCenter(centerPoint)
         # self.main_ui.move(qtRectangle.topLeft())
 
+    def toggle_password_visibility(self, checked):
+        if checked:
+            self.main_ui.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+            self.main_ui.toggle_button.setText("Hide")
+        else:
+            self.main_ui.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+            self.main_ui.toggle_button.setText("Show")
+
     def login(self):
-        username = self.main_ui.username.text().strip()
+        username = self.main_ui.username.currentText().strip()
         password = self.main_ui.password.text().strip()
         debug.info(username)
         debug.info(password)
