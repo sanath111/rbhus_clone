@@ -52,8 +52,9 @@ args = parser.parse_args()
 
 
 
-class Text_Editor():
+class Text_Editor(QtCore.QObject):
     def __init__(self):
+        super().__init__()
         # Load main ui
         self.main_ui = uic.loadUi(main_ui_file)
         self.main_ui.setWindowTitle(args.text.split(os.sep)[-1])
@@ -99,6 +100,10 @@ class Text_Editor():
         self.main_ui.italicButt.setShortcut(QKeySequence.Italic)
         self.main_ui.underlineButt.setShortcut(QKeySequence.Underline)
 
+        # Frame-by-frame shortcuts
+        QShortcut(QKeySequence(Qt.Key_Period), self.main_ui, activated=self.step_forward_frame)  # '.' key
+        QShortcut(QKeySequence(Qt.Key_Comma), self.main_ui, activated=self.step_backward_frame)  # ',' key
+
         self.main_ui.saveButt.clicked.connect(self.save_file)
         self.main_ui.printButt.clicked.connect(self.print_file)
         self.main_ui.exportButt.clicked.connect(self.export_as_pdf)
@@ -114,12 +119,26 @@ class Text_Editor():
 
         # Audio Controls
 
-        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        # self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.StreamPlayback)
+        # self.frame_step_ms = 100  # 100 milliseconds per "frame"
+
+        self.frame_timer = QTimer()
+        self.frame_timer.setSingleShot(True)
+        self.frame_timer.timeout.connect(self.mediaPlayer.pause)
+
         # videoWidget = QVideoWidget()
         if args.audio:
             # fileName = r"C:\Users\Dell\Documents\rbhus_clone_root\template\test_video.mp3"
             fileName = args.audio
-        self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(fileName)))
+        media = QMediaContent(QUrl.fromLocalFile(fileName))
+        self.mediaPlayer.setMedia(media)
+
+        self.frame_step_ms = self.estimate_mp3_frame_step()
+        # debug.info(f"Calculated MP3 frame step: {self.frame_step_ms:.3f} ms")
+        # self.mediaPlayer.mediaStatusChanged.connect(self.handle_media_status)
+        # self.mediaPlayer.metaDataChanged.connect(self.handle_metadata)
+
 
         self.main_ui.playButton.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "play.svg")))
         self.main_ui.forwardButt.setIcon(QtGui.QIcon(os.path.join(projDir, "tests", "image_files", "chevron-right.svg")))
@@ -159,6 +178,35 @@ class Text_Editor():
         # centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
         # qtRectangle.moveCenter(centerPoint)
         # self.main_ui.move(qtRectangle.topLeft())
+
+    def handle_media_status(self, status):
+        # Check if media is loaded
+        if status == QMediaPlayer.LoadedMedia:
+            # Get duration in milliseconds
+            duration_ms = self.mediaPlayer.duration()
+            duration_sec = duration_ms / 1000  # Convert to seconds
+            debug.info(f"Duration: {duration_sec:.2f} seconds")
+
+    def handle_metadata(self):
+        # Retrieve available metadata keys
+        available_keys = self.mediaPlayer.availableMetaData()
+        for key in available_keys:
+            value = self.mediaPlayer.metaData(key)
+            debug.info(f"{key}: {value}")
+
+    def estimate_mp3_frame_step(self):
+        codec = self.mediaPlayer.metaData("AudioCodec")
+        bitrate = self.mediaPlayer.metaData("AudioBitRate")
+
+        if codec and "MP3" in codec:
+            # 128 kbps usually uses 44100 Hz
+            sample_rate = 44100
+            if bitrate and bitrate >= 192000:
+                sample_rate = 48000
+            return (1152 / sample_rate) * 1000  # in ms
+        else:
+            # fallback for other formats
+            return 100
 
     def authorize(self):
         """
@@ -419,6 +467,50 @@ class Text_Editor():
     def back_5_seconds(self):
         self.mediaPlayer.setPosition(self.mediaPlayer.position() - 3000)
 
+    def step_forward_frame(self):
+        # available_keys = self.mediaPlayer.availableMetaData()
+        # audio_bit_rate = self.mediaPlayer.metaData("AudioBitRate") if "AudioBitRate" in available_keys else None
+        # duration_ms = self.mediaPlayer.duration()
+        # debug.info(f"AudioBitRate: {audio_bit_rate}")
+        # debug.info(f"Duration: {duration_ms}")
+
+        # frame_step_ms = self.estimate_mp3_frame_step()
+        current_pos = self.mediaPlayer.position()
+        frame_index = int(current_pos / self.frame_step_ms)  # Current frame number    frame_index
+        new_pos = (frame_index + 1) * self.frame_step_ms
+        # debug.info(f"Stepping forward to frame {frame_index + 1} at {new_pos:.3f} ms")
+        self.mediaPlayer.pause()
+        self.mediaPlayer.setPosition(int(new_pos))
+        # self.mediaPlayer.pause()  # Optional: remove if you want to play briefly
+        # To play one frame, add:
+        self.mediaPlayer.play()
+        # self.frame_timer.start(int(self.frame_step_ms))
+
+    def step_backward_frame(self):
+        # frame_step_ms = self.estimate_mp3_frame_step()
+        current_pos = self.mediaPlayer.position()
+        frame_index = int(current_pos / self.frame_step_ms)
+        if frame_index > 0:  # Ensure we don’t go below 0
+            new_pos = (frame_index - 1) * self.frame_step_ms
+            # debug.info(f"Stepping backward to frame {frame_index - 1} at {new_pos:.3f} ms")
+            self.mediaPlayer.pause()
+            self.mediaPlayer.setPosition(int(new_pos))
+            # self.mediaPlayer.pause()  # Optional: remove if you want to play briefly
+            # To play one frame, add:
+            self.mediaPlayer.play()
+            # self.frame_timer.start(int(self.frame_step_ms))
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            if event.modifiers() == Qt.NoModifier:
+                if event.key() == Qt.Key_Period:
+                    self.step_forward_frame()
+                    return True
+                elif event.key() == Qt.Key_Comma:
+                    self.step_backward_frame()
+                    return True
+        return False
+
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Exit', 'Are you sure you want to exit?', QMessageBox.Yes | QMessageBox.No,
                                     QMessageBox.No)
@@ -434,4 +526,5 @@ if __name__ == '__main__':
     setproctitle.setproctitle("TEXT_EDITOR")
     app = QtWidgets.QApplication(sys.argv)
     window = Text_Editor()
+    app.installEventFilter(window)
     sys.exit(app.exec_())
