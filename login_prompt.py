@@ -30,7 +30,7 @@ main_ui_file = os.path.join(projDir,  "ui_files", "login_prompt.ui")
 rbhus_clone = os.path.join(projDir, "rbhus_clone.py")
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
-# os.environ['QT_SCALE_FACTOR'] = '1.4'
+os.environ['QT_SCALE_FACTOR'] = '1.4'
 
 class loginPrompt():
     # db = rbhus_clone_db.db()
