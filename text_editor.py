@@ -479,12 +479,13 @@ class Text_Editor(QtCore.QObject):
         frame_index = int(current_pos / self.frame_step_ms)  # Current frame number    frame_index
         new_pos = (frame_index + 1) * self.frame_step_ms
         # debug.info(f"Stepping forward to frame {frame_index + 1} at {new_pos:.3f} ms")
-        self.mediaPlayer.pause()
+        # debug.info(new_pos)
+        # self.mediaPlayer.pause()
         self.mediaPlayer.setPosition(int(new_pos))
         # self.mediaPlayer.pause()  # Optional: remove if you want to play briefly
         # To play one frame, add:
         self.mediaPlayer.play()
-        # self.frame_timer.start(int(self.frame_step_ms))
+        self.frame_timer.start(int(self.frame_step_ms))
 
     def step_backward_frame(self):
         # frame_step_ms = self.estimate_mp3_frame_step()
@@ -493,12 +494,13 @@ class Text_Editor(QtCore.QObject):
         if frame_index > 0:  # Ensure we don’t go below 0
             new_pos = (frame_index - 1) * self.frame_step_ms
             # debug.info(f"Stepping backward to frame {frame_index - 1} at {new_pos:.3f} ms")
-            self.mediaPlayer.pause()
+            # debug.info(new_pos)
+            # self.mediaPlayer.pause()
             self.mediaPlayer.setPosition(int(new_pos))
             # self.mediaPlayer.pause()  # Optional: remove if you want to play briefly
             # To play one frame, add:
             self.mediaPlayer.play()
-            # self.frame_timer.start(int(self.frame_step_ms))
+            self.frame_timer.start(int(self.frame_step_ms))
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
