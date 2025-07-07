@@ -422,6 +422,9 @@ class QListWidgetItemSort(QtWidgets.QListWidgetItem):
 
 if __name__ == '__main__':
     setproctitle.setproctitle("VERSION_LIST")
+    # Enable high-DPI scaling
+    QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app = QtWidgets.QApplication(sys.argv)
     # file = QFile(os.path.join(projDir, "stylesheet.qss"))
     # file.open(QFile.ReadOnly | QFile.Text)
