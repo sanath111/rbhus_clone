@@ -33,6 +33,7 @@ from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtPrintSupport import QPrinter
+from PyQt5.QtCore import QObject, QEvent, Qt
 
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
@@ -101,8 +102,16 @@ class Text_Editor(QtCore.QObject):
         self.main_ui.underlineButt.setShortcut(QKeySequence.Underline)
 
         # Frame-by-frame shortcuts
-        QShortcut(QKeySequence(Qt.Key_Period), self.main_ui, activated=self.step_forward_frame)  # '.' key
-        QShortcut(QKeySequence(Qt.Key_Comma), self.main_ui, activated=self.step_backward_frame)  # ',' key
+        # QShortcut(QKeySequence(Qt.Key_Period), self.main_ui, activated=self.step_forward_frame)  # '.' key
+        # QShortcut(QKeySequence(Qt.Key_Comma), self.main_ui, activated=self.step_backward_frame)  # ',' key
+
+        # self.main_ui.audioFrame.setFocusPolicy(Qt.StrongFocus)
+        # shortcut_play_pause = QShortcut(QKeySequence(Qt.Key_Space), self.main_ui.audioFrame, self.play_pause)
+        # shortcut_play_pause.setContext(Qt.WidgetShortcut)
+        # shortcut_step_forward = QShortcut(QKeySequence(Qt.Key_Right), self.main_ui.audioFrame, self.step_forward_frame)
+        # shortcut_step_forward.setContext(Qt.WidgetShortcut)
+        # shortcut_step_backward = QShortcut(QKeySequence(Qt.Key_Left), self.main_ui.audioFrame, self.step_backward_frame)
+        # shortcut_step_backward.setContext(Qt.WidgetShortcut)
 
         self.main_ui.saveButt.clicked.connect(self.save_file)
         self.main_ui.printButt.clicked.connect(self.print_file)
@@ -502,16 +511,32 @@ class Text_Editor(QtCore.QObject):
             self.mediaPlayer.play()
             self.frame_timer.start(int(self.frame_step_ms))
 
+    # def eventFilter(self, obj, event):
+    #     if event.type() == QEvent.KeyPress:
+    #         if event.modifiers() == Qt.NoModifier:
+    #             if event.key() == Qt.Key_Period:
+    #                 self.step_forward_frame()
+    #                 return True
+    #             elif event.key() == Qt.Key_Comma:
+    #                 self.step_backward_frame()
+    #                 return True
+    #     return False
+
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
-            if event.modifiers() == Qt.NoModifier:
-                if event.key() == Qt.Key_Period:
-                    self.step_forward_frame()
-                    return True
-                elif event.key() == Qt.Key_Comma:
-                    self.step_backward_frame()
-                    return True
-        return False
+            key = event.key()
+            if key in [Qt.Key_Space, Qt.Key_Left, Qt.Key_Right]:
+                widget_under_mouse = QApplication.instance().widgetAt(QCursor.pos())
+                if widget_under_mouse and (
+                        widget_under_mouse == self.main_ui.audioFrame or self.main_ui.audioFrame.isAncestorOf(widget_under_mouse)):
+                    if key == Qt.Key_Space:
+                        self.play_pause()
+                    elif key == Qt.Key_Right:
+                        self.step_forward_frame()
+                    elif key == Qt.Key_Left:
+                        self.step_backward_frame()
+                    return True  # Consume the event
+        return False  # Let the event propagate
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Exit', 'Are you sure you want to exit?', QMessageBox.Yes | QMessageBox.No,
