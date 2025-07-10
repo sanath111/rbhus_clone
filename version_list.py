@@ -31,6 +31,8 @@ main_ui_file = os.path.join(projDir, "ui_files", "version_list.ui")
 file_thumbs_ui = os.path.join(projDir, "ui_files", "file_thumbs.ui")
 version_details_ui = os.path.join(projDir, "ui_files", "version_details_row.ui")
 
+loading_gif = os.path.join(projDir, "image_files", "loading.gif")
+
 # app_test = os.path.join(projDir, "tests", "app_test.py")
 text_editor = os.path.join(projDir, "text_editor.py")
 processes = []
@@ -80,7 +82,20 @@ class versionList():
 
         self.loadingVersions = False
         self.pushingAssets = False
+
+        # Add a QLabel for the loading GIF
+        self.loading_gif_label = QLabel(self.main_ui.versionTable.viewport()) # Or add it to a more appropriate parent widget
+        self.loading_gif_label.setAlignment(Qt.AlignCenter)
+        self.loading_gif_label.hide() # Initially hide it
+
+        # Load the GIF
+        self.loading_movie = QMovie(loading_gif) # Replace with the actual path to your GIF
+        self.loading_gif_label.setMovie(self.loading_movie)
+        # self.loading_movie.start() # Start the movie but keep the label hidden
+
         self.buttsVisibility()
+
+        self.main_ui.versionTable.resizeEvent = self.tableResizeEvent
 
         self.loadVersions()
         self.main_ui.versionTable.itemSelectionChanged.connect(self.updateFileList)
@@ -112,37 +127,23 @@ class versionList():
         # qtRectangle.moveCenter(centerPoint)
         # self.main_ui.move(qtRectangle.topLeft())
 
-    # def loadVersions(self):
-    #     try:
-    #         get_commits_cmd = ["hg", "log", "--cwd", self.ass_path, "--template", "{node|short}\n"]
-    #         debug.info(get_commits_cmd)
-    #         commits = subprocess.check_output(get_commits_cmd).decode("utf-8").splitlines()
-    #         debug.info(commits)
-    #
-    #         self.main_ui.versionTable.setColumnCount(4)
-    #         self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
-    #         self.main_ui.versionTable.setRowCount(len(commits))
-    #
-    #         for row, commit_hash in enumerate(commits):
-    #             commit_dets_cmd = ["hg", "log", "--cwd", self.ass_path, "--rev", commit_hash, "--template", "{rev+1}\n{author}\n{date(date, '%d-%m-%Y %I:%M %p')}\n{desc}"]
-    #             commit_dets = subprocess.check_output(commit_dets_cmd).decode("utf-8").splitlines()
-    #
-    #             for col, detail in enumerate(commit_dets):
-    #                 cell_item = QTableWidgetItem(detail)
-    #                 if col == 0:
-    #                     cell_item.setData(Qt.UserRole, commit_hash)
-    #                 self.main_ui.versionTable.setItem(row, col, cell_item)
-    #                 if col == 3:
-    #                     self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.Stretch)
-    #                 else:
-    #                     self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
-    #
-    #         if len(commits) > 0:
-    #             self.main_ui.versionTable.selectRow(0)
-    #
-    #         self.updateFileList()
-    #     except:
-    #         debug.info(str(sys.exc_info()))
+    def positionLoadingGif(self):
+        if self.loading_gif_label.isVisible():
+            table_viewport_rect = self.main_ui.versionTable.viewport().rect()
+            gif_size = self.loading_gif_label.sizeHint()
+            if gif_size.width() == 0 or gif_size.height() == 0:
+                gif_size = QtCore.QSize(100, 100)  # Example default size
+                if self.loading_movie.isValid():
+                    gif_size = self.loading_movie.currentImage().size()
+
+            self.loading_gif_label.move(
+                table_viewport_rect.center().x() - gif_size.width() // 2,
+                table_viewport_rect.center().y() - gif_size.height() // 2
+            )
+
+    def tableResizeEvent(self, event):
+        QtWidgets.QTableWidget.resizeEvent(self.main_ui.versionTable, event)
+        self.positionLoadingGif()  # Reposition GIF on resize
 
     def loadVersions(self):
         # Initialize the table
@@ -155,6 +156,11 @@ class versionList():
         self.main_ui.versionTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.main_ui.versionTable.setHorizontalHeaderLabels(["Revision", "Author", "Date", "Description"])
         # self.main_ui.versionTable.setRowCount(0)
+
+        # Show the loading GIF
+        self.loading_movie.start()
+        self.loading_gif_label.show()
+        self.positionLoadingGif()
 
         # Start the thread
         self.load_versions_thread = LoadVersionsThread(self.ass_path)
@@ -195,6 +201,8 @@ class versionList():
         self.updateFileList()
         self.loadingVersions = False
         self.buttsVisibility()
+        self.loading_movie.stop()
+        self.loading_gif_label.hide()
 
     def updateFileList(self):
         # self.main_ui.filesList.clear()
