@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtPrintSupport import *
 
-from PyQt5 import QtCore, uic, QtGui, QtWidgets
+from PyQt5 import QtCore, uic, QtGui, QtWidgets, QtWebEngineWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeView, QFileSystemModel, QVBoxLayout, QWidget, QHBoxLayout, QListView
 from PyQt5.QtWidgets import QListWidgetItem, QShortcut
 from PyQt5.QtGui import QKeySequence, QIcon
@@ -39,7 +39,7 @@ projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
 main_ui_file = os.path.join(projDir,  "ui_files", "text_editor.ui")
-
+pdfjs_path = os.path.join(projDir, "pdfjs", "web", "viewer.html")
 # root_folder = "/home/sanath.shetty/Documents/rbhus_clone_root/"
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
@@ -125,6 +125,8 @@ class Text_Editor(QtCore.QObject):
         self.main_ui.centerAlignButt.clicked.connect(self.set_alignment_center)
         self.main_ui.rightAlignButt.clicked.connect(self.set_alignment_right)
         self.main_ui.justifyButt.clicked.connect(self.set_alignment_justify)
+
+        self.main_ui.open_pdf_butt.clicked.connect(self.open_pdf)
 
         # Audio Controls
 
@@ -510,6 +512,23 @@ class Text_Editor(QtCore.QObject):
             # To play one frame, add:
             self.mediaPlayer.play()
             self.frame_timer.start(int(self.frame_step_ms))
+
+    def open_pdf(self):
+        pdf_path, _ = QFileDialog.getOpenFileName(
+            self.main_ui,
+            "Select PDF File",
+            os.path.dirname(args.text),
+            "PDF Files (*.pdf)"
+        )
+
+        if pdf_path and os.path.exists(pdf_path):
+            pdf_url = QtCore.QUrl.fromLocalFile(os.path.abspath(pdf_path)).toString()
+            full_url = QtCore.QUrl.fromLocalFile(pdfjs_path).toString() + f"?file={pdf_url}"
+
+            self.main_ui.pdf_view.load(QtCore.QUrl(full_url))
+            w = self.main_ui.width()
+            h = self.main_ui.height()
+            self.main_ui.pdf_view.setMinimumSize(w//2, h//2)
 
     # def eventFilter(self, obj, event):
     #     if event.type() == QEvent.KeyPress:
