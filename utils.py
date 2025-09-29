@@ -4,7 +4,7 @@
 import os
 import sys
 import subprocess
-import rbhus_clone_db
+# import rbhus_clone_db
 import rbhus_clone_db_sqlite
 import debug
 import argparse

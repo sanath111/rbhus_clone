@@ -20,7 +20,7 @@ if [ "$DIR" != "$RDIR" ]; then
   true
 fi
 #echo "DIR is '$DIR'"
-source "$DIR"/rbhus_clone-env/bin/activate
+source "$DIR"/.venv/bin/activate
 cd "$DIR" || return
 python3 "$DIR"/login_prompt.py "$@"
 cd - || return

@@ -9,3 +9,5 @@ env.set
 *.lock
 *.idea/
 *.idea/*
+.venv
+.idea

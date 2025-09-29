@@ -25,7 +25,7 @@ from PyQt5.QtGui import *
 projDir = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1])
 sys.path.append(projDir)
 
-main_ui_file = os.path.join(projDir,  "ui_files", "login_prompt_new.ui")
+main_ui_file = os.path.join(projDir,  "ui_files", "login_prompt_new2.ui")
 style_sheet_path = os.path.join(projDir,  "stylesheets", "glass.qss")
 rbhus_clone = os.path.join(projDir, "rbhus_clone.py")
 
@@ -35,7 +35,7 @@ eye_open = QtGui.QIcon(os.path.join(projDir, "image_files", "eye_open.svg"))
 # button_image = QtGui.QIcon(os.path.join(projDir, "image_files", "button.svg"))
 button_image = os.path.join(projDir, "image_files", "button.png")
 logo_image = os.path.join(projDir, "image_files", "logo.png")
-bg_image = os.path.join(projDir, "image_files", "bg.jpg")
+bg_image = os.path.join(projDir, "image_files", "ui15.jpg")
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 os.environ['QT_SCALE_FACTOR'] = '1.0'
@@ -119,9 +119,9 @@ class loginPrompt():
         self.main_ui.login_button.setStyleSheet(""" QButton { border: 0px; padding: 0px ; margin: 0px; } """)
         self.main_ui.messageLabel.setStyleSheet(""" QLabel { border: 0px; padding: 0px ; margin: 0px; } """)
 
-        # self.main_ui.group_box.setStyleSheet(""" QGroupBox { background: transparent; } """)
-        # self.main_ui.username.setStyleSheet(""" QLineEdit { background: transparent; } """)
-        # self.main_ui.password.setStyleSheet(""" QLineEdit { background: transparent; } """)
+        self.main_ui.group_box.setStyleSheet(""" QGroupBox { background: transparent; } """)
+        self.main_ui.username.setStyleSheet(""" QLineEdit { background: transparent; } """)
+        self.main_ui.password.setStyleSheet(""" QLineEdit { background: transparent; } """)
 
         # self.main_ui.password_frame.setStyleSheet(""" QFrame { background: #ffffff; border: 1.5px solid rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 0px -20px; margin: 0px; } """)
         # self.main_ui.password.setStyleSheet(""" QLineEdit { border: none; padding: 12px 15px; margin: 0px; background: transparent; } """)

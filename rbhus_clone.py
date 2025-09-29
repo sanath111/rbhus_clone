@@ -43,6 +43,7 @@ pdf_viewer = os.path.join(projDir, "pdf_viewer.py")
 processes = []
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
+os.environ['QT_SCALE_FACTOR'] = '1.4'
 
 # user = os.environ['USER']
 system_user = getpass.getuser()
