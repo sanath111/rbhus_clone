@@ -99,7 +99,7 @@ class loginPrompt():
         self.main_ui.logo_label.setPixmap(QPixmap(logo_image).scaled(self.main_ui.logo_label.size()))
         self.main_ui.logo_label.setPixmap(QPixmap(logo_image))
 
-        self.main_ui.login_button.setFixedSize(80, 80)
+        self.main_ui.login_button.setFixedSize(120, 120)
         self.main_ui.login_button.setIcon(QtGui.QIcon(button_image))
         self.main_ui.login_button.setIconSize(self.main_ui.login_button.size())
         self.main_ui.login_button.clicked.connect(lambda x : self.login())
