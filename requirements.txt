@@ -1,5 +1,4 @@
 setproctitle
-mysqlclient
 PyQt5; sys_platform == "win32"
 PyQtWebEngine; sys_platform == "win32"
 bcrypt
