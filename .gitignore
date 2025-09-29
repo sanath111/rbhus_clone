@@ -11,3 +11,5 @@ env.set
 *.idea/*
 .venv
 .idea
+dist
+build
