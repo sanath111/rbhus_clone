@@ -6,6 +6,35 @@
     background-position: center;
 }*/
 
+#group_box {
+    background-image: url("image_files/user_box.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-origin: content;
+    border: 1.5px solid #d9d3ca;
+    border-radius: 65px;
+    font-weight: bold;
+    color: #374151;
+}
+
+#username {
+    background-image: url("image_files/text_box.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-origin: content;
+    border: 1.5px solid #d9d3ca;
+    border-radius: 12px;
+}
+
+#password {
+    background-image: url("image_files/text_box.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-origin: content;
+    border: 1.5px solid #d9d3ca;
+    border-radius: 12px;
+}
+
 /* Main Window */
 QMainWindow {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
@@ -358,10 +387,10 @@ QGroupBox {
     /*background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 #fff8ed99,
         stop:1 #fffcf680;*/
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+    /*background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 rgba(255, 252, 246, 0.95),
         stop:0.5 rgba(255, 248, 237, 0.9),
-        stop:1 rgba(255, 252, 246, 0.95));
+        stop:1 rgba(255, 252, 246, 0.95));*/
     /*background: #fff8ed;*/
     /*background: transparent;*/
     border: 1.5px solid rgba(0, 0, 0, 0.08);

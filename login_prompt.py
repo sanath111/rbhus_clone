@@ -35,7 +35,8 @@ eye_open = QtGui.QIcon(os.path.join(projDir, "image_files", "eye_open.svg"))
 # button_image = QtGui.QIcon(os.path.join(projDir, "image_files", "button.svg"))
 button_image = os.path.join(projDir, "image_files", "button.png")
 logo_image = os.path.join(projDir, "image_files", "logo.png")
-bg_image = os.path.join(projDir, "image_files", "bg.jpg")
+# bg_image = os.path.join(projDir, "image_files", "ui_ref.jpg")
+bg_image = os.path.join(projDir, "image_files", "bg.png")
 
 os.environ['QT_LOGGING_RULES'] = "qt5ct.debug=false"
 os.environ['QT_SCALE_FACTOR'] = '1.0'
@@ -64,9 +65,9 @@ class loginPrompt():
 
         # Shadow Effect
         shadow_effect = QGraphicsDropShadowEffect()
-        shadow_effect.setBlurRadius(20)
+        shadow_effect.setBlurRadius(30)
         shadow_effect.setXOffset(0)
-        shadow_effect.setYOffset(5)
+        shadow_effect.setYOffset(10)
         shadow_effect.setColor(QColor(0, 0, 0, 30))
         self.main_ui.group_box.setGraphicsEffect(shadow_effect)
         # self.main_ui.setAttribute(Qt.WA_TranslucentBackground)
@@ -106,8 +107,8 @@ class loginPrompt():
         self.main_ui.login_button.setShortcut(Qt.Key_Return)
 
         self.main_ui.group_box.setFixedSize(920, 436)
-        self.main_ui.username.setFixedSize(470, 60)
-        self.main_ui.password.setFixedSize(470, 60)
+        self.main_ui.username.setFixedSize(470, 64)
+        self.main_ui.password.setFixedSize(470, 64)
 
         # self.main_ui.main_frame.setStyleSheet(""" QFrame { border: 0px; padding: 0px ; margin: 0px; } """)
         # self.main_ui.logo_frame.setStyleSheet(""" QFrame { border: 0px; padding: 0px ; margin: 0px; } """)

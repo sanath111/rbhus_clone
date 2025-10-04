@@ -23,6 +23,22 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="2" column="3">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="0" column="1" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -345,7 +361,7 @@
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>100</width>
+               <width>80</width>
                <height>20</height>
               </size>
              </property>
@@ -413,7 +429,7 @@
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>70</width>
+               <width>50</width>
                <height>20</height>
               </size>
              </property>
@@ -484,22 +500,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="2" column="3">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="2" column="0">
     <spacer name="horizontalSpacer">
